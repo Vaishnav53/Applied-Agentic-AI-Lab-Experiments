@@ -26,7 +26,7 @@ The curriculum advances from foundational prompt engineering and single-turn ret
 | :---: | :--- | :--- | :---: |
 | **01** | [Text-to-SQL Workflow](file:///d:/Agentic%20AI%20Experiments/experiment-01-text-to-sql) | Build an end-to-end LLM workflow with retrieval and query generation. | ✅ Completed |
 | **02** | [RAG-Based Question Answering System](file:///d:/Agentic%20AI%20Experiments/experiment-02-rag-qa) | Implement indexing, retrieval, and response generation pipelines. | ✅ Completed |
-| **03** | [Prompt Chaining for Summarization](file:///d:/Agentic%20AI%20Experiments/experiment-03-prompt-chaining) | Experiment with multi-step prompt pipelines and structured decomposition. | ⬜ Pending |
+| **03** | [Prompt Chaining for Summarization](file:///d:/Agentic%20AI%20Experiments/experiment-03-prompt-chaining) | Experiment with multi-step prompt pipelines and structured decomposition. | ✅ Completed |
 | **04** | [SQL Agent with Tool Use](file:///d:/Agentic%20AI%20Experiments/experiment-04-sql-agent) | Develop a ReAct-based agent using database tools and schema reflection. | ⬜ Pending |
 | **05** | [Multi-Agent SDR System](file:///d:/Agentic%20AI%20Experiments/experiment-05-multi-agent-sdr) | Design agents for lead generation, qualification, and outbound emailing. | ⬜ Pending |
 | **06** | [Policy Compliance Agent](file:///d:/Agentic%20AI%20Experiments/experiment-06-policy-compliance) | Build an agent with rule-based evaluation and synthetic data validation. | ⬜ Pending |
