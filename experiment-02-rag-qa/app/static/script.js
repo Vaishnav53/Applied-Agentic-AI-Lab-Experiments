@@ -75,7 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
         updateWorkflowBar([
             { step: 'Document Index', status: 'completed' },
             { step: 'Query Embedding', status: 'in_progress' },
-            { step: 'Vector Retrieval', status: 'pending' },
+            { step: 'Hybrid Retrieval', status: 'pending' },
             { step: 'Context Building', status: 'pending' },
             { step: 'Response Generation', status: 'pending' },
             { step: 'Grounded Answer', status: 'pending' }
@@ -131,7 +131,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="avatar"><i class="fa-solid fa-shield-cat"></i></div>
             <div class="message-bubble">
                 <div class="loading-state" style="display:flex; align-items:center; gap:0.5rem;">
-                    <i class="fa-solid fa-circle-notch fa-spin" style="color: var(--primary);"></i> Executing RAG retrieval and vector similarity search...
+                    <i class="fa-solid fa-circle-notch fa-spin" style="color: var(--primary);"></i> Executing hybrid retrieval (vector similarity + lexical phrase matching)...
                 </div>
             </div>
         `;
@@ -168,13 +168,15 @@ document.addEventListener('DOMContentLoaded', () => {
         if (data.sources && data.sources.length > 0) {
             const cards = data.sources.map(src => {
                 const pctScore = Math.round(src.score * 100);
+                const vecScore = src.vector_score !== undefined ? src.vector_score.toFixed(4) : 'N/A';
+                const lexScore = src.lexical_score !== undefined ? src.lexical_score.toFixed(4) : 'N/A';
                 return `
                     <div class="source-card">
                         <div class="source-card-header">
                             <span class="source-doc-title"><i class="fa-solid fa-file-code"></i> ${escapeHtml(src.document)}</span>
-                            <span class="source-score-badge">${pctScore}% Match</span>
+                            <span class="source-score-badge">${pctScore}% Hybrid Match</span>
                         </div>
-                        <div class="source-chunk-id">ID: ${escapeHtml(src.chunk_id)}</div>
+                        <div class="source-chunk-id">ID: ${escapeHtml(src.chunk_id)} | Vector: ${vecScore} | Lexical: ${lexScore}</div>
                         <div class="source-excerpt">"${escapeHtml(src.excerpt)}"</div>
                     </div>
                 `;
@@ -199,15 +201,19 @@ document.addEventListener('DOMContentLoaded', () => {
             inspectorHtml = `
                 <details class="inspector-details">
                     <summary class="inspector-summary">
-                        <i class="fa-solid fa-microscope"></i> RAG Inspector Diagnostics & Vector Metrics
+                        <i class="fa-solid fa-microscope"></i> RAG Inspector Diagnostics & Retrieval Metrics
                     </summary>
                     <div class="inspector-body">Query: "${escapeHtml(insp.query)}"
+Normalized Query: "${escapeHtml(insp.normalized_query || insp.query)}"
+Retrieval Strategy: ${escapeHtml(insp.retrieval_strategy || 'Hybrid (Vector + Lexical)')}
 Chunks Searched: ${insp.chunks_searched}
 Top-K Requested: ${insp.top_k}
-Max Cosine Similarity: ${insp.max_relevance_score}
+Hybrid Score: ${insp.max_relevance_score}
+Vector Similarity Score: ${insp.vector_score !== undefined ? insp.vector_score : 'N/A'}
+Lexical Match Score: ${insp.lexical_score !== undefined ? insp.lexical_score : 'N/A'}
 Embedding Model: ${insp.embedding_model}
 Vector Store: ${insp.vector_store}
-Response Mode: ${insp.response_mode}
+Response Mode: ${escapeHtml(insp.response_mode)}
 Out of Knowledge Base: ${insp.out_of_scope ? 'YES (Below Threshold)' : 'NO'}</div>
                 </details>
             `;

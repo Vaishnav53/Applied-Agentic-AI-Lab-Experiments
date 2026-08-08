@@ -1,20 +1,22 @@
 """
-Text Chunking Service
+Heading-Aware Text Chunking Service
 Experiment 02 — RAG-Based Question Answering System (MR23-1CS0436)
 
-Splits documents into overlapping chunks with metadata preservation.
+Splits documents into overlapping chunks with metadata preservation and active heading context.
 """
 
+import re
 from typing import List, Dict, Any
 from app.services.document_loader import Document
 from app.config import settings
 
 class Chunk:
-    def __init__(self, chunk_id: str, doc_id: str, source: str, title: str, start_char: int, end_char: int, text: str):
+    def __init__(self, chunk_id: str, doc_id: str, source: str, title: str, start_char: int, end_char: int, text: str, section: str = ""):
         self.chunk_id = chunk_id
         self.doc_id = doc_id
         self.source = source
         self.title = title
+        self.section = section
         self.start_char = start_char
         self.end_char = end_char
         self.text = text
@@ -25,14 +27,26 @@ class Chunk:
             "doc_id": self.doc_id,
             "source": self.source,
             "title": self.title,
+            "section": self.section,
             "start_char": self.start_char,
             "end_char": self.end_char,
             "text": self.text
         }
 
+def _get_active_section(full_text: str, current_pos: int) -> str:
+    """Extracts the most recent Markdown heading prior to current_pos."""
+    prefix = full_text[:current_pos]
+    lines = prefix.splitlines()
+    for line in reversed(lines):
+        line_s = line.strip()
+        if line_s.startswith("#"):
+            return re.sub(r'^#+\s*', '', line_s)
+    return ""
+
 def chunk_document(doc: Document, chunk_size: int = None, chunk_overlap: int = None) -> List[Chunk]:
     """
-    Splits a single document into overlapping text chunks with preserved metadata.
+    Splits a single document into overlapping text chunks with preserved metadata
+    and prepended heading/document context for enhanced retrieval quality.
     """
     if chunk_size is None:
         chunk_size = settings.CHUNK_SIZE
@@ -58,17 +72,22 @@ def chunk_document(doc: Document, chunk_size: int = None, chunk_overlap: int = N
             if space_idx > start + (chunk_size // 2):
                 end = space_idx
 
-        chunk_text = text[start:end].strip()
-        if chunk_text:
+        chunk_body = text[start:end].strip()
+        if chunk_body:
+            section = _get_active_section(text, start)
+            context_header = f"[{doc.title} - {section}]\n" if section else f"[{doc.title}]\n"
+            full_chunk_text = context_header + chunk_body
+
             chunk_id = f"{doc.doc_id}_chunk_{chunk_num:02d}"
             chunks.append(Chunk(
                 chunk_id=chunk_id,
                 doc_id=doc.doc_id,
                 source=doc.title,
                 title=doc.title,
+                section=section,
                 start_char=start,
                 end_char=end,
-                text=chunk_text
+                text=full_chunk_text
             ))
             chunk_num += 1
 
