@@ -186,7 +186,7 @@ D:\Agentic AI Experiments/
 │   │   ├── services/
 │   │   │   ├── schema_service.py       # SQLite Schema Introspection & Prompt Formatting
 │   │   │   ├── sql_generator.py        # LLM SQL Prompt Construction
-│   │   │   ├── sql_validator.py        # AST Read-Only Security Validator
+│   │   │   ├── sql_validator.py        # Token-Based Read-Only Security Validator
 │   │   │   ├── query_service.py        # 6-Step Text-to-SQL Orchestrator
 │   │   │   └── llm_service.py          # Grounded Generator (Mock & Real LLMs)
 │   │   └── static/                     # HTML5/CSS/JS Chatbot UI
@@ -250,7 +250,7 @@ D:\Agentic AI Experiments/
 
 | Exp # | Experiment Title | Core AI Concept | Primary Interface | Status | Port | Test Count | Documentation |
 | :---: | :--- | :--- | :--- | :---: | :---: | :---: | :---: |
-| **01** | Text-to-SQL Workflow | Schema Context & Read-Only SQL Security Validation | Interactive Web App | ✅ Completed | `8000` | 8 Passed | `README.md` & Master Guide |
+| **01** | Text-to-SQL Workflow | Schema Context & Lexical Read-Only Security Validation | Interactive Web App | ✅ Completed | `8000` | 8 Passed | `README.md` & Master Guide |
 | **02** | RAG-Based QA System | Hybrid Vector+Lexical RAG & Term Normalization | Interactive Web App | ✅ Completed | `8001` | 20 Passed | `README.md` & Master Guide |
 | **03** | Prompt Chaining Summarizer | 6-Stage Context Propagation & Quality Metrics | Interactive Web App | ✅ Completed | `8002` | 17 Passed | `README.md` & Master Guide |
 | **04** | SQL Agent with Tool Use | ReAct Reasoning Loop & Schema Reflection | Web Dashboard | ⬜ Pending | `8003` | — | Pending |
@@ -287,7 +287,7 @@ Enterprise relational databases store mission-critical structured data, but quer
 ### D. Experiment 01 Learning Objectives
 1. **Database Schema Extraction:** Automatically inspect SQLite database catalogs (`sqlite_master`, `PRAGMA table_info`) and format schemas into LLM prompts.
 2. **Context-Aware SQL Generation:** Prompt LLMs to map natural language questions into valid SQL queries targeting exact tables and columns.
-3. **AST SQL Security Validation:** Implement a multi-tier SQL validator enforcing read-only `SELECT` queries while rejecting destructive statements (`DROP`, `DELETE`, `UPDATE`, `INSERT`, `ALTER`).
+3. **Lexical & Token-Based Security Validation:** Implement a multi-tier SQL validator enforcing read-only `SELECT` queries while rejecting destructive statements (`DROP`, `DELETE`, `UPDATE`, `INSERT`, `ALTER`).
 4. **Safe Query Execution & Explanation:** Execute validated SQL against a live SQLite database and synthesize conversational explanations with structured tabular results.
 
 ### E. Experiment 01 Concepts Used
@@ -296,8 +296,14 @@ Enterprise relational databases store mission-critical structured data, but quer
 LLMs cannot infer database tables or column names out of context. The schema loader (`app/services/schema_service.py`) dynamically extracts CREATE TABLE statements and column types from `university.db`, building an authoritative schema context block:
 $$\text{PromptContext} = \text{UserQuestion} + \text{DatabaseSchema} + \text{DialectRules}$$
 
-#### 2. Read-Only SQL Security Validation
-Before any query executes against SQLite, `app/services/sql_validator.py` sanitizes SQL tokens. Statements containing data manipulation language (DML) or data definition language (DDL) keywords (`DROP`, `DELETE`, `INSERT`, `UPDATE`, `ALTER`, `TRUNCATE`, `CREATE`) are flagged and blocked immediately.
+#### 2. Lexical & Token-Based Read-Only Security Validation
+Before any query executes against SQLite, `app/services/sql_validator.py` evaluates the raw SQL string using regular expressions and token extraction:
+1. Strips Markdown code block formatting wrappers (` ```sql `, ` ``` `) and trailing semicolons.
+2. Rejects multiple SQL statements by scanning for semicolons outside string literals.
+3. Requires `SELECT` or `WITH` as the leading statement keyword.
+4. Tokenizes keywords using regular expressions (`re.findall(r'\b[A-Z_]+\b', upper_query)`).
+5. Checks tokens against a list of prohibited DML/DDL keywords (`INSERT`, `UPDATE`, `DELETE`, `DROP`, `ALTER`, `TRUNCATE`, `CREATE`, `REPLACE`, `ATTACH`, `DETACH`, `PRAGMA`, `EXEC`, `EXECUTE`, `GRANT`, `REVOKE`, `VACUUM`, `REINDEX`).
+6. Only safe queries passing validation are forwarded to the database execution layer.
 
 #### 3. Structured Output Formatting
 The system structures response objects using Pydantic models (`QueryResponse`), returning the question, generated SQL, execution status, tabular results, natural language explanation, and workflow timing steps.
@@ -313,7 +319,7 @@ graph TD
     B -->|2. Invoke Workflow Orchestrator| C[Query Service: app/services/query_service.py]
     C -->|3. Introspect SQLite Catalog| D[Schema Service: app/services/schema_service.py]
     D -->|4. Formatted Schema Prompt| E[SQL Generator & LLM Provider]
-    E -->|5. Raw SQL Query| F[SQL Security Validator: app/services/sql_validator.py]
+    E -->|5. Raw SQL Query| F[Lexical SQL Security Validator: app/services/sql_validator.py]
     F -->|6a. Validation Failed DML/DDL| G[Return Security Rejection Error]
     F -->|6b. Validation Passed SELECT| H[Database Engine: app/database.py]
     H -->|7. Query Result Set| I[LLM Explanation Synthesizer]
@@ -325,10 +331,10 @@ graph TD
 #### Component Breakdown
 - **Web UI (`static/`)**: Glassmorphic frontend rendering chat messages, active schema tree, interactive sample chips, and execution workflow badges.
 - **FastAPI Router (`app/main.py`)**: Endpoints for `/api/query`, `/api/schema`, and `/api/health`.
-- **Database Module (`app/database.py`)**: Connects to `data/university.db` and executes read-only queries using `sqlite3.connect(mode="ro")`.
+- **Database Engine (`app/database.py`)**: Connects to `data/university.db`. Primary execution path attempts SQLite URI read-only mode (`file:{db_path}?mode=ro`). If URI mode fails due to an `OperationalError`, it falls back to standard SQLite connection (`sqlite3.connect(db_path)`), with `app/services/sql_validator.py` acting as the application-level safeguard.
 - **SQL ORM Models (`app/models.py`)**: Defines SQLAlchemy schemas for `departments`, `students`, `courses`, `enrollments`, and `faculty`.
 - **Schema Service (`app/services/schema_service.py`)**: Connects to `data/university.db` and inspects tables and column metadata.
-- **SQL Security Validator (`app/services/sql_validator.py`)**: Validates generated SQL against non-SELECT syntax rules.
+- **Lexical Security Validator (`app/services/sql_validator.py`)**: Validates generated SQL against non-SELECT syntax and forbidden keywords using token matching.
 - **Query Orchestrator (`app/services/query_service.py`)**: Manages the 6 pipeline workflow steps.
 
 ### H. Experiment 01 Complete Workflow
@@ -341,7 +347,7 @@ sequenceDiagram
     participant API as FastAPI Backend
     participant QS as Query Service
     participant Schema as Schema Service
-    participant Val as SQL Validator
+    participant Val as Lexical Validator
     participant DB as Database Engine
 
     User->>UI: Types Question ("Who are the top 5 students by CGPA?")
@@ -366,7 +372,7 @@ sequenceDiagram
 1. **Input**: User submits `"List all computer science courses with 4 credits"`.
 2. **Schema Inspection**: `schema_service.py` formats table definitions for `courses` (id, course_code, course_name, department_id, credits) and `departments` (id, name, code).
 3. **Generation**: `sql_generator.py` produces `SELECT course_code, course_name, credits FROM courses WHERE department_id = 1 AND credits = 4;`.
-4. **Validation**: `sql_validator.py` confirms query begins with `SELECT` and contains no DML/DDL tokens.
+4. **Validation**: `sql_validator.py` confirms query begins with `SELECT`, contains no multiple statements, and contains no forbidden DML/DDL tokens.
 5. **Execution**: `database.py` executes query on `university.db` and returns matching rows.
 6. **Output**: UI displays natural language explanation, formatted SQL block, and execution data table.
 
@@ -385,7 +391,7 @@ experiment-01-text-to-sql/
 │   ├── services/
 │   │   ├── schema_service.py           # SQLite Catalog Introspection & Schema Prompt Builder
 │   │   ├── sql_generator.py            # Prompt Construction & LLM Execution
-│   │   ├── sql_validator.py            # AST & Read-Only SQL Security Validator
+│   │   ├── sql_validator.py            # Token-Based Read-Only SQL Security Validator
 │   │   ├── query_service.py            # 6-Step End-to-End Query Orchestrator
 │   │   └── llm_service.py              # LLM Provider Abstraction (Mock & Real Providers)
 │   └── static/                         # HTML5, Glassmorphic CSS3, Vanilla JS UI
@@ -502,8 +508,8 @@ python -m pytest tests
 - **Verified Test Result:** `8 passed in 1.35s` (covers health endpoint, schema introspection, SQL validator rules, and query API).
 
 ### T. Safety & Validation
-- **Read-Only Enforcement:** Strict keyword parsing blocks DML/DDL verbs (`DROP`, `DELETE`, `UPDATE`, `INSERT`, `ALTER`, `TRUNCATE`, `CREATE`).
-- **SQLite Read-Only URI Mode:** Executes queries using `sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)`.
+- **Read-Only Enforcement:** Token and regex-based keyword parsing in `app/services/sql_validator.py` blocks DML/DDL verbs (`DROP`, `DELETE`, `UPDATE`, `INSERT`, `ALTER`, `TRUNCATE`, `CREATE`, `REPLACE`, `ATTACH`, `DETACH`, `PRAGMA`, `EXEC`, `EXECUTE`, `GRANT`, `REVOKE`, `VACUUM`, `REINDEX`).
+- **SQLite Read-Only URI Mode:** `app/database.py` attempts `sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)` with standard connection fallback if URI mode fails, relying on `sql_validator.py` as the application-level safeguard.
 
 ### U. Limitations
 - **Dialect Specificity:** Prompts are tailored specifically for SQLite syntax.
@@ -519,7 +525,7 @@ python -m pytest tests
 ### W. Experiment 01 Viva Questions & Answers
 
 1. **Q: How does the Text-to-SQL workflow prevent destructive database operations?**
-   *A:* Through a multi-tier safety mechanism: `app/services/sql_validator.py` parses SQL tokens and rejects any non-`SELECT` statement (blocking `DROP`, `DELETE`, `INSERT`, `UPDATE`, `ALTER`), while `app/database.py` executes queries via a read-only SQLite connection URI (`mode=ro`).
+   *A:* Through a multi-tier safety mechanism: `app/services/sql_validator.py` parses query tokens and rejects any non-`SELECT`/`WITH` statement (blocking `DROP`, `DELETE`, `INSERT`, `UPDATE`, `ALTER`), while `app/database.py` attempts read-only SQLite URI connections (`mode=ro`).
 
 2. **Q: Why is schema context injected into the LLM prompt?**
    *A:* LLMs have no inherent knowledge of private enterprise database schemas. Injecting exact table names, column data types, primary keys, and foreign key relationships provides the necessary structural context for accurate SQL synthesis.
@@ -528,7 +534,7 @@ python -m pytest tests
    *A:* The SQLite database contains 5 relational tables: `departments` (id, name, code), `students` (id, name, roll_number, department_id, semester, cgpa), `courses` (id, course_code, course_name, department_id, credits), `enrollments` (id, student_id, course_id, grade), and `faculty` (id, name, department_id, designation).
 
 4. **Q: What happens when a user asks `"DROP TABLE students;"`?**
-   *A:* The SQL Security Validator parses the DDL keyword `DROP`, flags `is_safe = False`, halts pipeline execution before reaching SQLite, and returns a red security violation alert to the UI.
+   *A:* The Lexical SQL Security Validator parses the DDL keyword `DROP`, flags `is_safe = False`, halts pipeline execution before reaching SQLite, and returns a red security violation alert to the UI.
 
 5. **Q: What are the 6 visible workflow steps executed in Experiment 01?**
    *A:* 1. Understanding Question, 2. Retrieving Schema, 3. Generating SQL, 4. Validating Query, 5. Executing, 6. Explaining Result.
@@ -551,7 +557,7 @@ python -m pytest tests
 ---
 
 ### X. Conclusion
-Experiment 01 successfully demonstrates an end-to-end Text-to-SQL workflow combining dynamic schema extraction, LLM query generation, AST safety validation, read-only SQLite execution, and interactive visualization.
+Experiment 01 successfully demonstrates an end-to-end Text-to-SQL workflow combining dynamic schema extraction, LLM query generation, lexical security validation, read-only SQLite execution, and interactive visualization.
 
 ---
 
@@ -639,7 +645,7 @@ sequenceDiagram
     RAG->>Norm: normalize_query("What is SQL injection?")
     Norm-->>RAG: Normalized Query ("what is sql injection?")
     RAG->>Ret: retrieve_relevant_chunks(normalized_query, top_k=4)
-    Ret-->>RAG: Ranked Chunks + Hybrid Scores (0.5118)
+    Ret-->>RAG: Ranked Chunks + Hybrid Scores (Example: 0.5118)
     alt Hybrid Score < 0.25 (Out of KB)
         RAG-->>API: Return Out-of-KB Limitation Notice
     else Hybrid Score >= 0.25 (In Knowledge Base)
@@ -653,9 +659,9 @@ sequenceDiagram
 ### I. Experiment 02 Internal Data Flow
 1. **Input**: User submits `"What is SQL injection?"`.
 2. **Normalization**: Query normalized to `"what is sql injection?"`.
-3. **Hybrid Search**: Dense vector score (`0.2917`) + Lexical phrase score (`0.7318`) = Hybrid Score `0.5118`.
+3. **Hybrid Search**: Dense vector score (Example from verified run: `0.2917`) + Lexical phrase score (Example: `0.7318`) = Hybrid Score (Example: `0.5118`).
 4. **Ranking**: `04_web_application_security.md` (chunk `doc_04_chunk_04`) ranks #1.
-5. **Thresholding**: `0.5118 >= 0.25` → Status: In KB (`is_out_of_scope = False`).
+5. **Thresholding**: Hybrid score (`0.5118 >= 0.25`) → Status: In KB (`is_out_of_scope = False`).
 6. **Output**: Grounded answer generated with source evidence card and RAG Inspector diagnostics.
 
 ### J. Experiment 02 Folder Structure
@@ -722,11 +728,11 @@ python -m app.main
 ### O. Experiment 02 Demonstration Procedure
 1. Launch `python -m app.main` and open `http://127.0.0.1:8001`.
 2. Click chip *"What is SQL Injection?"*.
-3. Point out Rank #1 source: `Web Application Security` (`51% Hybrid Match`).
-4. Expand RAG Inspector to show Hybrid Score (`0.5118`), Vector Score (`0.2917`), and Lexical Score (`0.7318`).
-5. Click chip *"Explain MFA"* to demonstrate acronym unrolling. Show top source `Authentication and Access Control` (`72% Hybrid Match`).
+3. Point out Rank #1 source: `Web Application Security` (Example: `51% Hybrid Match`).
+4. Expand RAG Inspector to show Hybrid Score (Example: `0.5118`), Vector Score (`0.2917`), and Lexical Score (`0.7318`).
+5. Click chip *"Explain MFA"* to demonstrate acronym unrolling. Show top source `Authentication and Access Control` (Example: `72% Hybrid Match`).
 6. **Out-of-KB Test:** Click chip *"What is the capital of France?"*.
-7. Point out rejection notice: *"The cybersecurity knowledge base does not contain sufficient information..."* with 0 evidence sources.
+7. Point out rejection notice: *"The cybersecurity knowledge base does not contain sufficient information..."* with 0 evidence sources (Example score: `0.1020 < 0.25`).
 
 ### P. Sample Inputs
 - *"What is SQL injection?"*
@@ -759,7 +765,7 @@ python -m app.main
 
 #### Screenshot 5 — SQL Injection Hybrid Retrieval Verification
 ![SQL Injection Retrieval](experiment-02-rag-qa/screenshots/05-sql-injection-retrieval.png)
-*Figure 2.5: Verified retrieval for "What is SQL Injection?" proving Rank #1 retrieval of Web Application Security (`04_web_application_security.md`) with a 51% Hybrid Match score and detailed vector/lexical diagnostics.*
+*Figure 2.5: Verified retrieval for "What is SQL Injection?" proving Rank #1 retrieval of Web Application Security (`04_web_application_security.md`) with a 51% Hybrid Match score (Example from verified run) and detailed vector/lexical diagnostics.*
 
 ---
 
@@ -786,13 +792,13 @@ python -m pytest tests
 ### W. Experiment 02 Viva Questions & Answers
 
 1. **Q: Why was Hybrid Retrieval introduced in Experiment 02?**
-   *A:* Pure subword vector search yielded low scores (`0.2425`) for short queries like *"What is SQL injection?"*, causing false out-of-KB rejections. Combining vector similarity ($50\%$) with lexical matching ($50\%$) boosted valid queries (`0.5118`) while keeping out-of-domain queries rejected (`0.1020`).
+   *A:* Pure subword vector search yielded low scores (Example: `0.2425`) for short queries like *"What is SQL injection?"*, causing false out-of-KB rejections. Combining vector similarity ($50\%$) with lexical matching ($50\%$) boosted valid queries (Example: `0.5118`) while keeping out-of-domain queries rejected (Example: `0.1020`).
 
 2. **Q: How does Query Normalization improve retrieval?**
    *A:* `app/services/query_normalization.py` expands acronyms (`SQLi` → `SQL injection`, `MFA` → `multi-factor authentication`) so queries match full terms in document titles, headers, and body text.
 
 3. **Q: How does the system handle "What is the capital of France?"**
-   *A:* The query scores `0.1020` (below `0.25`), triggering out-of-scope rejection with 0 evidence sources attached.
+   *A:* The query scores below threshold (Example: `0.1020 < 0.25`), triggering out-of-scope rejection with 0 evidence sources attached.
 
 4. **Q: What is heading-aware chunking and why is it used?**
    *A:* Heading-aware chunking (`chunking_service.py`) detects Markdown headers (`#`, `##`) and prepends section context (e.g., `[Web Application Security - OWASP Top 10]`) to chunk text, ensuring chunks retain structural document context.
@@ -925,9 +931,9 @@ sequenceDiagram
 ### I. Experiment 03 Internal Data Flow
 1. **Input**: User pastes 800-word article on Cloud Architecture. Selects `Executive Summary` style, `Medium` length.
 2. **Stage 1 (Analysis)**: Identifies domain (*Cloud Computing*), complexity (*Intermediate*).
-3. **Stage 2 (Extraction)**: Extracts 4 core architectural principles and 5 key terms.
-4. **Stage 3 (Draft)**: Generates 150-word initial draft summary.
-5. **Stage 4 (Critique)**: Evaluates draft coverage (`85%`), noting missing cost-optimization detail.
+3. **Stage 2 (Extraction)**: Extracts core architectural principles and key terms.
+4. **Stage 3 (Draft)**: Generates initial draft summary.
+5. **Stage 4 (Critique)**: Evaluates draft coverage (Example from verified run: `85%`), noting missing cost-optimization detail.
 6. **Stage 5 (Refinement)**: Rewrites summary incorporating missing cost-optimization detail.
 7. **Stage 6 (Final Package)**: Assembles executive summary package with metrics.
 
@@ -1003,7 +1009,7 @@ python -m app.main
 - Educational Sample: *Zero Trust Network Security* (750 words)
 
 ### Q. Expected Outputs
-- 6-Stage Chain Trace, Draft vs Refined Comparison, Quality Metrics (`72% Compression`), and Final Structured Summary Package.
+- 6-Stage Chain Trace, Draft vs Refined Comparison, Quality Metrics (Example from verified run: `72% Compression`), and Final Structured Summary Package.
 
 ### R. Experiment 03 Screenshots
 
@@ -1096,7 +1102,7 @@ Experiment 03 demonstrates the power of sequential prompt chaining for complex t
 | **Input Type** | Natural Language Question | Natural Language Question | Raw Text Document (30 to 15k chars) |
 | **External Knowledge Base** | SQLite Relational Database (`university.db`) | 9 Cybersecurity Markdown Documents | Input Text Document + User Parameters |
 | **Retrieval Mechanism** | Relational Database Engine Queries | Hybrid Cosine Vector + Lexical Scoring | Direct Text Chunk Propagation |
-| **Validation / Safeguards** | Read-Only AST SQL Security Validator | Relevance Threshold (`0.25`) & Out-of-KB Filter | Stage 4 Self-Critique & Length Guard |
+| **Validation / Safeguards** | Lexical/Regex Read-Only SQL Security Validator | Relevance Threshold (`0.25`) & Out-of-KB Filter | Stage 4 Self-Critique & Length Guard |
 | **Output Type** | Formatted SQL + Data Table + Summary | Grounded Natural Language Answer + Sources | Multi-Section Summary Package + Metrics |
 | **Default Server Port** | `8000` | `8001` | `8002` |
 | **Test Suite Results** | 8 Passed | 20 Passed | 17 Passed |
@@ -1196,7 +1202,7 @@ Secrets (API keys, `.env` files) must **never** be committed to Git. `.gitignore
 # Standard publication sequence:
 git status
 git add .
-git commit -m "docs: audit and correct master laboratory guide"
+git commit -m "docs: correct SQL validation terminology"
 git push origin main
 ```
 
@@ -1208,12 +1214,12 @@ git push origin main
 1. Execute `cd experiment-01-text-to-sql; python -m app.main` and open `http://127.0.0.1:8000`.
 2. Point out Schema Viewer on left panel showing SQLite tables (`departments`, `students`, `courses`, `enrollments`, `faculty`).
 3. Click sample prompt *"Top 5 students by CGPA"*. Explain how schema context guided LLM SQL generation.
-4. Click sample prompt *"DROP TABLE students;"*. Demonstrate AST Security Validator blocking non-SELECT SQL.
+4. Click sample prompt *"DROP TABLE students;"*. Demonstrate Lexical SQL Security Validator blocking non-SELECT SQL.
 
 ### If Faculty Asks to Evaluate Experiment 02 (Hybrid RAG QA):
 1. Execute `cd experiment-02-rag-qa; python -m app.main` and open `http://127.0.0.1:8001`.
 2. Click chip *"What is SQL Injection?"*.
-3. Point out source evidence card (`Web Application Security`) and expand RAG Inspector showing Hybrid Match score (`0.5118`).
+3. Point out source evidence card (`Web Application Security`) and expand RAG Inspector showing Hybrid Match score (Example: `0.5118`).
 4. Click chip *"Explain MFA"* to demonstrate acronym unrolling.
 5. Click chip *"What is the capital of France?"* to demonstrate out-of-KB threshold rejection (`0.1020 < 0.25`).
 
@@ -1233,7 +1239,7 @@ git push origin main
    *A:* Text-to-SQL retrieves database schema to construct formal structured queries (`SELECT`), whereas RAG retrieves unstructured text passages from a vector store to ground natural language answers.
 
 2. **Q: Why does Experiment 02 use Hybrid Retrieval instead of pure Vector Search?**
-   *A:* Pure subword vector search suffered from false negatives on short acronyms (`SQLi`, `MFA`). Hybrid retrieval combines vector similarity ($50\%$) with term/phrase lexical matching ($50\%$), achieving $100\%$ precision on domain queries while preserving safety against out-of-KB queries.
+   *A:* Pure subword vector search suffered from false negatives on short acronyms (`SQLi`, `MFA`). Hybrid retrieval combines vector similarity ($50\%$) with term/phrase lexical matching ($50\%$), achieving high precision on domain queries while preserving safety against out-of-KB queries.
 
 3. **Q: What is the advantage of Prompt Chaining (Exp 03) over single-prompt summarization?**
    *A:* Prompt chaining decomposes summarization into specialized stages (Analysis → Extraction → Draft → Critique → Refine → Package), enabling factual critique and iterative self-refinement.

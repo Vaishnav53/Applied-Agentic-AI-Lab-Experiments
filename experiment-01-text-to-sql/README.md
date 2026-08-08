@@ -1,9 +1,9 @@
 # Experiment 01 — Text-to-SQL Workflow
 
-**Course Code:** MR23-1CS0436  
-**Course Name:** Applied Agentic AI  
-**Laboratory:** Applied Agentic AI Laboratory  
-**Status:** ✅ Completed  
+**Course Code:** MR23-1CS0436
+**Course Name:** Applied Agentic AI
+**Laboratory:** Applied Agentic AI Laboratory
+**Status:** ✅ Completed
 
 ---
 
@@ -23,7 +23,7 @@ To design, build, and evaluate an end-to-end LLM-powered Text-to-SQL agentic wor
 ---
 
 ## 4. Problem Statement
-Relational databases store critical domain data in structured tables. However, querying these databases requires specialized knowledge of SQL (Structured Query Language), relational database management systems (RDBMS), table aliases, foreign keys, and JOIN conditions. Non-technical users—such as university administrators, academic counselors, or students—cannot interact directly with SQL databases without intermediary software developers. 
+Relational databases store critical domain data in structured tables. However, querying these databases requires specialized knowledge of SQL (Structured Query Language), relational database management systems (RDBMS), table aliases, foreign keys, and JOIN conditions. Non-technical users—such as university administrators, academic counselors, or students—cannot interact directly with SQL databases without intermediary software developers.
 
 Attempting to automate SQL generation with standard zero-shot LLM prompts often results in hallucinated table/column names, syntactically invalid queries, or severe security vulnerabilities (e.g., destructive `DROP TABLE` or `DELETE` operations). An agentic Text-to-SQL workflow addresses these challenges by incorporating schema introspection, structured prompt construction, server-side read-only validation, execution, and output explanation.
 
@@ -40,7 +40,7 @@ Attempting to automate SQL generation with standard zero-shot LLM prompts often 
 ---
 
 ## 6. Theory / Concept
-Text-to-SQL represents a specialized form of **Semantic Parsing & Structured Translation**. It converts unstructured human intention into precise formal logic executable by a database runtime engine. 
+Text-to-SQL represents a specialized form of **Semantic Parsing & Structured Translation**. It converts unstructured human intention into precise formal logic executable by a database runtime engine.
 
 Key underlying AI principles include:
 * **In-Context Schema Injection:** Providing the model with structural domain definitions prior to reasoning.
@@ -50,7 +50,7 @@ Key underlying AI principles include:
 ---
 
 ## 7. What is Text-to-SQL?
-Text-to-SQL is an AI pipeline that translates natural language text (e.g., *"Show the top 5 students based on CGPA"*) into a structured query language statement (`SELECT name, roll_number, cgpa FROM students ORDER BY cgpa DESC LIMIT 5;`). 
+Text-to-SQL is an AI pipeline that translates natural language text (e.g., *"Show the top 5 students based on CGPA"*) into a structured query language statement (`SELECT name, roll_number, cgpa FROM students ORDER BY cgpa DESC LIMIT 5;`).
 
 By bridging human language and relational algebra, Text-to-SQL democratizes data access, enabling natural conversational data exploration over complex relational enterprise databases.
 
@@ -66,7 +66,7 @@ Large Language Models act as the reasoning engine in Text-to-SQL pipelines:
 ---
 
 ## 9. Role of Schema Retrieval
-Directly asking an LLM to generate SQL without schema context leads to severe hallucinations (e.g., querying non-existent columns like `students.gpa` instead of `students.cgpa`). 
+Directly asking an LLM to generate SQL without schema context leads to severe hallucinations (e.g., querying non-existent columns like `students.gpa` instead of `students.cgpa`).
 
 The schema retrieval step dynamically inspects:
 1. **Table Names:** Identifies available relational entities (`departments`, `students`, `courses`, `enrollments`, `faculty`).
@@ -200,7 +200,7 @@ experiment-01-text-to-sql/
 │   │   ├── schema_service.py           # DB Inspection & DDL Formatter
 │   │   ├── llm_service.py              # LLM Provider Abstraction (Mock/OpenAI/Anthropic/Gemini)
 │   │   ├── sql_generator.py            # Prompt Construction & Response Parsing
-│   │   ├── sql_validator.py            # AST & Keyword Safety Validation Engine
+│   │   ├── sql_validator.py            # Token-Based Read-Only Safety Validation Engine
 │   │   └── query_service.py            # Pipeline Orchestration & Explanation Engine
 │   │
 │   └── static/                         # Frontend Web Application Assets
@@ -285,10 +285,10 @@ python app/main.py
 uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
 ```
 
-Access the interactive web chatbot UI at:  
+Access the interactive web chatbot UI at:
 👉 **`http://localhost:8000`**
 
-Access interactive OpenAPI Swagger documentation at:  
+Access interactive OpenAPI Swagger documentation at:
 👉 **`http://localhost:8000/docs`**
 
 ---
@@ -374,19 +374,19 @@ Users can execute queries using clickable UI chips or custom typing:
 ### Natural Language Question
 > *"Show the top 5 students based on CGPA."*
 ```sql
-SELECT name, roll_number, cgpa 
-FROM students 
-ORDER BY cgpa DESC 
+SELECT name, roll_number, cgpa
+FROM students
+ORDER BY cgpa DESC
 LIMIT 5;
 ```
 
 ### Natural Language Question
 > *"What is the average CGPA by department?"*
 ```sql
-SELECT d.name AS department_name, ROUND(AVG(s.cgpa), 2) AS average_cgpa 
-FROM departments d 
-JOIN students s ON d.id = s.department_id 
-GROUP BY d.name 
+SELECT d.name AS department_name, ROUND(AVG(s.cgpa), 2) AS average_cgpa
+FROM departments d
+JOIN students s ON d.id = s.department_id
+GROUP BY d.name
 ORDER BY average_cgpa DESC;
 ```
 
@@ -415,14 +415,14 @@ For question *"What is the average CGPA by department?"*:
 
 To protect the database against intentional or accidental modification, the system implements a strict **4-Layer Safety Engine**:
 
-1. **AST & Keyword Ingestion Validation (`sql_validator.py`):**  
+1. **Lexical & Token-Based Ingestion Validation (`sql_validator.py`):**
    Every query must explicitly start with `SELECT` or `WITH`.
-2. **Forbidden Command Blacklist:**  
+2. **Forbidden Command Blacklist:**
    Blocks `INSERT`, `UPDATE`, `DELETE`, `DROP`, `ALTER`, `TRUNCATE`, `CREATE`, `REPLACE`, `ATTACH`, `DETACH`, `PRAGMA`, `EXEC`.
-3. **Semicolon Multi-Statement Prevention:**  
+3. **Semicolon Multi-Statement Prevention:**
    Rejects queries containing multiple statements separated by semicolons to prevent SQL injection chaining.
-4. **SQLite Read-Only URI Connection:**  
-   Queries are executed against SQLite using `file:university.db?mode=ro`, enforcing database engine level read-only locks.
+4. **SQLite Read-Only Connection Handling:**
+   Attempts read-only execution using `file:university.db?mode=ro`. If URI mode fails, standard connection mode is used with `sql_validator.py` acting as the primary application-level safeguard.
 
 ---
 
@@ -515,17 +515,17 @@ Experiment 01 demonstrates the power of combining in-context schema retrieval wi
 
 ## 30. Viva Voce Questions & Answers
 
-1. **Q: What is in-context schema injection, and why is it critical for Text-to-SQL?**  
+1. **Q: What is in-context schema injection, and why is it critical for Text-to-SQL?**
    *A:* In-context schema injection involves extracting table structures, column names, and foreign keys and prepending them to the LLM prompt. This ensures the LLM generates SQL respecting actual database column names, preventing column hallucinations.
 
-2. **Q: How does this workflow protect the database from destructive operations like `DROP TABLE` or `DELETE`?**  
+2. **Q: How does this workflow protect the database from destructive operations like `DROP TABLE` or `DELETE`?**
    *A:* Through a 4-layer safety mechanism: validating that queries start with `SELECT`/`WITH`, checking a keyword blacklist (`DELETE`, `DROP`, `UPDATE`), prohibiting multi-statement semicolons, and executing via a read-only SQLite URI (`mode=ro`).
 
-3. **Q: Why is schema context retrieval needed if the LLM is already powerful?**  
+3. **Q: Why is schema context retrieval needed if the LLM is already powerful?**
    *A:* Large Language Models have no pre-existing knowledge of proprietary database schemas. Without explicit schema context, LLMs guess column and table names, leading to SQL execution errors.
 
-4. **Q: What is the benefit of the `MockLLMProvider` implementation in this lab?**  
+4. **Q: What is the benefit of the `MockLLMProvider` implementation in this lab?**
    *A:* The `MockLLMProvider` uses heuristic pattern matching to allow full, zero-config evaluation of the Text-to-SQL pipeline and web interface offline without requiring paid external API keys.
 
-5. **Q: How does Text-to-SQL differ from RAG (Retrieval-Augmented Generation)?**  
+5. **Q: How does Text-to-SQL differ from RAG (Retrieval-Augmented Generation)?**
    *A:* RAG retrieves unstructured text chunks from a vector database to generate narrative answers. Text-to-SQL retrieves structured schema metadata to construct formal database queries executed against relational SQL engines.
