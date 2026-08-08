@@ -1,11 +1,11 @@
 # Applied Agentic AI Laboratory — Complete Experiment, Workflow & Execution Guide
 
-**Course Code:** MR23-1CS0436  
-**Course Name:** Applied Agentic AI  
-**Laboratory:** Applied Agentic AI Laboratory  
-**Repository:** Applied-Agentic-AI-Lab-Experiments  
-**Current Completed Experiments:** 3 / 12  
-**Status:** Living Master Laboratory Reference Guide  
+**Course Code:** MR23-1CS0436
+**Course Name:** Applied Agentic AI
+**Laboratory:** Applied Agentic AI Laboratory
+**Repository:** Applied-Agentic-AI-Lab-Experiments
+**Current Completed Experiments:** 3 / 12
+**Status:** Living Master Laboratory Reference Guide
 
 ---
 
@@ -144,11 +144,20 @@ The repository **`Applied-Agentic-AI-Lab-Experiments`** is structured into isola
 ### Environment Configuration Standard
 Every experiment includes a safe configuration template (`.env.example`). Real secrets and local API keys are placed inside `.env` (which is strictly excluded by `.gitignore`).
 
-```bash
-# General setup pattern for any experiment:
-cd "D:\Agentic AI Experiments\experiment-XX-name"
+#### Windows PowerShell Setup Pattern:
+```powershell
+cd "D:\Agentic AI Experiments\experiment-01-text-to-sql"
 python -m venv venv
 .\venv\Scripts\activate
+pip install -r requirements.txt
+Copy-Item .env.example .env
+```
+
+#### Linux / macOS Setup Pattern:
+```bash
+cd "D:/Agentic AI Experiments/experiment-01-text-to-sql"
+python3 -m venv venv
+source venv/bin/activate
 pip install -r requirements.txt
 cp .env.example .env
 ```
@@ -160,7 +169,7 @@ cp .env.example .env
 ```
 D:\Agentic AI Experiments/
 │
-├── README.md                           # Master repository summary & status badge
+├── README.md                           # Master repository summary & status matrix
 ├── AGENTIC_AI_LAB_COMPLETE_GUIDE.md    # Living Master Laboratory Guide (THIS DOCUMENT)
 ├── LICENSE                             # MIT License
 ├── .gitignore                          # Excludes secrets, venvs, cache, and DBs
@@ -169,57 +178,60 @@ D:\Agentic AI Experiments/
 │   ├── README.md
 │   ├── requirements.txt
 │   ├── app/
-│   │   ├── main.py
-│   │   ├── config.py
-│   │   ├── schemas.py
+│   │   ├── main.py                     # FastAPI Entry Point
+│   │   ├── config.py                   # Pydantic Settings
+│   │   ├── database.py                 # Read-only SQLite Engine & ORM Base
+│   │   ├── models.py                   # SQLAlchemy Models (Department, Student, Course, Enrollment, Faculty)
+│   │   ├── schemas.py                  # Pydantic Request/Response Schemas
 │   │   ├── services/
-│   │   │   ├── db_service.py
-│   │   │   ├── schema_service.py
-│   │   │   ├── sql_validator.py
-│   │   │   ├── llm_service.py
-│   │   │   └── workflow_service.py
-│   │   └── static/
+│   │   │   ├── schema_service.py       # SQLite Schema Introspection & Prompt Formatting
+│   │   │   ├── sql_generator.py        # LLM SQL Prompt Construction
+│   │   │   ├── sql_validator.py        # AST Read-Only Security Validator
+│   │   │   ├── query_service.py        # 6-Step Text-to-SQL Orchestrator
+│   │   │   └── llm_service.py          # Grounded Generator (Mock & Real LLMs)
+│   │   └── static/                     # HTML5/CSS/JS Chatbot UI
 │   ├── data/
-│   │   └── university.db
-│   ├── tests/
-│   └── screenshots/
+│   │   ├── university.db               # SQLite Relational Database
+│   │   └── seed.py                     # Database Seed Data Script
+│   ├── tests/                          # 8 PyTest Unit/Integration Tests
+│   └── screenshots/                    # 4 Verified Screenshots
 │
 ├── experiment-02-rag-qa/               # Exp 02: Cybersecurity Hybrid RAG QA (Port 8001)
 │   ├── README.md
 │   ├── requirements.txt
 │   ├── app/
-│   │   ├── main.py
-│   │   ├── config.py
-│   │   ├── schemas.py
+│   │   ├── main.py                     # FastAPI Entry Point
+│   │   ├── config.py                   # RAG System Settings
+│   │   ├── schemas.py                  # Pydantic Schemas
 │   │   ├── services/
-│   │   │   ├── document_loader.py
-│   │   │   ├── chunking_service.py
-│   │   │   ├── query_normalization.py
-│   │   │   ├── embedding_service.py
-│   │   │   ├── vector_store.py
-│   │   │   ├── retrieval_service.py
-│   │   │   ├── llm_service.py
-│   │   │   └── rag_service.py
-│   │   └── static/
-│   ├── data/knowledge_base/
-│   ├── index/vector_index.json
-│   ├── tests/
-│   └── screenshots/
+│   │   │   ├── document_loader.py      # Markdown Knowledge Base Loader
+│   │   │   ├── chunking_service.py     # Heading-Aware Text Chunker
+│   │   │   ├── query_normalization.py  # Acronym & Term Normalizer
+│   │   │   ├── embedding_service.py    # Dense 384-Dim Subword Embedder
+│   │   │   ├── vector_store.py         # Vector Indexing & Cosine Search
+│   │   │   ├── retrieval_service.py    # Hybrid Vector+Lexical Retrieval Engine
+│   │   │   ├── llm_service.py          # Grounded Answer Synthesizer
+│   │   │   └── rag_service.py          # 6-Step RAG Pipeline Orchestrator
+│   │   └── static/                     # Glassmorphic RAG Assistant UI
+│   ├── data/knowledge_base/            # 9 Synthetic Cybersecurity Markdown Files
+│   ├── index/vector_index.json         # Persisted Vector & Text Index (37 Chunks)
+│   ├── tests/                          # 20 PyTest Unit/Integration Tests
+│   └── screenshots/                    # 5 Verified Screenshots
 │
 ├── experiment-03-prompt-chaining/      # Exp 03: 6-Stage Prompt Chaining Summarizer (Port 8002)
 │   ├── README.md
 │   ├── requirements.txt
 │   ├── app/
-│   │   ├── main.py
-│   │   ├── config.py
-│   │   ├── schemas.py
+│   │   ├── main.py                     # FastAPI Entry Point
+│   │   ├── config.py                   # Studio Settings
+│   │   ├── schemas.py                  # Pydantic API Schemas
 │   │   ├── services/
-│   │   │   ├── text_processor.py
-│   │   │   ├── llm_service.py
-│   │   │   └── chain_service.py
-│   │   └── static/
-│   ├── tests/
-│   └── screenshots/
+│   │   │   ├── text_processor.py       # Metrics & Text Cleaning
+│   │   │   ├── llm_service.py          # 6-Stage Prompt Generator
+│   │   │   └── chain_service.py        # Sequential Chain Orchestrator
+│   │   └── static/                     # Studio Workspace UI
+│   ├── tests/                          # 17 PyTest Unit/Integration Tests
+│   └── screenshots/                    # 5 Verified Screenshots
 │
 ├── experiment-04-sql-agent/            # Exp 04: ReAct SQL Agent with Tool Use (Pending)
 ├── experiment-05-multi-agent-sdr/      # Exp 05: Multi-Agent SDR System (Pending)
@@ -238,7 +250,7 @@ D:\Agentic AI Experiments/
 
 | Exp # | Experiment Title | Core AI Concept | Primary Interface | Status | Port | Test Count | Documentation |
 | :---: | :--- | :--- | :--- | :---: | :---: | :---: | :---: |
-| **01** | Text-to-SQL Workflow | Schema Context & Read-Only SQL Validation | Interactive Web App | ✅ Completed | `8000` | 8 Passed | `README.md` & Master Guide |
+| **01** | Text-to-SQL Workflow | Schema Context & Read-Only SQL Security Validation | Interactive Web App | ✅ Completed | `8000` | 8 Passed | `README.md` & Master Guide |
 | **02** | RAG-Based QA System | Hybrid Vector+Lexical RAG & Term Normalization | Interactive Web App | ✅ Completed | `8001` | 20 Passed | `README.md` & Master Guide |
 | **03** | Prompt Chaining Summarizer | 6-Stage Context Propagation & Quality Metrics | Interactive Web App | ✅ Completed | `8002` | 17 Passed | `README.md` & Master Guide |
 | **04** | SQL Agent with Tool Use | ReAct Reasoning Loop & Schema Reflection | Web Dashboard | ⬜ Pending | `8003` | — | Pending |
@@ -261,7 +273,7 @@ D:\Agentic AI Experiments/
 - **Course Code:** MR23-1CS0436
 - **Status:** ✅ Completed & Verified
 - **Directory:** `experiment-01-text-to-sql`
-- **Main Technology:** Python 3.10+, FastAPI, SQLite, Pydantic v2, HTML5/CSS Glassmorphism
+- **Main Technology:** Python 3.10+, FastAPI, SQLite, SQLAlchemy ORM, Pydantic v2, HTML5/CSS Glassmorphism
 - **Interface Type:** Web-Based Chatbot with Schema Viewer & Execution Visualizer
 - **Default Runtime Mode:** Offline Grounded Mode (`MockLLMProvider`) / Configurable External LLM
 - **Default Port:** `8000`
@@ -281,11 +293,11 @@ Enterprise relational databases store mission-critical structured data, but quer
 ### E. Experiment 01 Concepts Used
 
 #### 1. Schema Prompt Injection
-LLMs cannot infer database tables or column names out of context. The schema loader dynamically extracts CREATE TABLE statements and column types, building an authoritative schema context block:
+LLMs cannot infer database tables or column names out of context. The schema loader (`app/services/schema_service.py`) dynamically extracts CREATE TABLE statements and column types from `university.db`, building an authoritative schema context block:
 $$\text{PromptContext} = \text{UserQuestion} + \text{DatabaseSchema} + \text{DialectRules}$$
 
-#### 2. Abstract Syntax Tree (AST) & Lexical SQL Validation
-Before any query executes against SQLite, `app/services/sql_validator.py` parses SQL tokens. Statements containing data manipulation language (DML) or data definition language (DDL) keywords are flagged and blocked immediately.
+#### 2. Read-Only SQL Security Validation
+Before any query executes against SQLite, `app/services/sql_validator.py` sanitizes SQL tokens. Statements containing data manipulation language (DML) or data definition language (DDL) keywords (`DROP`, `DELETE`, `INSERT`, `UPDATE`, `ALTER`, `TRUNCATE`, `CREATE`) are flagged and blocked immediately.
 
 #### 3. Structured Output Formatting
 The system structures response objects using Pydantic models (`QueryResponse`), returning the question, generated SQL, execution status, tabular results, natural language explanation, and workflow timing steps.
@@ -298,12 +310,12 @@ Text-to-SQL is the foundational architecture for business intelligence (BI) assi
 ```mermaid
 graph TD
     A[User Chatbot UI] -->|1. Natural Language Question| B[FastAPI Server /api/query]
-    B -->|2. Invoke Workflow Orchestrator| C[Workflow Service]
-    C -->|3. Read Database Catalog| D[Schema Service: university.db]
-    D -->|4. Formatted Schema Prompt| E[LLM Provider Engine]
-    E -->|5. Raw SQL Query| F[SQL Security Validator]
+    B -->|2. Invoke Workflow Orchestrator| C[Query Service: app/services/query_service.py]
+    C -->|3. Introspect SQLite Catalog| D[Schema Service: app/services/schema_service.py]
+    D -->|4. Formatted Schema Prompt| E[SQL Generator & LLM Provider]
+    E -->|5. Raw SQL Query| F[SQL Security Validator: app/services/sql_validator.py]
     F -->|6a. Validation Failed DML/DDL| G[Return Security Rejection Error]
-    F -->|6b. Validation Passed SELECT| H[SQLite Database Execution Engine]
+    F -->|6b. Validation Passed SELECT| H[Database Engine: app/database.py]
     H -->|7. Query Result Set| I[LLM Explanation Synthesizer]
     I -->|8. Natural Language Explanation| C
     C -->|9. Format Complete Response| B
@@ -312,10 +324,12 @@ graph TD
 
 #### Component Breakdown
 - **Web UI (`static/`)**: Glassmorphic frontend rendering chat messages, active schema tree, interactive sample chips, and execution workflow badges.
-- **FastAPI Router (`main.py`)**: Endpoints for `/api/query`, `/api/schema`, and `/api/health`.
-- **Schema Service (`services/schema_service.py`)**: Connects to `data/university.db` and extracts tables (`students`, `courses`, `enrollments`, `instructors`, `departments`).
-- **SQL Security Validator (`services/sql_validator.py`)**: Validates generated SQL against non-SELECT syntax rules.
-- **Database Engine (`services/db_service.py`)**: Executes validated queries safely in read-only mode.
+- **FastAPI Router (`app/main.py`)**: Endpoints for `/api/query`, `/api/schema`, and `/api/health`.
+- **Database Module (`app/database.py`)**: Connects to `data/university.db` and executes read-only queries using `sqlite3.connect(mode="ro")`.
+- **SQL ORM Models (`app/models.py`)**: Defines SQLAlchemy schemas for `departments`, `students`, `courses`, `enrollments`, and `faculty`.
+- **Schema Service (`app/services/schema_service.py`)**: Connects to `data/university.db` and inspects tables and column metadata.
+- **SQL Security Validator (`app/services/sql_validator.py`)**: Validates generated SQL against non-SELECT syntax rules.
+- **Query Orchestrator (`app/services/query_service.py`)**: Manages the 6 pipeline workflow steps.
 
 ### H. Experiment 01 Complete Workflow
 
@@ -325,58 +339,61 @@ sequenceDiagram
     actor User
     participant UI as Chatbot Web UI
     participant API as FastAPI Backend
-    participant WF as Workflow Service
+    participant QS as Query Service
     participant Schema as Schema Service
     participant Val as SQL Validator
-    participant DB as SQLite DB
+    participant DB as Database Engine
 
-    User->>UI: Types Question ("Top 5 students by CGPA")
+    User->>UI: Types Question ("Who are the top 5 students by CGPA?")
     UI->>API: POST /api/query {"question": "..."}
-    API->>WF: process_text_to_sql_query(question)
-    WF->>Schema: get_formatted_schema()
-    Schema-->>WF: Database Schema Context
-    WF->>Val: validate_sql(generated_sql)
-    alt Destructive Query (DROP / DELETE)
-        Val-->>WF: Invalid (Security Rule Violation)
-        WF-->>API: Return Rejection Error
+    API->>QS: process_natural_language_query(question)
+    QS->>Schema: get_database_schema_info()
+    Schema-->>QS: Database Schema Context (5 tables)
+    QS->>Val: sanitize_and_validate_sql(generated_sql)
+    alt Unsafe Query (DROP / DELETE / INSERT)
+        Val-->>QS: Invalid (Security Rule Violation)
+        QS-->>API: Return Rejection Error
     else Valid Read-Only SELECT
-        Val-->>WF: Valid SQL
-        WF->>DB: execute_read_query(sql)
-        DB-->>WF: Row Results + Column Names
+        Val-->>QS: Valid SQL
+        QS->>DB: execute_read_only_query(sql)
+        DB-->>QS: Row Results + Column Names
     end
-    WF-->>API: Return SQL + Execution Rows + Explanation
+    QS-->>API: Return SQL + Execution Rows + Explanation
     API-->>UI: Render Answer + Generated SQL Card + Data Table
 ```
 
 ### I. Experiment 01 Internal Data Flow
 1. **Input**: User submits `"List all computer science courses with 4 credits"`.
-2. **Schema Injection**: Schema service formats table definitions for `courses` (course_id, course_code, course_name, department_id, credits).
-3. **Generation**: LLM generates `SELECT course_code, course_name, credits FROM courses WHERE department_id = 1 AND credits = 4;`.
-4. **Validation**: Validator checks query starts with `SELECT` and contains no modification verbs.
-5. **Execution**: Database service executes query on `university.db` and returns 3 matching rows.
-6. **Output**: UI displays natural language explanation, formatted SQL block, and data table.
+2. **Schema Inspection**: `schema_service.py` formats table definitions for `courses` (id, course_code, course_name, department_id, credits) and `departments` (id, name, code).
+3. **Generation**: `sql_generator.py` produces `SELECT course_code, course_name, credits FROM courses WHERE department_id = 1 AND credits = 4;`.
+4. **Validation**: `sql_validator.py` confirms query begins with `SELECT` and contains no DML/DDL tokens.
+5. **Execution**: `database.py` executes query on `university.db` and returns matching rows.
+6. **Output**: UI displays natural language explanation, formatted SQL block, and execution data table.
 
 ### J. Experiment 01 Folder Structure
 
 ```
 experiment-01-text-to-sql/
 ├── README.md                           # Lab Report & Documentation
-├── requirements.txt                    # Dependencies (FastAPI, uvicorn, pydantic, pytest)
+├── requirements.txt                    # Dependencies (FastAPI, uvicorn, pydantic, sqlalchemy, pytest)
 ├── app/
-│   ├── main.py                         # FastAPI Server Entry Point
-│   ├── config.py                       # App Settings
-│   ├── schemas.py                      # Pydantic Schemas
+│   ├── main.py                         # FastAPI Server Entry Point & Router
+│   ├── config.py                       # Application Configuration
+│   ├── database.py                     # SQLite Connection Engine (execute_read_only_query)
+│   ├── models.py                       # SQLAlchemy ORM Models (Department, Student, Course, Enrollment, Faculty)
+│   ├── schemas.py                      # Pydantic API Request/Response Schemas
 │   ├── services/
-│   │   ├── db_service.py               # SQLite Connection & Execution
-│   │   ├── schema_service.py           # Schema Extraction
+│   │   ├── schema_service.py           # SQLite Catalog Introspection & Schema Prompt Builder
+│   │   ├── sql_generator.py            # Prompt Construction & LLM Execution
 │   │   ├── sql_validator.py            # AST & Read-Only SQL Security Validator
-│   │   ├── llm_service.py              # LLM Generator (Mock & Real Providers)
-│   │   └── workflow_service.py         # End-to-End Orchestrator
-│   └── static/                         # HTML5, CSS Glassmorphism, JS
+│   │   ├── query_service.py            # 6-Step End-to-End Query Orchestrator
+│   │   └── llm_service.py              # LLM Provider Abstraction (Mock & Real Providers)
+│   └── static/                         # HTML5, Glassmorphic CSS3, Vanilla JS UI
 ├── data/
-│   └── university.db                   # SQLite Database File
-├── tests/                              # Unit & Integration Tests (8 tests)
-└── screenshots/                        # Screenshots
+│   ├── university.db                   # SQLite Relational Database (5 tables)
+│   └── seed.py                         # Database Seeder Script
+├── tests/                              # 8 Automated Unit & Integration Tests
+└── screenshots/                        # 4 Verification Screenshots & README
 ```
 
 ### K. Experiment 01 Technology Stack
@@ -384,8 +401,8 @@ experiment-01-text-to-sql/
 | Technology | Purpose | Where Used |
 | :--- | :--- | :--- |
 | **Python 3.10+** | Programming Language | Entire Backend Architecture |
-| **FastAPI / Uvicorn** | Web Application Framework & ASGI Server | `app/main.py` |
-| **SQLite 3** | Relational Database Engine | `data/university.db`, `app/services/db_service.py` |
+| **FastAPI / Uvicorn** | Web Framework & ASGI Server | `app/main.py` |
+| **SQLite 3 & SQLAlchemy** | Relational Database Engine & ORM | `data/university.db`, `app/database.py`, `app/models.py` |
 | **Pydantic v2** | API Schema Validation & Serialization | `app/schemas.py`, `app/config.py` |
 | **Vanilla HTML5/CSS3/JS** | UI Frontend with Glassmorphism Theme | `app/static/*` |
 
@@ -406,7 +423,7 @@ python -m venv venv
 pip install -r requirements.txt
 
 # 5. Copy environment template
-cp .env.example .env
+Copy-Item .env.example .env
 ```
 
 ### M. Experiment 01 Exact Execution Procedure
@@ -434,77 +451,107 @@ INFO:     Application startup complete.
 
 ### N. How to Use the UI
 1. **Header Bar:** Shows title *"University Database AI Assistant"*, course code `MR23-1CS0436`, and active LLM Provider status badge (`MOCK`).
-2. **Schema Viewer (Left Panel):** Displays interactive schema cards for tables (`students`, `courses`, `enrollments`, `instructors`, `departments`) with column names and data types.
-3. **Sample Questions Bar:** Contains quick-click prompt chips (e.g., *"Top 5 students by CGPA"*, *"List all CS courses"*, *"DROP TABLE students"*).
+2. **Schema Viewer (Left Panel):** Displays interactive schema cards for 5 tables (`departments`, `students`, `courses`, `enrollments`, `faculty`) with column names, primary keys, and foreign key relationships.
+3. **Sample Questions Bar:** Contains quick-click prompt chips (e.g., *"Top 5 students by CGPA"*, *"List all CS courses"*, *"DROP TABLE students;"*).
 4. **Chat Window:** Displays user query, animated step workflow, generated SQL query card, interactive execution result table, and natural language explanation.
 
 ### O. Experiment 01 Demonstration Procedure
 1. Launch `python -m app.main` and open `http://127.0.0.1:8000`.
-2. Point out the Schema Viewer panel on the left, demonstrating schema inspection.
+2. Point out the Schema Viewer panel on the left, demonstrating dynamic schema introspection of `university.db`.
 3. Click sample query chip: *"Top 5 students by CGPA"*.
-4. Show generated SQL: `SELECT name, email, cgpa FROM students ORDER BY cgpa DESC LIMIT 5;`.
-5. Point out execution data table with 5 rows.
+4. Show generated SQL: `SELECT name, roll_number, semester, cgpa FROM students ORDER BY cgpa DESC LIMIT 5;`.
+5. Point out execution data table displaying 5 rows.
 6. **Safety Demonstration:** Click sample chip *"DROP TABLE students;"*.
-7. Point out immediate security rejection banner: *"Security Violation: Non-SELECT queries are strictly prohibited."*
+7. Point out immediate security rejection banner: *"Query Execution Blocked: Security Violation: Non-SELECT queries are strictly prohibited."*
 
 ### P. Sample Inputs
 - *"Who are the top 5 students by CGPA?"*
 - *"List all courses offered by the Computer Science department."*
-- *"Show all instructors in the Electrical Engineering department."*
+- *"Show all faculty members in the Computer Science department."*
 - *"DROP TABLE students;"* *(Safety test)*
 
 ### Q. Expected Outputs
-- **Valid Query:** Returns SQL query block, formatted HTML data table, execution time, and explanation.
-- **Destructive Query:** Returns security error card blocking database execution.
+- **Valid Query:** Returns SQL query block, formatted HTML data table, row count, execution time, and natural language explanation.
+- **Destructive Query:** Returns server-side security error card blocking database execution.
 
 ### R. Experiment 01 Screenshots
 
 #### Screenshot 1 — Home Dashboard & Schema Viewer
-![Home Dashboard](experiment-01-text-to-sql/screenshots/01-home.png)
-- **Demonstrates:** Initial UI state, sidebar schema view, and sample prompt chips.
+![Experiment 01 Home](experiment-01-text-to-sql/screenshots/01-home.png)
+*Figure 1.1: Initial Web UI dashboard of the University Database AI Assistant showing loaded schema tables (`departments`, `students`, `courses`, `enrollments`, `faculty`), sample query chips, and pipeline progress bar.*
 
 #### Screenshot 2 — Text-to-SQL Execution Result
 ![Text to SQL Result](experiment-01-text-to-sql/screenshots/02-text-to-sql-result.png)
-- **Demonstrates:** Generated SQL statement, executed data table, and natural language summary.
+*Figure 1.2: Execution result for natural language question "Who are the top 5 students by CGPA?" showing generated SQL code block, formatted data result table, and conversational explanation.*
 
 #### Screenshot 3 — Schema Inspection & Workflow Bar
 ![Schema Workflow](experiment-01-text-to-sql/screenshots/03-schema-workflow.png)
-- **Demonstrates:** Active workflow steps (Schema Retrieval → SQL Generation → Validation → Execution).
+*Figure 1.3: Active 6-stage workflow pipeline bar (Understanding Question → Retrieving Schema → Generating SQL → Validating Query → Executing → Explaining Result) and schema metadata.*
 
 #### Screenshot 4 — Safety & Security Validation
 ![Safety Validation](experiment-01-text-to-sql/screenshots/04-safety-validation.png)
-- **Demonstrates:** Immediate security rejection of destructive SQL (`DROP TABLE`).
+*Figure 1.4: Server-side security rejection alert triggered when attempting an unsafe SQL query ("DROP TABLE students;"), proving read-only enforcement.*
+
+---
 
 ### S. Experiment 01 Testing
-Run automated test suite:
+Run automated test suite from the experiment directory:
 ```powershell
 python -m pytest tests
 ```
-- **Verified Test Result:** `8 passed in 2.86s` (covers health endpoint, schema parsing, SQL validation rules, and query API).
+- **Verified Test Result:** `8 passed in 1.35s` (covers health endpoint, schema introspection, SQL validator rules, and query API).
 
 ### T. Safety & Validation
-- **Read-Only Enforcement:** Strict keyword matching blocks `DROP`, `DELETE`, `UPDATE`, `INSERT`, `ALTER`, `TRUNCATE`, `CREATE`.
-- **SQL Injection Guard:** Queries are sanitized and parsed before database execution.
+- **Read-Only Enforcement:** Strict keyword parsing blocks DML/DDL verbs (`DROP`, `DELETE`, `UPDATE`, `INSERT`, `ALTER`, `TRUNCATE`, `CREATE`).
+- **SQLite Read-Only URI Mode:** Executes queries using `sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)`.
 
 ### U. Limitations
-- **Dialect Constraints:** Designed specifically for SQLite syntax.
-- **Complex Aggregations:** Multi-nested subqueries with window functions may require fine-tuned LLM prompts.
+- **Dialect Specificity:** Prompts are tailored specifically for SQLite syntax.
+- **Complex Window Functions:** Multi-nested analytical queries require explicit LLM prompt guidelines.
 
 ### V. Troubleshooting & Gotchas
-- **`ModuleNotFoundError: No module named 'app'`**: Caused by running `python app\main.py` directly instead of module mode.  
-  *Fix:* Execute **`python -m app.main`** from the experiment directory.
-- **Database locked error**: Ensure no external SQLite editor holds an exclusive write lock on `data/university.db`.
+- **`ModuleNotFoundError: No module named 'app'`**: Caused by running `python app\main.py` directly instead of module mode.
+  *Fix:* Execute **`python -m app.main`** from `experiment-01-text-to-sql`.
+- **Port Conflict (`8000`)**: If port 8000 is occupied, terminate existing processes using `Stop-Process -Name "python" -Force`.
+
+---
 
 ### W. Experiment 01 Viva Questions & Answers
-1. **Q: How does the workflow prevent SQL injection?**  
-   *A:* By validating AST tokens, restricting queries exclusively to `SELECT` statements, and stripping harmful control characters.
-2. **Q: Why is schema context injected into the prompt?**  
-   *A:* LLMs do not possess native knowledge of private database tables; schema injection provides exact table and column names required for valid SQL generation.
-3. **Q: What happens if a user submits `DROP TABLE students`?**  
-   *A:* The SQL Security Validator detects DDL keyword `DROP`, blocks database execution, and returns a security rejection error.
+
+1. **Q: How does the Text-to-SQL workflow prevent destructive database operations?**
+   *A:* Through a multi-tier safety mechanism: `app/services/sql_validator.py` parses SQL tokens and rejects any non-`SELECT` statement (blocking `DROP`, `DELETE`, `INSERT`, `UPDATE`, `ALTER`), while `app/database.py` executes queries via a read-only SQLite connection URI (`mode=ro`).
+
+2. **Q: Why is schema context injected into the LLM prompt?**
+   *A:* LLMs have no inherent knowledge of private enterprise database schemas. Injecting exact table names, column data types, primary keys, and foreign key relationships provides the necessary structural context for accurate SQL synthesis.
+
+3. **Q: What database tables exist in the Experiment 01 `university.db` database?**
+   *A:* The SQLite database contains 5 relational tables: `departments` (id, name, code), `students` (id, name, roll_number, department_id, semester, cgpa), `courses` (id, course_code, course_name, department_id, credits), `enrollments` (id, student_id, course_id, grade), and `faculty` (id, name, department_id, designation).
+
+4. **Q: What happens when a user asks `"DROP TABLE students;"`?**
+   *A:* The SQL Security Validator parses the DDL keyword `DROP`, flags `is_safe = False`, halts pipeline execution before reaching SQLite, and returns a red security violation alert to the UI.
+
+5. **Q: What are the 6 visible workflow steps executed in Experiment 01?**
+   *A:* 1. Understanding Question, 2. Retrieving Schema, 3. Generating SQL, 4. Validating Query, 5. Executing, 6. Explaining Result.
+
+6. **Q: Why is module execution (`python -m app.main`) required instead of direct script execution?**
+   *A:* Running `python -m app.main` sets the current working directory as the package root on `sys.path`, allowing relative imports like `from app.database import ...` to resolve cleanly without import errors.
+
+7. **Q: How does the Mock LLM Provider function in offline mode?**
+   *A:* `app/services/llm_service.py` provides deterministic pattern matching for sample questions, generating pre-validated SQL and natural language summaries without requiring external API keys.
+
+8. **Q: What role does Pydantic play in this architecture?**
+   *A:* Pydantic models in `app/schemas.py` enforce strict type checking and JSON schema validation for input queries (`QueryRequest`) and structured API responses (`QueryResponse`).
+
+9. **Q: How are foreign key relationships represented in prompt context?**
+   *A:* `schema_service.py` introspects foreign keys via SQLite `PRAGMA foreign_key_list` and appends explicit mapping strings (e.g., `students.department_id references departments.id`) to the system prompt.
+
+10. **Q: How does the system convert SQLite rows into web-friendly JSON tables?**
+    *A:* `database.py` extracts column metadata from `cursor.description`, serializes rows into Python primitive types, and formats them into a clean JSON object returned to the frontend rendering script.
+
+---
 
 ### X. Conclusion
-Experiment 01 successfully demonstrates an end-to-end Text-to-SQL workflow combining schema extraction, LLM query generation, AST safety validation, and interactive execution.
+Experiment 01 successfully demonstrates an end-to-end Text-to-SQL workflow combining dynamic schema extraction, LLM query generation, AST safety validation, read-only SQLite execution, and interactive visualization.
 
 ---
 
@@ -554,11 +601,11 @@ Enterprise RAG systems in cybersecurity, healthcare, and law require extreme ret
 ```mermaid
 graph TD
     A[User Chatbot UI] -->|1. Question & Top-K| B[FastAPI Backend /api/query]
-    B -->|2. Invoke RAG Orchestrator| C[RAG Service]
-    C -->|3. Query Normalization| D[Query Normalization Service]
+    B -->|2. Invoke RAG Orchestrator| C[RAG Service: app/services/rag_service.py]
+    C -->|3. Query Normalization| D[Query Normalization Service: app/services/query_normalization.py]
     D -->|4. Normalized Query| E[Embedding Engine & Lexical Scorer]
     E -->|5. Vector + Lexical Scores| F[(Vector Store: index/vector_index.json)]
-    F -->|6. Hybrid Score Ranking| G[Retrieval Service]
+    F -->|6. Hybrid Score Ranking| G[Retrieval Service: app/services/retrieval_service.py]
     G -->|7. Check Hybrid Score >= 0.25| H{Is Relevant?}
     H -->|No: Out-of-Scope| I[Return Out-of-KB Limitation Message]
     H -->|Yes: Grounded Context| J[LLM Response Generator]
@@ -568,9 +615,9 @@ graph TD
 ```
 
 #### Component Breakdown
-- **Query Normalizer (`services/query_normalization.py`)**: Maps acronyms (`SQLi`, `MFA`, `SIEM`, `XSS`, `WAF`).
-- **Heading-Aware Chunker (`services/chunking_service.py`)**: Pre-pends section headers to chunk text while preserving sliding window bounds.
-- **Vector Store (`services/vector_store.py`)**: Persists 37 document chunks to `index/vector_index.json`.
+- **Query Normalizer (`services/query_normalization.py`)**: Maps acronyms (`SQLi`, `MFA`, `SIEM`, `XSS`, `WAF`, `CSRF`, `IDS`, `IPS`, `SOC`, `EDR`, `CSP`).
+- **Heading-Aware Chunker (`services/chunking_service.py`)**: Pre-pends section headers to chunk text while preserving sliding window bounds (`CHUNK_SIZE = 400`, `CHUNK_OVERLAP = 60`).
+- **Vector Store (`services/vector_store.py`)**: Persists 37 document chunks across 9 Markdown files to `index/vector_index.json`.
 - **Hybrid Retriever (`services/retrieval_service.py`)**: Ranks chunks using weighted hybrid vector + lexical scoring.
 
 ### H. Experiment 02 Complete Workflow
@@ -590,7 +637,7 @@ sequenceDiagram
     UI->>API: POST /api/query {"question": "...", "top_k": 4}
     API->>RAG: process_rag_query(question)
     RAG->>Norm: normalize_query("What is SQL injection?")
-    Norm-->>RAG: Normalized Query
+    Norm-->>RAG: Normalized Query ("what is sql injection?")
     RAG->>Ret: retrieve_relevant_chunks(normalized_query, top_k=4)
     Ret-->>RAG: Ranked Chunks + Hybrid Scores (0.5118)
     alt Hybrid Score < 0.25 (Out of KB)
@@ -618,23 +665,24 @@ experiment-02-rag-qa/
 ├── README.md                           # Comprehensive Experiment Report
 ├── requirements.txt                    # Project Dependencies
 ├── app/
-│   ├── main.py                         # FastAPI Server Entry Point
-│   ├── config.py                       # App Settings
+│   ├── main.py                         # FastAPI Server Entry Point & Router
+│   ├── config.py                       # RAG System Settings
 │   ├── schemas.py                      # Pydantic API Schemas
 │   ├── services/
-│   │   ├── document_loader.py          # Document Extraction
-│   │   ├── chunking_service.py         # Heading-Aware Chunker
+│   │   ├── document_loader.py          # Markdown Document Extraction
+│   │   ├── chunking_service.py         # Heading-Aware Text Chunker
 │   │   ├── query_normalization.py      # Cybersecurity Acronym Normalizer
 │   │   ├── embedding_service.py        # Dense 384-Dim Vector Embedder
-│   │   ├── vector_store.py             # Vector Store Indexer
+│   │   ├── vector_store.py             # Vector Indexer & Storage Engine
 │   │   ├── retrieval_service.py        # Hybrid Vector + Lexical Retriever
-│   │   ├── llm_service.py              # Grounded LLM Response Generator
-│   │   └── rag_service.py              # 6-Step RAG Orchestrator
-│   └── static/                         # Web UI Assets
+│   │   ├── llm_service.py              # Grounded Answer Synthesizer
+│   │   └── rag_service.py              # 6-Step RAG Pipeline Orchestrator
+│   └── static/                         # Glassmorphic RAG Assistant UI
 ├── data/knowledge_base/                # 9 Synthetic Cybersecurity Markdown Files
-├── index/vector_index.json             # Persisted Vector & Text Chunks Index
-├── tests/                              # Unit & Integration Tests (20 tests)
-└── screenshots/                        # Screenshots
+├── index/vector_index.json             # Persisted Vector & Text Index (37 Chunks)
+├── tests/                              # 20 Automated Unit & Integration Tests
+│   └── diagnose_retrieval.py           # Diagnostic Script for Retrieval Quality
+└── screenshots/                        # 5 Verification Screenshots & README
 ```
 
 ### K. Experiment 02 Technology Stack
@@ -653,7 +701,7 @@ cd "D:\Agentic AI Experiments\experiment-02-rag-qa"
 python -m venv venv
 .\venv\Scripts\activate
 pip install -r requirements.txt
-cp .env.example .env
+Copy-Item .env.example .env
 ```
 
 ### M. Experiment 02 Exact Execution Procedure
@@ -695,30 +743,32 @@ python -m app.main
 
 #### Screenshot 1 — Home Dashboard & KB Status
 ![Home Dashboard](experiment-02-rag-qa/screenshots/01-home-dashboard.png)
-- **Demonstrates:** Index status cards (9 documents, 37 chunks), sample query buttons, and pipeline bar.
+*Figure 2.1: Initial Web UI dashboard of the Cybersecurity Knowledge RAG Assistant showing Knowledge Base status cards (9 documents, 37 chunks), RAG pipeline bar, and sample query chips.*
 
 #### Screenshot 2 — Grounded RAG Retrieval
-![RAG Retrieval](experiment-02-rag-qa/screenshots/02-rag-query-retrieval.png)
-- **Demonstrates:** Grounded response with source evidence card and percentage match.
+![RAG Query Retrieval](experiment-02-rag-qa/screenshots/02-rag-query-retrieval.png)
+*Figure 2.2: Successful RAG query response ("What is phishing?") showing grounded technical explanation and Retrieved Source Evidence panel with chunk IDs and match percentages.*
 
 #### Screenshot 3 — RAG Inspector Diagnostics
-![RAG Inspector](experiment-02-rag-qa/screenshots/03-rag-inspector-diagnostics.png)
-- **Demonstrates:** Collapsible diagnostic metrics showing vector similarity and search parameters.
+![RAG Inspector Diagnostics](experiment-02-rag-qa/screenshots/03-rag-inspector-diagnostics.png)
+*Figure 2.3: Collapsible RAG Inspector Diagnostics panel expanded to display query embedding metadata, chunks searched, top-K selection, vector store type, and relevance decision.*
 
-#### Screenshot 4 — Out-of-KB Threshold Handling
-![Out of KB Handling](experiment-02-rag-qa/screenshots/04-out-of-knowledge-base-handling.png)
-- **Demonstrates:** Rejection of out-of-domain query *"What is the capital of France?"*.
+#### Screenshot 4 — Out-of-Knowledge-Base Threshold Handling
+![Out of Knowledge Base Handling](experiment-02-rag-qa/screenshots/04-out-of-knowledge-base-handling.png)
+*Figure 2.4: Out-of-knowledge-base query rejection ("What is the capital of France?") demonstrating relevance thresholding (< 0.25) and refusal message with 0 evidence sources.*
 
 #### Screenshot 5 — SQL Injection Hybrid Retrieval Verification
 ![SQL Injection Retrieval](experiment-02-rag-qa/screenshots/05-sql-injection-retrieval.png)
-- **Demonstrates:** Verified retrieval for *"What is SQL Injection?"* showing Rank #1 source `Web Application Security` and hybrid scoring breakdown.
+*Figure 2.5: Verified retrieval for "What is SQL Injection?" proving Rank #1 retrieval of Web Application Security (`04_web_application_security.md`) with a 51% Hybrid Match score and detailed vector/lexical diagnostics.*
+
+---
 
 ### S. Experiment 02 Testing
 Run automated test suite:
 ```powershell
 python -m pytest tests
 ```
-- **Verified Test Result:** `20 passed in 0.96s` (covers hybrid retrieval, acronym normalization, chunking metadata, API routes, and out-of-KB safety).
+- **Verified Test Result:** `20 passed in 0.85s` (covers hybrid retrieval, acronym normalization, chunking metadata, API routes, and out-of-KB safety).
 
 ### T. Safety & Validation
 - **Grounding Guard:** Answers are strictly synthesized from retrieved passages.
@@ -728,16 +778,44 @@ python -m pytest tests
 - **Fixed Top-K:** Default $K=4$ retrieves a fixed chunk count regardless of query breadth.
 
 ### V. Troubleshooting & Gotchas
-- **`ModuleNotFoundError: No module named 'app'`**: Execute **`python -m app.main`** from the experiment directory.
+- **`ModuleNotFoundError: No module named 'app'`**: Execute **`python -m app.main`** from `experiment-02-rag-qa`.
 - **Low similarity on acronyms**: Ensure `query_normalization.py` contains the required alias mapping.
 
+---
+
 ### W. Experiment 02 Viva Questions & Answers
-1. **Q: Why was Hybrid Retrieval introduced in Experiment 02?**  
+
+1. **Q: Why was Hybrid Retrieval introduced in Experiment 02?**
    *A:* Pure subword vector search yielded low scores (`0.2425`) for short queries like *"What is SQL injection?"*, causing false out-of-KB rejections. Combining vector similarity ($50\%$) with lexical matching ($50\%$) boosted valid queries (`0.5118`) while keeping out-of-domain queries rejected (`0.1020`).
-2. **Q: How does Query Normalization improve retrieval?**  
-   *A:* It expands acronyms (`SQLi` → `SQL injection`, `MFA` → `multi-factor authentication`) so queries match full terms in document titles and headers.
-3. **Q: How does the system handle "What is the capital of France?"**  
-   *A:* The query scores `0.1020` (below `0.25`), triggering out-of-scope rejection with 0 evidence sources.
+
+2. **Q: How does Query Normalization improve retrieval?**
+   *A:* `app/services/query_normalization.py` expands acronyms (`SQLi` → `SQL injection`, `MFA` → `multi-factor authentication`) so queries match full terms in document titles, headers, and body text.
+
+3. **Q: How does the system handle "What is the capital of France?"**
+   *A:* The query scores `0.1020` (below `0.25`), triggering out-of-scope rejection with 0 evidence sources attached.
+
+4. **Q: What is heading-aware chunking and why is it used?**
+   *A:* Heading-aware chunking (`chunking_service.py`) detects Markdown headers (`#`, `##`) and prepends section context (e.g., `[Web Application Security - OWASP Top 10]`) to chunk text, ensuring chunks retain structural document context.
+
+5. **Q: What formula is used to calculate the Hybrid Match score?**
+   *A:* $\text{HybridScore} = (0.5 \times \text{VectorScore}) + (0.5 \times \text{LexicalScore})$, where VectorScore is dense Cosine Similarity and LexicalScore measures term and phrase matching.
+
+6. **Q: How many documents and chunks are indexed in the cybersecurity knowledge base?**
+   *A:* The knowledge base contains 9 synthetic Markdown documents which are partitioned into 37 vector entries stored in `index/vector_index.json`.
+
+7. **Q: What is the purpose of the RAG Inspector in the UI?**
+   *A:* The RAG Inspector is a collapsible diagnostic panel that displays raw pipeline metrics (Normalized Query, Hybrid Score, Vector Score, Lexical Score, Search Strategy, Chunks Searched) for auditability.
+
+8. **Q: How does the dense vector embedding engine operate without external APIs?**
+   *A:* `LocalDenseEmbedder` in `embedding_service.py` uses sub-word n-gram frequency hashing and $L_2$ normalization to compute 384-dimensional dense vectors offline.
+
+9. **Q: What are the 6 workflow steps executed in Experiment 02?**
+   *A:* 1. Document Index Check, 2. Query Embedding & Normalization, 3. Hybrid Retrieval, 4. Context Building, 5. Response Generation, 6. Grounded Answer.
+
+10. **Q: What is the default relevance threshold setting in `app/config.py`?**
+    *A:* `RELEVANCE_THRESHOLD = 0.25`. Any query producing a maximum hybrid score below `0.25` is flagged as out-of-scope (`is_out_of_scope = True`).
+
+---
 
 ### X. Conclusion
 Experiment 02 demonstrates a production-grade Hybrid RAG Assistant combining heading-aware chunking, term normalization, dense vector embeddings, hybrid scoring, and strict out-of-KB safeguards.
@@ -748,7 +826,7 @@ Experiment 02 demonstrates a production-grade Hybrid RAG Assistant combining hea
 
 ### A. Experiment 03 Identification
 - **Experiment Number:** 03
-- **Experiment Name:** Prompt Chaining for Summarization
+- **Experiment Name:** Agentic Document Summarization Studio — Prompt Chaining for Summarization
 - **Course Code:** MR23-1CS0436
 - **Status:** ✅ Completed & Verified
 - **Directory:** `experiment-03-prompt-chaining`
@@ -796,15 +874,15 @@ Prompt chaining is the foundational architectural pattern behind complex AI work
 
 ```mermaid
 graph TD
-    A[User Chatbot UI] -->|1. Document Text + Style + Length| B[FastAPI Backend /api/summarize]
-    B -->|2. Invoke Chain Orchestrator| C[Chain Service]
+    A[User Studio UI] -->|1. Document Text + Style + Length| B[FastAPI Backend /api/summarize]
+    B -->|2. Invoke Chain Orchestrator| C[Chain Service: app/services/chain_service.py]
     C -->|3. Stage 1: Document Analysis| D[LLM Stage 1]
     D -->|4. Analysis Data| E[Stage 2: Key Info Extraction]
     E -->|5. Extracted Key Points & Terms| F[Stage 3: Draft Generation]
     F -->|6. Draft Summary| G[Stage 4: Summary Critique]
     G -->|7. Critique & Recommendations| H[Stage 5: Summary Refinement]
     H -->|8. Refined Summary| I[Stage 6: Final Structured Assembly]
-    I -->|9. Final Package| J[Quality Metrics Engine]
+    I -->|9. Final Package| J[Quality Metrics Engine: app/services/text_processor.py]
     J -->|10. Complete Summary + Metrics + Trace| B
     B -->|11. Render Summary + Draft vs Refined + Inspector| A
 ```
@@ -825,8 +903,8 @@ sequenceDiagram
     participant Chain as Chain Orchestrator
     participant LLM as LLM Stage Provider
 
-    User->>UI: Inputs Text, Selects Style ("Executive") & Length ("Medium")
-    UI->>API: POST /api/summarize {"text": "...", "style": "executive", "length": "medium"}
+    User->>UI: Inputs Text, Selects Style ("executive") & Length ("medium")
+    UI->>API: POST /api/summarize {"text": "...", "summary_style": "executive", "summary_length": "medium"}
     API->>Chain: execute_prompt_chain(text, style, length)
     Chain->>LLM: Run Stage 1 (Analysis)
     LLM-->>Chain: Topic, Domain, Complexity
@@ -845,7 +923,7 @@ sequenceDiagram
 ```
 
 ### I. Experiment 03 Internal Data Flow
-1. **Input**: User pastes 800-word article on Cloud Architecture. Selects `Executive` style, `Medium` length.
+1. **Input**: User pastes 800-word article on Cloud Architecture. Selects `Executive Summary` style, `Medium` length.
 2. **Stage 1 (Analysis)**: Identifies domain (*Cloud Computing*), complexity (*Intermediate*).
 3. **Stage 2 (Extraction)**: Extracts 4 core architectural principles and 5 key terms.
 4. **Stage 3 (Draft)**: Generates 150-word initial draft summary.
@@ -860,16 +938,16 @@ experiment-03-prompt-chaining/
 ├── README.md                           # Lab Report & Documentation
 ├── requirements.txt                    # Project Dependencies
 ├── app/
-│   ├── main.py                         # FastAPI Server Entry Point
-│   ├── config.py                       # App Settings
-│   ├── schemas.py                      # Pydantic Schemas
+│   ├── main.py                         # FastAPI Server Entry Point & Router
+│   ├── config.py                       # Studio Settings
+│   ├── schemas.py                      # Pydantic Schemas (SummarizeRequest, SummarizeResponse)
 │   ├── services/
-│   │   ├── text_processor.py           # Text Processing & Quality Metrics
+│   │   ├── text_processor.py           # Text Processing & Quality Metrics Engine
 │   │   ├── llm_service.py              # 6-Stage Prompt Generators
 │   │   └── chain_service.py            # Sequential Chain Orchestrator
-│   └── static/                         # UI HTML5/CSS/JS
-├── tests/                              # Unit & Integration Tests (17 tests)
-└── screenshots/                        # Screenshots
+│   └── static/                         # Studio Workspace UI (index.html, style.css, script.js)
+├── tests/                              # 17 Automated Unit & Integration Tests
+└── screenshots/                        # 5 Verification Screenshots & README
 ```
 
 ### K. Experiment 03 Technology Stack
@@ -887,7 +965,7 @@ cd "D:\Agentic AI Experiments\experiment-03-prompt-chaining"
 python -m venv venv
 .\venv\Scripts\activate
 pip install -r requirements.txt
-cp .env.example .env
+Copy-Item .env.example .env
 ```
 
 ### M. Experiment 03 Exact Execution Procedure
@@ -899,27 +977,30 @@ python -m app.main
 👉 **`http://127.0.0.1:8002`**
 
 ### N. How to Use the UI
-1. **Document Input Textarea:** Paste raw text to summarize.
-2. **Control Bar:** Select Summary Style (`Executive`, `Technical`, `Bullet Points`, `Casual`) and Length (`Short`, `Medium`, `Detailed`).
-3. **Action Button:** Click *"Execute Prompt Chain Summary"*.
-4. **Step-by-Step Chain Progress Bar:** Highlights active execution across all 6 stages.
-5. **Final Output Panel:** Displays formatted final summary, key takeaway bullets, and technical glossary.
+1. **Document Input Textarea:** Paste raw text to summarize (min 30 chars, max 15,000 chars).
+2. **Control Bar Options:**
+   - **Summary Style Dropdown:** `Executive Summary` (`executive`), `Concise Summary` (`concise`), `Detailed Summary` (`detailed`), `Bullet-Point Summary` (`bullet`), `Academic Abstract` (`academic`). Default: `Executive Summary`.
+   - **Target Length Dropdown:** `Short` (`short`), `Medium` (`medium`), `Long` (`long`). Default: `Medium`.
+3. **Action Button:** Click *"Execute Prompt Chain"*.
+4. **Step-by-Step Chain Progress Bar:** Highlights active execution across all 6 stages (Analysis → Key Extraction → Draft Summary → Critique → Refinement → Final Output).
+5. **Final Output Panel:** Displays formatted final summary, key takeaway bullets, and technical terms glossary.
 6. **Draft vs. Refined Comparison View:** Displays side-by-side comparison of Stage 3 Draft vs Stage 5 Refined summary.
-7. **Chain Inspector & Metrics Panel:** Displays latency per stage and quality metrics (Compression Ratio, Coverage).
+7. **Chain Inspector & Metrics Panel:** Displays latency per stage and quality metrics (Compression Ratio, Key Points Extracted, Processing Time).
 
 ### O. Experiment 03 Demonstration Procedure
 1. Launch `python -m app.main` and open `http://127.0.0.1:8002`.
-2. Click sample input button or paste sample article.
-3. Select Style `Executive`, Length `Medium`.
-4. Click *"Execute Prompt Chain Summary"*.
+2. Click sample input button *"Agentic AI"* or *"Incident Response"*.
+3. Select Summary Style `Executive Summary`, Target Length `Medium`.
+4. Click *"Execute Prompt Chain"*.
 5. Point out live stage execution chips advancing 1 through 6.
 6. Show Final Executive Summary and Key Bullet Points.
 7. Switch to **Draft vs Refined Comparison View** to prove Stage 4 critique and Stage 5 refinement improved the output.
 8. Expand **Prompt Chain Inspector** to display stage latencies and quality metrics.
 
 ### P. Sample Inputs
-- Sample Cybersecurity Incident Report (600 words)
-- Sample Cloud Migration Strategy Document (800 words)
+- Educational Sample: *Agentic AI Paradigms* (600 words)
+- Educational Sample: *Cybersecurity Incident Response* (800 words)
+- Educational Sample: *Zero Trust Network Security* (750 words)
 
 ### Q. Expected Outputs
 - 6-Stage Chain Trace, Draft vs Refined Comparison, Quality Metrics (`72% Compression`), and Final Structured Summary Package.
@@ -928,48 +1009,79 @@ python -m app.main
 
 #### Screenshot 1 — Home Interface & Controls
 ![Home Interface](experiment-03-prompt-chaining/screenshots/01-home-interface.png)
-- **Demonstrates:** UI dashboard, input text area, style/length selector chips.
+*Figure 3.1: Initial Web UI dashboard of the Agentic Document Summarization Studio showing document text area, quick-load sample buttons, summary style/length dropdowns, and visible 6-stage pipeline bar.*
 
 #### Screenshot 2 — Prompt Chain Execution Progress
 ![Chain Processing](experiment-03-prompt-chaining/screenshots/02-prompt-chain-processing.png)
-- **Demonstrates:** Animated 6-stage execution progress bar.
+*Figure 3.2: Active execution of the 6-stage prompt chain pipeline bar as steps transition dynamically from in-progress to completed state.*
 
 #### Screenshot 3 — Final Summary Result & Key Takeaways
 ![Final Result](experiment-03-prompt-chaining/screenshots/03-final-summary-result.png)
-- **Demonstrates:** Final polished summary, key bullet points, and terms glossary.
+*Figure 3.3: Stage 6 Final Refined Summary presentation card, quantitative metrics bar (Original Words, Final Words, Compression %, Processing Time), key points list, and important terms glossary.*
 
 #### Screenshot 4 — Chain Inspector & Stage Latencies
 ![Chain Inspector](experiment-03-prompt-chaining/screenshots/04-chain-inspector.png)
-- **Demonstrates:** Detailed timing breakdowns per stage and quantitative quality metrics.
+*Figure 3.4: Collapsible Prompt Chain Inspector expanded to display per-stage execution timing (in ms), inputs consumed, and output previews for all 6 stages.*
 
 #### Screenshot 5 — Draft vs Refined Summary Comparison
 ![Draft vs Refined](experiment-03-prompt-chaining/screenshots/05-draft-vs-refined.png)
-- **Demonstrates:** Side-by-side comparison showing how critique and refinement improved draft quality.
+*Figure 3.5: Side-by-side comparison panel showing Stage 3 Draft Summary vs Stage 5 Refined Summary, proving how Stage 4 self-critique resolved coverage gaps and improved quality.*
+
+---
 
 ### S. Experiment 03 Testing
 Run automated test suite:
 ```powershell
 python -m pytest tests
 ```
-- **Verified Test Result:** `17 passed in 1.15s` (covers prompt stage propagation, summary styles, length configurations, quality metrics calculations, and API routes).
+- **Verified Test Result:** `17 passed in 0.68s` (covers prompt stage propagation, summary styles, length configurations, quality metrics calculations, and API routes).
 
 ### T. Safety & Validation
-- **Input Bounds:** Enforces maximum text length (10,000 chars) to prevent API timeout.
+- **Input Bounds:** Enforces input text length (min 30 chars, max 15,000 chars) to prevent API timeouts or memory overflow.
 - **Format Integrity:** Stage 6 guarantees structured output fields are populated.
 
 ### U. Limitations
 - **Sequential Latency:** Executing 6 sequential LLM calls incurs higher total execution time than a single-prompt call.
 
 ### V. Troubleshooting & Gotchas
-- **`ModuleNotFoundError: No module named 'app'`**: Run **`python -m app.main`** from the experiment directory.
+- **`ModuleNotFoundError: No module named 'app'`**: Run **`python -m app.main`** from `experiment-03-prompt-chaining`.
+- **Port Conflict (`8002`)**: Terminate running Python processes via `Stop-Process -Name "python" -Force`.
+
+---
 
 ### W. Experiment 03 Viva Questions & Answers
-1. **Q: Why use a 6-stage prompt chain instead of a single prompt?**  
-   *A:* Single prompts struggle with simultaneous analysis, extraction, drafting, critique, and styling. Chaining isolates responsibilities, enabling self-critique and higher quality.
-2. **Q: What is the purpose of Stage 4 (Critique)?**  
-   *A:* Stage 4 evaluates the Stage 3 draft against Stage 2 key points for factual coverage, identifying missing details before Stage 5 rewrite.
-3. **Q: How is context propagated between stages?**  
-   *A:* Each stage returns structured JSON data, which is formatted and injected into the prompt template of subsequent stages.
+
+1. **Q: Why use a 6-stage prompt chain instead of a single prompt for summarization?**
+   *A:* Single prompts struggle with simultaneous analysis, extraction, drafting, critique, and styling. Chaining isolates responsibilities into specialized steps, enabling self-critique and higher quality.
+
+2. **Q: What are the exact 6 stages of the prompt chain in Experiment 03?**
+   *A:* Stage 1: Document Analysis, Stage 2: Key Information Extraction, Stage 3: Draft Summary Generation, Stage 4: Summary Critique, Stage 5: Summary Refinement, Stage 6: Final Structured Output Assembly.
+
+3. **Q: What is the purpose of Stage 4 (Summary Critique)?**
+   *A:* Stage 4 evaluates the Stage 3 draft against Stage 2 key points for factual coverage, redundancy, and style compliance, identifying specific recommendations for Stage 5 rewrite.
+
+4. **Q: How is context propagated between stages in `chain_service.py`?**
+   *A:* Each stage returns structured data, which is parsed and passed as explicit inputs to subsequent stage functions (e.g., Stage 5 consumes Stage 3 draft + Stage 4 critique + Stage 2 extracted key info).
+
+5. **Q: What summary styles are supported by Experiment 03?**
+   *A:* Five options: `Executive Summary` (`executive`), `Concise Summary` (`concise`), `Detailed Summary` (`detailed`), `Bullet-Point Summary` (`bullet`), `Academic Abstract` (`academic`).
+
+6. **Q: What target lengths are supported by Experiment 03?**
+   *A:* Three options: `Short` (`short`), `Medium` (`medium`), `Long` (`long`).
+
+7. **Q: What quantitative metrics are computed by `text_processor.py`?**
+   *A:* Original word count, final word count, compression ratio ($1 - \text{final}/\text{original}$), key points extracted count, important terms count, stages completed, and total processing time (ms).
+
+8. **Q: What input document constraints are enforced by Pydantic?**
+   *A:* `SummarizeRequest` in `app/schemas.py` enforces a minimum text length of 30 characters and a maximum text length of 15,000 characters.
+
+9. **Q: How does the Draft vs Refined comparison view demonstrate agentic quality improvement?**
+   *A:* It displays Stage 3 (raw draft) alongside Stage 5 (post-critique refined summary), visually proving to evaluators how the self-critique stage eliminated fluff and added missing key details.
+
+10. **Q: What is the default server port for Experiment 03?**
+    *A:* Port `8002` (accessed via `http://127.0.0.1:8002`).
+
+---
 
 ### X. Conclusion
 Experiment 03 demonstrates the power of sequential prompt chaining for complex text processing, proving that multi-stage draft-critique-refine workflows significantly improve output quality.
@@ -981,7 +1093,7 @@ Experiment 03 demonstrates the power of sequential prompt chaining for complex t
 | Feature / Dimension | Experiment 01 — Text-to-SQL | Experiment 02 — Hybrid RAG QA | Experiment 03 — Prompt Chaining |
 | :--- | :--- | :--- | :--- |
 | **Primary Architectural Pattern** | Schema-Guided SQL Generation & Execution | Hybrid Vector+Lexical RAG Retrieval | 6-Stage Sequential Prompt Pipeline |
-| **Input Type** | Natural Language Question | Natural Language Question | Raw Text Document (up to 10k chars) |
+| **Input Type** | Natural Language Question | Natural Language Question | Raw Text Document (30 to 15k chars) |
 | **External Knowledge Base** | SQLite Relational Database (`university.db`) | 9 Cybersecurity Markdown Documents | Input Text Document + User Parameters |
 | **Retrieval Mechanism** | Relational Database Engine Queries | Hybrid Cosine Vector + Lexical Scoring | Direct Text Chunk Propagation |
 | **Validation / Safeguards** | Read-Only AST SQL Security Validator | Relevance Threshold (`0.25`) & Out-of-KB Filter | Stage 4 Self-Critique & Length Guard |
@@ -1084,7 +1196,7 @@ Secrets (API keys, `.env` files) must **never** be committed to Git. `.gitignore
 # Standard publication sequence:
 git status
 git add .
-git commit -m "docs: add master guide chapter for experiment XX"
+git commit -m "docs: audit and correct master laboratory guide"
 git push origin main
 ```
 
@@ -1094,7 +1206,7 @@ git push origin main
 
 ### If Faculty Asks to Evaluate Experiment 01 (Text-to-SQL):
 1. Execute `cd experiment-01-text-to-sql; python -m app.main` and open `http://127.0.0.1:8000`.
-2. Point out Schema Viewer on left panel showing SQLite tables.
+2. Point out Schema Viewer on left panel showing SQLite tables (`departments`, `students`, `courses`, `enrollments`, `faculty`).
 3. Click sample prompt *"Top 5 students by CGPA"*. Explain how schema context guided LLM SQL generation.
 4. Click sample prompt *"DROP TABLE students;"*. Demonstrate AST Security Validator blocking non-SELECT SQL.
 
@@ -1107,7 +1219,7 @@ git push origin main
 
 ### If Faculty Asks to Evaluate Experiment 03 (Prompt Chaining):
 1. Execute `cd experiment-03-prompt-chaining; python -m app.main` and open `http://127.0.0.1:8002`.
-2. Paste sample text, select Style `Executive`, and click *"Execute Prompt Chain Summary"*.
+2. Paste sample text, select Style `Executive Summary`, and click *"Execute Prompt Chain"*.
 3. Show 6 animated stage progress chips.
 4. Show Final Executive Summary, Draft vs Refined comparison view, and Prompt Chain Inspector metrics.
 
@@ -1117,11 +1229,13 @@ git push origin main
 
 ### Top Viva Questions Across Modules
 
-1. **Q: What is the main difference between RAG (Exp 02) and Text-to-SQL (Exp 01)?**  
+1. **Q: What is the main difference between RAG (Exp 02) and Text-to-SQL (Exp 01)?**
    *A:* Text-to-SQL retrieves database schema to construct formal structured queries (`SELECT`), whereas RAG retrieves unstructured text passages from a vector store to ground natural language answers.
-2. **Q: Why does Experiment 02 use Hybrid Retrieval instead of pure Vector Search?**  
+
+2. **Q: Why does Experiment 02 use Hybrid Retrieval instead of pure Vector Search?**
    *A:* Pure subword vector search suffered from false negatives on short acronyms (`SQLi`, `MFA`). Hybrid retrieval combines vector similarity ($50\%$) with term/phrase lexical matching ($50\%$), achieving $100\%$ precision on domain queries while preserving safety against out-of-KB queries.
-3. **Q: What is the advantage of Prompt Chaining (Exp 03) over single-prompt summarization?**  
+
+3. **Q: What is the advantage of Prompt Chaining (Exp 03) over single-prompt summarization?**
    *A:* Prompt chaining decomposes summarization into specialized stages (Analysis → Extraction → Draft → Critique → Refine → Package), enabling factual critique and iterative self-refinement.
 
 ---
@@ -1155,5 +1269,5 @@ The repository will expand with the following upcoming modules:
 > 5. Update the Experiment Status Matrix, test counts, and comparison sections.
 > 6. Verify all relative links, commands, ports, and Mermaid diagrams.
 > 7. Commit and push changes to GitHub.
-> 
+>
 > **An experiment MUST NOT be marked completed until this Master Guide has been updated.**
