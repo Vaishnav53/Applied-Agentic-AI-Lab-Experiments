@@ -4,7 +4,7 @@
 **Course Name:** Applied Agentic AI
 **Laboratory:** Applied Agentic AI Laboratory
 **Repository:** Applied-Agentic-AI-Lab-Experiments
-**Current Completed Experiments:** 7 / 12
+**Current Completed Experiments:** 8 / 12
 **Status:** Living Master Laboratory Reference Guide
 
 ---
@@ -1236,7 +1236,242 @@ Experiment 07 successfully demonstrates a Deep Research Agent Workflow, proving 
 
 ---
 
-## 13. Comparison of Experiments 01–07
+## 13. Experiment 08 — Image Retrieval / Visual QA System
+
+### A. Experiment Identification
+- **Experiment Number:** 08
+- **Experiment Name:** Image Retrieval / Visual QA System
+- **Course Code:** MR23-1CS0436
+- **Status:** ✅ Completed & Verified
+- **Directory:** `experiment-08-visual-qa`
+- **Main Technology:** Python 3.10+, FastAPI, Pydantic v2, HTML5/CSS Glassmorphism
+- **Interface Type:** Web-Based Multimodal Studio with Image Gallery & Grounded VQA Inspector
+- **Default Port:** `8007`
+
+### B. Aim
+To design, build, and evaluate a multimodal pipeline combining text/label feature search across indexed image catalogs with a grounded Visual Question Answering (VQA) engine answering natural language queries using image metadata, detected objects, and visual property constraints.
+
+### C. Problem Statement
+Extracting specific technical insights from technical diagrams, architecture schematics, and SOC operational dashboards via natural language is challenging. Text-only RAG pipelines cannot inspect visual attributes or diagram relationships. An **Image Retrieval / Visual QA System** resolves this by indexing multimodal metadata (detected visual objects, resolution, labels, properties) to perform fast feature search and synthesize grounded answers to visual questions.
+
+### D. Learning Objectives
+1. **Multimodal Catalog Indexing:** Build an Image Catalog Indexer storing image labels, resolutions, detected visual objects, and domain metadata.
+2. **Feature Similarity Retrieval:** Implement a Visual Feature Retriever calculating text-to-image similarity scores across visual titles, descriptions, and labels.
+3. **Grounded Visual Question Answering:** Develop a VQA Engine that returns direct answers backed by explicit visual evidence and confidence ratings ($\ge 0.85$).
+4. **Out-of-Catalog Safety Controls:** Handle non-existent image queries gracefully with clear confidence degradation (0.0).
+
+### E. Concepts Used
+#### 1. Multimodal Metadata Feature Search
+Images are indexed with labels, detected objects, and metadata properties. Feature matching calculates normalized similarity scores:
+SimilarityScore = min(1.0, w_title * TitleMatch + w_label * LabelMatch + w_desc * DescMatch)
+
+#### 2. Grounded Evidence Extraction
+Answers are synthesized exclusively from verified metadata properties to prevent hallucinated visual claims.
+
+### F. Why This Experiment Matters
+Multimodal search and grounded visual QA enable automated diagnostic inspection of network diagrams, cloud architectures, and operational dashboards.
+
+### G. Complete System Architecture
+
+```mermaid
+graph TD
+    A[User / VQA UI] -->|1. Search Query / Visual Question| B[FastAPI Backend /api/search & /api/vqa]
+    B -->|2. Search Catalog| C[Visual Feature Retriever: app/services/retriever.py]
+    C -->|3. Query Metadata| D[Image Indexer: app/services/indexer.py]
+    D -->|4. Matched Image Cards| C
+    C -->|5. Return Ranked Search Results| B
+    B -->|6. Execute Visual QA| E[Visual QA Engine: app/services/vqa_engine.py]
+    E -->|7. Retrieve Image Context| D
+    E -->|8. Ground Answer on Properties| B
+    B -->|9. Render VQA Dashboard UI| A
+```
+
+### H. Complete Workflow
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User
+    participant UI as Multimodal Web UI
+    participant API as FastAPI Backend
+    participant Ret as Visual Feature Retriever
+    participant VQA as Visual QA Engine
+    participant Ind as Image Indexer
+
+    User->>UI: Inputs Search Query ("dashboard alert metrics")
+    UI->>API: POST /api/search
+    API->>Ret: search_catalog(req)
+    Ret->>Ind: load_image_catalog()
+    Ind-->>Ret: Image Catalog Dataset
+    Ret-->>API: Ranked Search Results + Similarity Scores
+    API-->>UI: Render Search Results Grid
+    User->>UI: Selects "IMG-SOC-01" & asks Question ("What alerts are shown?")
+    UI->>API: POST /api/vqa
+    API->>VQA: answer_question(req)
+    VQA->>Ind: get_image_by_id("IMG-SOC-01")
+    Ind-->>VQA: Image Metadata Record
+    VQA-->>API: VisualQAResponse (Answer, Evidence, Confidence)
+    API-->>UI: Render Grounded Answer & Evidence Box
+```
+
+### I. Internal Data Flow
+1. **Input**: User submits search query *"soc dashboard metrics"*.
+2. **Feature Match**: Retriever matches label `'dashboard'`, title `'SOC'`, and description `'metrics'` -> Similarity score **0.90**.
+3. **VQA Query**: User selects `IMG-SOC-01` and asks *"What critical alerts are displayed?"*.
+4. **Metadata Extraction**: Engine extracts property `critical_alerts_count=3` and `monitored_endpoints=1420`.
+5. **Answer Grounding**: Synthesizes answer: *"The dashboard displays 3 critical severity alerts across 1420 monitored endpoints."* (Confidence: **0.95**).
+
+### J. Folder Structure
+
+```
+experiment-08-visual-qa/
+├── README.md                           # Comprehensive Documentation
+├── requirements.txt                    # Dependencies
+├── .env.example                        # Config Template
+├── data/
+│   ├── seed_images.py                  # Synthetic Image Dataset Generator
+│   └── images.json                     # Image Catalog Dataset (4 records)
+├── app/
+│   ├── __init__.py
+│   ├── main.py                         # FastAPI Server Router (Port 8007)
+│   ├── config.py                       # Settings
+│   ├── schemas.py                      # Pydantic Schemas
+│   ├── services/
+│   │   ├── __init__.py
+│   │   ├── indexer.py                  # Image Catalog Indexer
+│   │   ├── retriever.py                # Visual Feature Retriever
+│   │   └── vqa_engine.py               # Visual QA Engine
+│   └── static/                         # UI Assets (index.html, style.css, app.js)
+├── tests/                              # 10 Automated PyTest Tests
+└── screenshots/                        # 4 Verified Screenshot Artifacts
+```
+
+### K. Technology Stack
+- **Python 3.10+**: Core Backend Language
+- **FastAPI / Uvicorn**: Web Framework & ASGI Server (Port 8007)
+- **Pydantic v2**: Data Validation & Schemas
+- **HTML5/CSS3/Vanilla JS**: Glassmorphic Studio UI
+
+### L. Installation
+```powershell
+cd "D:\Agentic AI Experiments\experiment-08-visual-qa"
+python -m venv venv
+.\venv\Scripts\activate
+pip install -r requirements.txt
+Copy-Item .env.example .env
+python data/seed_images.py
+```
+
+### M. Exact Execution Procedure
+```powershell
+.\venv\Scripts\activate
+python -m app.main
+```
+👉 **`http://127.0.0.1:8007`**
+
+### N. How to Use the UI
+1. **Control Panel:** Enter search keywords and category filter, then click *"Search Visual Catalog"*.
+2. **Search Results Grid:** Review ranked image cards with similarity scores.
+3. **Select for VQA:** Click *"Select for VQA"* on an image card.
+4. **VQA Question Input:** Type visual question and click *"Ask Grounded Visual Question"*.
+5. **Grounded Answer Box:** Inspect direct answer, grounded evidence properties, and 0.95 confidence rating.
+
+### O. Demonstration Procedure
+1. Launch `python -m app.main` on port `8007` and open `http://127.0.0.1:8007`.
+2. Click *"Search Visual Catalog"*.
+3. Show `IMG-SOC-01` returning as top match with **0.90** similarity score.
+4. Click *"Select for VQA"* on `IMG-SOC-01`.
+5. Click *"Ask Grounded Visual Question"*.
+6. Show grounded answer displaying 3 critical alerts across 1420 endpoints with **0.95** confidence.
+
+### P. Sample Inputs
+- **Search Query**: `"dashboard metrics"` -> Top result `IMG-SOC-01` (Score **0.90**).
+- **VQA Query**: `"What critical alerts are displayed?"` on `IMG-SOC-01` -> Answer: `"3 critical alerts across 1420 endpoints"` (Confidence **0.95**).
+
+### Q. Expected Outputs
+- Structured JSON response containing matched image metadata, similarity scores, grounded answers, evidence lists, and confidence ratings.
+
+### R. Screenshots
+
+#### Screenshot 1 — Initial Studio Dashboard
+![Initial Dashboard](experiment-08-visual-qa/screenshots/01-home-interface.png)
+*Figure 8.1: Initial Web UI studio setup showing multimodal search controls, category filter, catalog gallery, and empty VQA workbench.*
+
+#### Screenshot 2 — Multimodal Search Results Grid
+![Multimodal Search Results](experiment-08-visual-qa/screenshots/02-multimodal-search-results.png)
+*Figure 8.2: Multimodal image search results grid displaying feature similarity scores and matched tag chips.*
+
+#### Screenshot 3 — Selected Image Metadata & VQA Input
+![Target Image VQA Input](experiment-08-visual-qa/screenshots/03-target-image-vqa-input.png)
+*Figure 8.3: Selected target image metadata inspector displaying resolution, visual description, and VQA question input form.*
+
+#### Screenshot 4 — Grounded VQA Answer & Evidence
+![Grounded VQA Answer](experiment-08-visual-qa/screenshots/04-grounded-vqa-answer.png)
+*Figure 8.4: Grounded Visual QA Answer display box showing direct answer, evidence properties, referenced visual objects, and 0.95 confidence score.*
+
+---
+
+### S. Testing
+Run PyTest suite:
+```powershell
+python -m pytest tests
+```
+- **Verified Test Result:** **`10 passed in 1.49s`** (covers catalog indexing, feature retrieval, VQA engine grounding, invalid ID handling, and FastAPI endpoints).
+
+### T. Safety & Validation
+- **Grounded Evidence Enforcement:** Ensures all VQA answers cite explicit metadata properties.
+- **Graceful Error Handling:** Degrades confidence score to 0.0 for non-existent image requests.
+
+### U. Limitations
+- **Synthetic Catalog Scope:** Uses structured image metadata JSON dataset.
+- **Rule-Based VQA Grounding:** Maps domain metadata properties deterministically.
+
+### V. Troubleshooting
+- **`ModuleNotFoundError: No module named 'app'`**: Execute `python -m app.main` from `experiment-08-visual-qa`.
+- **Port Conflict (`8007`)**: Terminate running Python processes via `Stop-Process -Name "python" -Force`.
+
+---
+
+### W. Experiment 08 Viva Questions & Answers
+
+1. **Q: What is the main aim of Experiment 08?**
+   *A:* To build a multimodal pipeline combining text/label feature search across indexed image catalogs with a grounded Visual Question Answering (VQA) engine.
+
+2. **Q: How does feature similarity retrieval work in this experiment?**
+   *A:* The Visual Feature Retriever checks query terms against image titles (+0.35), labels (+0.40), and visual descriptions (+0.25) to compute a normalized similarity score (0.0-1.0).
+
+3. **Q: How does the VQA Engine prevent hallucinated answers?**
+   *A:* Answers are strictly grounded on explicit metadata properties and visual object annotations, returning evidence strings and confidence ratings.
+
+4. **Q: What default port is reserved for Experiment 08?**
+   *A:* Port `8007` (accessed via `http://127.0.0.1:8007`).
+
+5. **Q: What happens when a question is asked about an invalid image ID?**
+   *A:* The VQA Engine catches the missing image ID gracefully, returning a clear error message, empty evidence list, and confidence score of `0.0`.
+
+6. **Q: What metadata properties are stored for indexed images?**
+   *A:* Image ID, title, category, resolution, format, labels, visual description, detected objects, and specific domain properties (e.g. alert counts, subnets, encryption protocols).
+
+7. **Q: How does category filtering refine search results?**
+   *A:* The retriever filters out any image whose category does not match the requested category filter prior to scoring.
+
+8. **Q: What confidence score is assigned to fully grounded VQA responses?**
+   *A:* A high confidence score of `0.95` when backed by explicit metadata properties.
+
+9. **Q: What visual object references are returned in VQA responses?**
+   *A:* Specific detected objects associated with the question topic (e.g. *"Alert Status Table"*, *"Severity Badge"* for SOC dashboard queries).
+
+10. **Q: How many automated tests cover Experiment 08?**
+    *A:* 10 automated PyTest unit and integration tests covering catalog indexing, feature retrieval, VQA engine grounding, invalid ID handling, and FastAPI endpoints.
+
+---
+
+### X. Conclusion
+Experiment 08 successfully demonstrates an Image Retrieval / Visual QA System, proving that structured multimodal indexing and grounded VQA synthesis enable precise, audit-backed technical QA over visual catalogs.
+
+---
+
+## 14. Comparison of Experiments 01–08
 
 | Feature / Dimension | Experiment 01 — Text-to-SQL | Experiment 02 — Hybrid RAG QA | Experiment 03 — Prompt Chaining | Experiment 04 — ReAct SQL Agent |
 | :--- | :--- | :--- | :--- | :--- |
@@ -1252,7 +1487,7 @@ Experiment 07 successfully demonstrates a Deep Research Agent Workflow, proving 
 
 ---
 
-## 14. Common Execution Guide
+## 15. Common Execution Guide
 
 ### Quick Command Reference
 
@@ -1292,7 +1527,7 @@ python -m app.main
 
 ---
 
-## 15. Troubleshooting Guide
+## 16. Troubleshooting Guide
 
 ### 1. `ModuleNotFoundError: No module named 'app'`
 - **Root Cause:** Executing `python app/main.py` directly without specifying the Python module execution flag (`-m`).
@@ -1306,7 +1541,7 @@ python -m app.main
 
 ---
 
-## 16. Testing Guide
+## 17. Testing Guide
 
 Run tests across all completed experiments:
 
@@ -1333,7 +1568,7 @@ cd "D:\Agentic AI Experiments\experiment-04-sql-agent"; python -m pytest tests
 
 ---
 
-## 17. Git & GitHub Workflow
+## 18. Git & GitHub Workflow
 
 ```powershell
 # Publication sequence:
@@ -1345,7 +1580,7 @@ git push origin main
 
 ---
 
-## 18. Faculty Demonstration Cheat Sheet
+## 19. Faculty Demonstration Cheat Sheet
 
 ### If Faculty Asks to Evaluate Experiment 04 (ReAct SQL Agent):
 1. Execute `cd experiment-04-sql-agent; python -m app.main` and open `http://127.0.0.1:8003`.
@@ -1358,7 +1593,7 @@ git push origin main
 
 ---
 
-## 19. Viva Preparation Guide
+## 20. Viva Preparation Guide
 
 ### Top Viva Questions Across Modules
 
@@ -1367,7 +1602,7 @@ git push origin main
 
 ---
 
-## 20. Future Experiments Overview (08–12)
+## 21. Future Experiments Overview (09–12)
 
 The repository will expand with the following upcoming modules:
 - **Experiment 05 — Multi-Agent SDR System:** Multi-agent role-playing framework for outbound sales workflows.
@@ -1381,7 +1616,7 @@ The repository will expand with the following upcoming modules:
 
 ---
 
-## 21. Master Guide Maintenance Policy
+## 22. Master Guide Maintenance Policy
 
 # Master Guide Maintenance Policy
 
