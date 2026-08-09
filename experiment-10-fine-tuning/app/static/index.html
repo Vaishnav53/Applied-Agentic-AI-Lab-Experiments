@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fine-Tuning & Domain Adaptation — Experiment 10</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-left">
+                <div class="logo-icon">
+                    <i class="fa-solid fa-sliders"></i>
+                </div>
+                <div>
+                    <h1>Fine-Tuning & Domain Adaptation Studio</h1>
+                    <p class="subtitle">MR23-1CS0436 — Experiment 10 · LoRA/PEFT Training & Base vs. Fine-Tuned Benchmark</p>
+                </div>
+            </div>
+            <div class="header-right">
+                <span class="badge status-badge"><i class="fa-solid fa-signal"></i> Active (Port 8009)</span>
+                <span class="badge lora-badge"><i class="fa-solid fa-layer-group"></i> PEFT / LoRA Adapter</span>
+            </div>
+        </header>
+
+        <!-- Main Studio Grid -->
+        <div class="studio-grid">
+            <!-- Left Control Panel -->
+            <aside class="panel control-panel">
+                <div class="panel-header">
+                    <h2><i class="fa-solid fa-gear"></i> LoRA Hyperparameter Setup</h2>
+                </div>
+
+                <form id="train-form">
+                    <div class="form-group">
+                        <label class="input-label" for="lora-rank"><i class="fa-solid fa-network-wired"></i> LoRA Rank (r)</label>
+                        <select id="lora-rank" class="control-select">
+                            <option value="8">r = 8 (Efficient)</option>
+                            <option value="16" selected>r = 16 (Standard)</option>
+                            <option value="32">r = 32 (High Capacity)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="input-label" for="num-epochs"><i class="fa-solid fa-rotate-right"></i> Training Epochs</label>
+                        <input type="number" id="num-epochs" class="control-input" value="3" min="1" max="10">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="input-label" for="learning-rate"><i class="fa-solid fa-wave-square"></i> Learning Rate</label>
+                        <input type="text" id="learning-rate" class="control-input" value="0.0002">
+                    </div>
+
+                    <button type="submit" id="run-train-btn" class="btn btn-primary btn-block">
+                        <span>Simulate LoRA Training Run</span>
+                        <i class="fa-solid fa-play"></i>
+                    </button>
+                </form>
+
+                <!-- Dataset Statistics Card -->
+                <div class="dataset-stats-card">
+                    <h3><i class="fa-solid fa-database"></i> Domain Dataset Stats</h3>
+                    <div class="stats-grid">
+                        <div>Train Samples: <strong id="stat-train-samples">0</strong></div>
+                        <div>Val Samples: <strong id="stat-val-samples">0</strong></div>
+                        <div>Estimated Tokens: <strong id="stat-train-tokens">0</strong></div>
+                        <div>Domain: <strong style="color:var(--primary);">Cybersecurity IT</strong></div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Right Workbench / Display Area -->
+            <main class="panel display-panel">
+                <div class="panel-header">
+                    <h2><i class="fa-solid fa-chart-line"></i> Loss Curves & Model Comparison</h2>
+                    <span id="train-duration-badge" class="badge duration-badge" style="display: none;">0ms</span>
+                </div>
+
+                <!-- Welcome Placeholder -->
+                <div id="welcome-card" class="welcome-card">
+                    <div class="welcome-icon"><i class="fa-solid fa-sliders"></i></div>
+                    <h3>LoRA Fine-Tuning & Evaluation Workbench</h3>
+                    <p>Click <strong>"Simulate LoRA Training Run"</strong> to generate training epoch loss curves and compare Base Model vs. Fine-Tuned Model performance side-by-side.</p>
+                </div>
+
+                <!-- Results Area -->
+                <div id="results-area" class="results-area" style="display: none;">
+                    <!-- Metrics Bar -->
+                    <div class="metrics-row">
+                        <div class="metric-card highlight">
+                            <span class="metric-label">Final Val Loss</span>
+                            <span id="final-val-loss-val" class="metric-val">0.00</span>
+                        </div>
+                        <div class="metric-card success">
+                            <span class="metric-label">Perplexity</span>
+                            <span id="final-perplexity-val" class="metric-val">0.00</span>
+                        </div>
+                        <div class="metric-card">
+                            <span class="metric-label">Accuracy Gain</span>
+                            <span id="accuracy-gain-val" class="metric-val">+84.6%</span>
+                        </div>
+                    </div>
+
+                    <!-- Training Epoch Loss Table Card -->
+                    <div class="result-card">
+                        <div class="card-header">
+                            <h3><i class="fa-solid fa-chart-area"></i> Training Epoch Loss & Perplexity Trajectory</h3>
+                        </div>
+                        <div class="card-body">
+                            <div id="epoch-metrics-container" class="table-container"></div>
+                        </div>
+                    </div>
+
+                    <!-- Base vs Fine-Tuned Model Output Comparison Card -->
+                    <div class="result-card">
+                        <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
+                            <h3><i class="fa-solid fa-code-compare"></i> Base Model vs. Fine-Tuned Model Evaluation</h3>
+                            <button type="button" id="run-eval-btn" class="btn btn-secondary" style="padding:0.4rem 0.8rem; font-size:0.8rem;">
+                                Evaluate Query <i class="fa-solid fa-play"></i>
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <div id="eval-comparison-container" class="eval-cards-grid"></div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>

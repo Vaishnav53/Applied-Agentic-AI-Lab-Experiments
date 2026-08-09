@@ -1,0 +1,1 @@
+{"instruction": "How do you detect unauthorized lateral movement via SMB in SOC logs?", "input": "Log source: Windows Event ID 5140 (Network Share Access).", "output": "Filter Event ID 5140 for access to administrative shares (C$, ADMIN$) originating from non-administrative IP subnets within short time windows."}
