@@ -23,7 +23,7 @@
 ---
 
 ## 📌 C. Status
-✅ **Completed & Verified** (21 Automated Tests Passed, Runtime UI Verified on Port 8003)
+✅ **Completed & Verified** (23 Automated Tests Passed, Runtime UI Verified on Port 8003)
 
 ---
 
@@ -163,12 +163,12 @@ experiment-04-sql-agent/
 │   │   ├── database_tools.py           # Implementation of 4 Database Agent Tools
 │   │   ├── sql_validator.py            # Token-Based Read-Only SQL Security Validator
 │   │   ├── llm_service.py              # LLM Decision Engine (Mock & Real Providers)
-│   │   └── agent_service.py            # ReAct Autonomous Agent Orchestrator Loop
+│   │   └── agent_service.py            # ReAct Autonomous Agent Loop Orchestrator
 │   └── static/                         # Glassmorphic UI Assets (index.html, style.css, app.js)
 ├── data/
 │   ├── company.db                      # SQLite Relational Database (4 tables)
 │   └── seed.py                         # Database Seeding Script
-├── tests/                              # 21 Automated PyTest Unit & Integration Tests
+├── tests/                              # 23 Automated PyTest Unit & Integration Tests
 │   ├── test_health.py
 │   ├── test_database_tools.py
 │   ├── test_sql_validator.py
@@ -253,10 +253,10 @@ python -m app.main
 ---
 
 ## 🛡️ S. Safety & Security Controls
-- **Token-Based Read-Only Validation:** `app/services/sql_validator.py` blocks DML/DDL verbs (`DROP`, `DELETE`, `UPDATE`, `INSERT`, `ALTER`, `TRUNCATE`, `CREATE`, `REPLACE`, `ATTACH`, `DETACH`, `PRAGMA`, `EXEC`, `VACUUM`, `REINDEX`).
+- **Quote-Aware Token-Based Read-Only Validation:** `app/services/sql_validator.py` strips quoted string literals before token analysis, permitting legitimate queries containing forbidden words inside string data (e.g., `WHERE name = 'Alice; DROP TABLE employees;'`) while strictly blocking executable DML/DDL verbs (`DROP`, `DELETE`, `UPDATE`, `INSERT`, `ALTER`, `TRUNCATE`, `CREATE`, `REPLACE`, `ATTACH`, `DETACH`, `PRAGMA`, `EXEC`, `VACUUM`, `REINDEX`).
 - **Single-Statement Restriction:** Rejects queries containing semicolons outside string literals.
 - **SQLite Read-Only URI Mode:** `app/database.py` connects via `file:{db_path}?mode=ro` with standard connection fallback.
-- **Max Iteration Guard:** `MAX_AGENT_ITERATIONS = 8` prevents infinite execution loops.
+- **Strict Max Iteration Guard:** `MAX_AGENT_ITERATIONS = 8` strictly caps execution loops at `min(requested_max, 8)`.
 
 ---
 
@@ -266,7 +266,7 @@ Run the automated PyTest suite:
 ```powershell
 python -m pytest tests
 ```
-- **Verified Test Result:** **`21 passed in 0.64s`** (covers database tools, SQL validator, agent loop, error reflection, and API endpoints).
+- **Verified Test Result:** **`23 passed in 0.92s`** (covers database tools, quote-aware SQL validator, agent loop, error reflection, iteration caps, and API endpoints).
 
 ---
 

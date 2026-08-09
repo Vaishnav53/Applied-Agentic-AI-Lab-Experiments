@@ -32,5 +32,6 @@ def test_out_of_domain_agent_query():
     assert "Out-of-Domain" in res.final_answer
 
 def test_max_iterations_guard():
-    res = run_sql_agent("Which department has the highest average employee salary, and how many employees work there?", max_iterations=8)
+    # Attempting to request 15 iterations MUST still be strictly capped at 8
+    res = run_sql_agent("Which department has the highest average employee salary, and how many employees work there?", max_iterations=15)
     assert res.iterations_used <= 8

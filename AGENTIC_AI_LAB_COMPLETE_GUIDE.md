@@ -500,7 +500,7 @@ python -m pytest tests
    *A:* `app/services/llm_service.py` uses deterministic pattern matching for analytical questions, executing full multi-step tool calls, schema inspection, error reflection, and grounded answer synthesis without requiring external API keys.
 
 10. **Q: How many automated tests cover Experiment 04?**
-    *A:* 21 automated PyTest unit and integration tests covering database tools, SQL validator rules, agent loop iterations, error retries, and FastAPI endpoints.
+    *A:* 23 automated PyTest unit and integration tests covering database tools, quote-aware SQL validator rules, agent loop iterations, error retries, iteration caps, and FastAPI endpoints.
 
 ---
 
@@ -520,7 +520,7 @@ Experiment 04 successfully demonstrates an Autonomous ReAct SQL Agent with Tool 
 | **Validation / Safeguards** | Lexical Read-Only Security Validator | Relevance Threshold (`0.25`) & Out-of-KB Filter | Stage 4 Self-Critique & Length Guard | Token Validator & Max Iterations Guard (`8`) |
 | **Output Type** | Formatted SQL + Table + Summary | Grounded Natural Language Answer | Multi-Section Summary Package | Grounded Answer + Action Trace + Tool Metrics |
 | **Default Server Port** | `8000` | `8001` | `8002` | `8003` |
-| **Test Suite Results** | 8 Passed | 20 Passed | 17 Passed | 21 Passed |
+| **Test Suite Results** | 8 Passed | 20 Passed | 17 Passed | 23 Passed |
 | **Core Learning Outcome** | Structured schema mapping & SQL safety | High-precision hybrid search & grounding | Context propagation & self-refinement | Tool-augmented ReAct reasoning & error auto-correction |
 
 ---
@@ -601,8 +601,8 @@ cd "D:\Agentic AI Experiments\experiment-04-sql-agent"; python -m pytest tests
 - **Experiment 01:** 8 / 8 Passed
 - **Experiment 02:** 20 / 20 Passed
 - **Experiment 03:** 17 / 17 Passed
-- **Experiment 04:** 21 / 21 Passed
-- **Total Repository Tests:** **66 / 66 Passed (100%)**
+- **Experiment 04:** 23 / 23 Passed
+- **Total Repository Tests:** **68 / 68 Passed (100%)**
 
 ---
 

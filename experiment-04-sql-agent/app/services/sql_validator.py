@@ -2,7 +2,8 @@
 Token-Based Read-Only SQL Security Validator
 Experiment 04 — SQL Agent with Tool Use (MR23-1CS0436)
 
-Enforces strict READ-ONLY SELECT-only database execution rules using lexical parsing and regex token matching.
+Enforces strict READ-ONLY SELECT-only database execution rules using quote-aware lexical parsing and regex token matching.
+Replaces string literals before tokenizing so forbidden keywords inside quoted strings do not cause false positives.
 Does NOT claim or perform AST parsing.
 """
 
@@ -18,6 +19,7 @@ FORBIDDEN_KEYWORDS = [
 def sanitize_and_validate_sql(sql_query: str) -> Tuple[bool, str, str]:
     """
     Validates a generated SQL query string for security and read-only compliance.
+    Ignores string literals when searching for executable forbidden keywords or semicolons.
     
     Returns:
         (is_safe: bool, error_message: str, cleaned_sql: str)
@@ -39,18 +41,20 @@ def sanitize_and_validate_sql(sql_query: str) -> Tuple[bool, str, str]:
     if cleaned.endswith(";"):
         cleaned = cleaned[:-1].strip()
 
-    # 2. Check for multiple statements (semicolon injection attempt)
-    outside_quotes = re.sub(r"'[^']*'|\"[^\"]*\"", "", cleaned)
+    # 2. Strip single/double quoted string literals to analyze executable SQL structure
+    outside_quotes = re.sub(r"'[^']*'|\"[^\"]*\"", " '' ", cleaned)
+
+    # 3. Check for multiple statements (semicolon outside string literals)
     if ";" in outside_quotes:
         return False, "Multiple SQL statements detected. Only single-statement queries are allowed.", cleaned
 
-    # 3. Check for leading SELECT or WITH
-    upper_query = cleaned.upper().strip()
-    if not (upper_query.startswith("SELECT") or upper_query.startswith("WITH")):
+    # 4. Check leading SELECT or WITH on executable text structure
+    upper_executable = outside_quotes.upper().strip()
+    if not (upper_executable.startswith("SELECT") or upper_executable.startswith("WITH")):
         return False, "Unsafe query rejection: Only SELECT queries are permitted.", cleaned
 
-    # 4. Check for forbidden destructive keywords using regex word token matching
-    tokens = re.findall(r'\b[A-Z_]+\b', upper_query)
+    # 5. Check for forbidden destructive keywords in executable tokens only
+    tokens = re.findall(r'\b[A-Z_]+\b', upper_executable)
     for kw in FORBIDDEN_KEYWORDS:
         if kw in tokens:
             return False, f"Unsafe query rejection: Command '{kw}' is prohibited in read-only mode.", cleaned

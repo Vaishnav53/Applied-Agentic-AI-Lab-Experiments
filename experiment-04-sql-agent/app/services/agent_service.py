@@ -22,10 +22,8 @@ def run_sql_agent(question: str, max_iterations: Optional[int] = None) -> AgentQ
     Enforces MAX_AGENT_ITERATIONS guardrail (default: 8).
     """
     start_time = time.time()
-    if max_iterations is None or max_iterations <= 0:
-        max_iterations = settings.MAX_AGENT_ITERATIONS
-
-    max_iterations = min(max_iterations, 20)  # Safe absolute ceiling
+    requested_max = max_iterations if (max_iterations is not None and max_iterations > 0) else settings.MAX_AGENT_ITERATIONS
+    max_iterations = min(requested_max, settings.MAX_AGENT_ITERATIONS)
 
     trace_steps: List[ToolCallTrace] = []
     counters = ToolCounter()
