@@ -4,7 +4,7 @@
 **Course Name:** Applied Agentic AI
 **Laboratory:** Applied Agentic AI Laboratory
 **Repository:** Applied-Agentic-AI-Lab-Experiments
-**Current Completed Experiments:** 4 / 12
+**Current Completed Experiments:** 5 / 12
 **Status:** Living Master Laboratory Reference Guide
 
 ---
@@ -509,7 +509,259 @@ Experiment 04 successfully demonstrates an Autonomous ReAct SQL Agent with Tool 
 
 ---
 
-## 10. Comparison of Experiments 01–04
+## 10. Experiment 05 — Multi-Agent SDR System
+
+### A. Experiment Identification
+- **Experiment Number:** 05
+- **Experiment Name:** Multi-Agent SDR System
+- **Course Code:** MR23-1CS0436
+- **Status:** ✅ Completed & Verified
+- **Directory:** `experiment-05-multi-agent-sdr`
+- **Main Technology:** Python 3.10+, FastAPI, Pydantic v2, HTML5/CSS Glassmorphism
+- **Interface Type:** Web-Based Campaign Workbench with Multi-Agent Trace & Outreach Preview
+- **Default Port:** `8004`
+
+### B. Aim
+To design, implement, and evaluate an autonomous Multi-Agent SDR System comprising 5 specialized agents (Supervisor Orchestrator, Lead Discovery Agent, Lead Enrichment Agent, Lead Qualification Agent, Email Drafting Agent, and Quality & Compliance Reviewer Agent) coordinating to automate B2B lead discovery, multi-dimensional scoring, draft outreach personalization, and compliance safety verification.
+
+### C. Problem Statement
+Manual B2B Sales Development Representative (SDR) workflows suffer from inconsistent lead scoring, time-consuming lead enrichment, generic cold outreach templates, and regulatory compliance risks. Single-agent LLM systems struggle to handle all tasks without hallucinating or skipping verification steps. A **Multi-Agent SDR System** decomposes the outreach pipeline into discrete, specialized role agents—discovering target leads, enriching tech stack metadata, calculating transparent qualification scores, drafting personalized emails, and auditing drafts for compliance before final approval.
+
+### D. Learning Objectives
+1. **Multi-Agent Architecture & Role Collaboration:** Implement a modular multi-agent system where specialized agents communicate via structured state contracts.
+2. **Transparent Lead Qualification Scoring:** Develop a deterministic 4-dimensional scoring model (Fit, Need, Intent, Budget) to grade leads accurately.
+3. **Safe Outbound Personalization:** Generate personalized cold outreach email drafts incorporating specific engagement signals and corporate value propositions without sending actual unsolicited emails.
+4. **Automated Quality & Compliance Auditing:** Implement a dedicated reviewer agent to check email drafts for personalization, unverified claims, and B2B tone standards.
+
+### E. Concepts Used
+#### 1. Multi-Agent Role Specialization
+The system delegates specific workflow responsibilities to discrete sub-agents managed by a central Supervisor:
+Workflow = Supervisor(Discovery -> Enrichment -> Qualification -> Drafting -> Review)
+
+#### 2. Transparent 4-Dimensional Qualification Scoring
+Leads are evaluated across 4 transparent dimensions totaling 100 points:
+FinalScore = Fit(25) + Need(25) + Intent(25) + Budget(25)
+
+#### 3. Compliance Safety Audit
+Every draft passes through the Quality & Compliance Reviewer Agent for personalization validation and claim verification.
+
+### F. Why This Experiment Matters
+Enterprise B2B sales automation requires multi-agent coordination to scale outreach while maintaining high personalization standards and legal/brand safety.
+
+### G. Complete System Architecture
+
+```mermaid
+graph TD
+    A[User / Campaign UI] -->|1. Campaign Request| B[FastAPI Backend /api/sdr/campaign]
+    B -->|2. Run Workflow| C[Supervisor Orchestrator]
+    C -->|3. Discover Leads| D[Lead Discovery Agent]
+    D -->|4. Raw Leads| C
+    C -->|5. Enrich Tech & Intent| E[Lead Enrichment Agent]
+    E -->|6. Enriched Data| C
+    C -->|7. Score Leads| F[Lead Qualification Agent]
+    F -->|8. Qualified Leads| C
+    C -->|9. Draft Emails| G[Email Drafting Agent]
+    G -->|10. Email Previews| C
+    C -->|11. Audit Compliance| H[Quality & Compliance Reviewer Agent]
+    H -->|12. Verdicts & Notes| C
+    C -->|13. Final SDR Package| B
+    B -->|14. Render UI Dashboard| A
+```
+
+### H. Complete Workflow
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User
+    participant UI as Chatbot / Campaign Web UI
+    participant Sup as Supervisor Orchestrator
+    participant Disc as Lead Discovery Agent
+    participant Enr as Lead Enrichment Agent
+    participant Qual as Lead Qualification Agent
+    participant Draft as Email Drafting Agent
+    participant Rev as Quality Reviewer Agent
+
+    User->>UI: Selects Industry & Value Prop ("Cloud Infrastructure")
+    UI->>Sup: POST /api/sdr/campaign
+    Sup->>Disc: discover_leads(industry, region)
+    Disc-->>Sup: Discovered Lead Records
+    Sup->>Enr: enrich_lead(lead_data)
+    Enr-->>Sup: Tech Stack & Engagement Metadata
+    Sup->>Qual: qualify_lead(enriched_lead, threshold=60)
+    Qual-->>Sup: Fit/Need/Intent/Budget Scores & Status
+    alt Qualified Lead (Score >= 60)
+        Sup->>Draft: draft_email(lead, value_prop)
+        Draft-->>Sup: Personalized Email Preview
+        Sup->>Rev: review_draft(lead, draft)
+        Rev-->>Sup: Compliance Verdict (APPROVED_FOR_SENDING)
+    end
+    Sup-->>UI: Return Full SDR Package + Agent Traces
+```
+
+### I. Internal Data Flow
+1. **Input**: User submits campaign request for *"Cloud Infrastructure"* with minimum threshold `60`.
+2. **Step 1 (Discovery)**: Discovery Agent retrieves matching lead (Sarah Jenkins, VP of Infrastructure at CloudNexus Tech).
+3. **Step 2 (Enrichment)**: Enrichment Agent flags high-value tech stack (AWS, Kubernetes) and executive decision-maker role.
+4. **Step 3 (Qualification)**: Qualification Agent scores lead **90/100** (Fit: 25, Need: 25, Intent: 20, Budget: 20) → Status: `QUALIFIED`.
+5. **Step 4 (Drafting)**: Email Drafting Agent constructs personalized email body referencing AWS/Kubernetes tech alignment and cloud spend reduction need.
+6. **Step 5 (Compliance Review)**: Quality Reviewer Agent validates recipient personalization and verifies no exaggerated claims exist → Verdict: `APPROVED_FOR_SENDING`.
+
+### J. Folder Structure
+
+```
+experiment-05-multi-agent-sdr/
+├── README.md                           # Comprehensive Experiment Documentation
+├── requirements.txt                    # Dependencies
+├── .env.example                        # Config Template
+├── data/
+│   ├── seed_leads.py                   # Synthetic Lead Dataset Generator
+│   └── leads.json                      # B2B Lead Dataset (6 records)
+├── app/
+│   ├── __init__.py
+│   ├── main.py                         # FastAPI Router (Port 8004)
+│   ├── config.py                       # Settings
+│   ├── schemas.py                      # Pydantic Models
+│   ├── services/
+│   │   ├── __init__.py
+│   │   ├── lead_discovery_agent.py     # Discovery Agent
+│   │   ├── lead_enrichment_agent.py    # Enrichment Agent
+│   │   ├── lead_qualification_agent.py # Qualification Scoring Agent
+│   │   ├── email_drafting_agent.py     # Email Drafting Agent
+│   │   ├── compliance_reviewer_agent.py# Compliance Reviewer Agent
+│   │   └── sdr_supervisor.py           # Supervisor Orchestrator
+│   └── static/                         # UI Assets (index.html, style.css, app.js)
+├── tests/                              # 13 Automated PyTest Tests
+└── screenshots/                        # 4 Verified Screenshot Artifacts
+```
+
+### K. Technology Stack
+- **Python 3.10+**: Core Backend Runtime
+- **FastAPI / Uvicorn**: Web Framework & ASGI Server (Port 8004)
+- **Pydantic v2**: Data Validation & Schema Contracts
+- **HTML5/CSS3/Vanilla JS**: Glassmorphic Campaign Workbench UI
+
+### L. Installation
+```powershell
+cd "D:\Agentic AI Experiments\experiment-05-multi-agent-sdr"
+python -m venv venv
+.\venv\Scripts\activate
+pip install -r requirements.txt
+Copy-Item .env.example .env
+python data/seed_leads.py
+```
+
+### M. Exact Execution Procedure
+```powershell
+.\venv\Scripts\activate
+python -m app.main
+```
+👉 **`http://127.0.0.1:8004`**
+
+### N. How to Use the UI
+1. **Control Panel:** Select target industry, region, qualification threshold (0-100), and value proposition.
+2. **Launch Campaign:** Click *"Launch Multi-Agent SDR Campaign"* button.
+3. **Metrics Bar:** View Discovered, Qualified, Drafted, and Compliance Approved counts.
+4. **Agent Execution Trace:** Follow step-by-step trace cards detailing actions taken by each sub-agent.
+5. **Outreach Cards:** Review individual lead qualification scores, personalized email preview texts, and compliance reviewer audit notes.
+
+### O. Demonstration Procedure
+1. Launch `python -m app.main` on port `8004` and open `http://127.0.0.1:8004`.
+2. Point out status badge indicating `Port 8004` and active 5-agent architecture.
+3. Click *"Launch Multi-Agent SDR Campaign"*.
+4. Show metrics bar updating real-time counts.
+5. Walk through the Multi-Agent Trace timeline cards showing sequential handoffs (Supervisor -> Discovery -> Enrichment -> Qualification -> Drafting -> Compliance Review).
+6. Show qualified lead outreach cards displaying personalized email drafts and `APPROVED_FOR_SENDING` reviewer verdicts.
+
+### P. Sample Inputs
+- Industry = *"Cloud Infrastructure"*, Threshold = `60` -> Sarah Jenkins (CloudNexus Tech) scored **90/100** (`QUALIFIED`).
+- Industry = *"EdTech"*, Threshold = `60` -> Rachel Adams (EduLearn Systems) scored **35/100** (`DISQUALIFIED`).
+
+### Q. Expected Outputs
+- Structured JSON response containing lead list, qualification scores, email drafts, compliance check verdicts, and step duration traces.
+
+### R. Screenshots
+
+#### Screenshot 1 — Initial Dashboard
+![Initial Dashboard](experiment-05-multi-agent-sdr/screenshots/01-home-interface.png)
+*Figure 5.1: Initial Web UI dashboard of the Multi-Agent SDR System showing campaign setup controls, active agent chips, and empty workbench.*
+
+#### Screenshot 2 — Multi-Agent Execution Trace & Summary
+![Multi-Agent Trace](experiment-05-multi-agent-sdr/screenshots/02-multi-agent-trace.png)
+*Figure 5.2: Campaign summary metrics row and chronological Multi-Agent Execution Trace timeline.*
+
+#### Screenshot 3 — Lead Qualification & Outreach Preview
+![Qualification Email Preview](experiment-05-multi-agent-sdr/screenshots/03-qualification-email-preview.png)
+*Figure 5.3: Qualified lead card showing 90/100 score breakdown and personalized cold email preview.*
+
+#### Screenshot 4 — Compliance Reviewer Verdict Box
+![Compliance Review Verdict](experiment-05-multi-agent-sdr/screenshots/04-compliance-review-verdict.png)
+*Figure 5.4: Quality & Compliance Reviewer Agent verdict box displaying APPROVED_FOR_SENDING verdict and audit notes.*
+
+---
+
+### S. Testing
+Run PyTest suite:
+```powershell
+python -m pytest tests
+```
+- **Verified Test Result:** **`13 passed in 0.50s`** (covers discovery, qualification, drafting, compliance, supervisor workflow, and FastAPI endpoints).
+
+### T. Safety & Validation
+- **Safe Draft Only:** Generates email text previews only. No actual emails delivered.
+- **Synthetic Lead Data:** Operates on synthetic educational B2B lead dataset (`data/leads.json`).
+- **Compliance Audit:** Reviewer Agent flags missing personalization or exaggerated claims.
+
+### U. Limitations
+- **Synthetic Data Scope:** Uses structured educational lead dataset for benchmarking.
+- **Static Template Customization:** Outreach text uses structured prompt templates.
+
+### V. Troubleshooting
+- **`ModuleNotFoundError: No module named 'app'`**: Execute `python -m app.main` from `experiment-05-multi-agent-sdr`.
+- **Port Conflict (`8004`)**: Terminate running Python processes via `Stop-Process -Name "python" -Force`.
+
+---
+
+### W. Experiment 05 Viva Questions & Answers
+
+1. **Q: What is the core objective of Experiment 05?**
+   *A:* To design a Multi-Agent SDR system where specialized agents (Discovery, Enrichment, Qualification, Drafting, Compliance Reviewer) collaborate under a Supervisor Orchestrator to automate lead qualification and draft outreach safely.
+
+2. **Q: How does a multi-agent system differ from a single-agent system?**
+   *A:* A single-agent system handles all tasks in one prompt loop, risking hallucination. A multi-agent system decomposes complex workflows into specialized roles with distinct inputs, outputs, and validation steps.
+
+3. **Q: What four dimensions are used in lead qualification scoring?**
+   *A:* Fit (role & tech match), Need (business challenge urgency), Intent (engagement signals), and Budget (company budget band), totaling 100 points.
+
+4. **Q: How is safety guaranteed in outbound email generation?**
+   *A:* The system operates in safe preview mode (generating text drafts only) and uses synthetic lead data. No actual emails are sent over external SMTP/email services.
+
+5. **Q: What role does the Quality & Compliance Reviewer Agent play?**
+   *A:* It audits generated drafts to ensure explicit recipient personalization, absence of unverified guarantee claims, and proper B2B consultative tone before approving the draft.
+
+6. **Q: What happens when a lead scores below the qualification threshold?**
+   *A:* The Lead Qualification Agent marks the lead `DISQUALIFIED`, logging the score summary, and the Supervisor skips email drafting for that lead.
+
+7. **Q: What is the default server port for Experiment 05?**
+   *A:* Port `8004` (accessed via `http://127.0.0.1:8004`).
+
+8. **Q: What structured information is exposed in the Multi-Agent Execution Trace?**
+   *A:* Agent name, action type, description, inputs, outputs, step status, and execution duration in milliseconds.
+
+9. **Q: How does the Supervisor Orchestrator manage state between agents?**
+   *A:* The Supervisor passes structured Pydantic data objects (Lead, QualificationResult, EmailDraft) sequentially from one agent to the next.
+
+10. **Q: How many automated tests cover Experiment 05?**
+    *A:* 13 automated PyTest unit and integration tests covering discovery, qualification, drafting, compliance, supervisor orchestration, and API endpoints.
+
+---
+
+### X. Conclusion
+Experiment 05 successfully demonstrates a Multi-Agent SDR System, proving that role specialization, transparent scoring, and automated compliance auditing significantly improve B2B outreach quality and safety.
+
+---
+
+## 11. Comparison of Experiments 01–05
 
 | Feature / Dimension | Experiment 01 — Text-to-SQL | Experiment 02 — Hybrid RAG QA | Experiment 03 — Prompt Chaining | Experiment 04 — ReAct SQL Agent |
 | :--- | :--- | :--- | :--- | :--- |
@@ -525,7 +777,7 @@ Experiment 04 successfully demonstrates an Autonomous ReAct SQL Agent with Tool 
 
 ---
 
-## 11. Common Execution Guide
+## 12. Common Execution Guide
 
 ### Quick Command Reference
 
@@ -565,7 +817,7 @@ python -m app.main
 
 ---
 
-## 12. Troubleshooting Guide
+## 13. Troubleshooting Guide
 
 ### 1. `ModuleNotFoundError: No module named 'app'`
 - **Root Cause:** Executing `python app/main.py` directly without specifying the Python module execution flag (`-m`).
@@ -579,7 +831,7 @@ python -m app.main
 
 ---
 
-## 13. Testing Guide
+## 14. Testing Guide
 
 Run tests across all completed experiments:
 
@@ -606,7 +858,7 @@ cd "D:\Agentic AI Experiments\experiment-04-sql-agent"; python -m pytest tests
 
 ---
 
-## 14. Git & GitHub Workflow
+## 15. Git & GitHub Workflow
 
 ```powershell
 # Publication sequence:
@@ -618,7 +870,7 @@ git push origin main
 
 ---
 
-## 15. Faculty Demonstration Cheat Sheet
+## 16. Faculty Demonstration Cheat Sheet
 
 ### If Faculty Asks to Evaluate Experiment 04 (ReAct SQL Agent):
 1. Execute `cd experiment-04-sql-agent; python -m app.main` and open `http://127.0.0.1:8003`.
@@ -631,7 +883,7 @@ git push origin main
 
 ---
 
-## 16. Viva Preparation Guide
+## 17. Viva Preparation Guide
 
 ### Top Viva Questions Across Modules
 
@@ -640,7 +892,7 @@ git push origin main
 
 ---
 
-## 17. Future Experiments Overview (05–12)
+## 18. Future Experiments Overview (06–12)
 
 The repository will expand with the following upcoming modules:
 - **Experiment 05 — Multi-Agent SDR System:** Multi-agent role-playing framework for outbound sales workflows.
@@ -654,7 +906,7 @@ The repository will expand with the following upcoming modules:
 
 ---
 
-## 18. Master Guide Maintenance Policy
+## 19. Master Guide Maintenance Policy
 
 # Master Guide Maintenance Policy
 

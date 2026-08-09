@@ -33,7 +33,7 @@ The curriculum advances from foundational prompt engineering and single-turn ret
 | **02** | [RAG-Based Question Answering System](file:///d:/Agentic%20AI%20Experiments/experiment-02-rag-qa) | Implement indexing, hybrid retrieval, and response generation pipelines. | ✅ Completed | `8001` |
 | **03** | [Prompt Chaining for Summarization](file:///d:/Agentic%20AI%20Experiments/experiment-03-prompt-chaining) | Experiment with 6-stage prompt pipelines and structured decomposition. | ✅ Completed | `8002` |
 | **04** | [SQL Agent with Tool Use](file:///d:/Agentic%20AI%20Experiments/experiment-04-sql-agent) | Develop a ReAct-based agent using database tools and schema reflection. | ✅ Completed | `8003` |
-| **05** | [Multi-Agent SDR System](file:///d:/Agentic%20AI%20Experiments/experiment-05-multi-agent-sdr) | Design agents for lead generation, qualification, and outbound emailing. | ⬜ Pending | `8004` |
+| **05** | [Multi-Agent SDR System](file:///d:/Agentic%20AI%20Experiments/experiment-05-multi-agent-sdr) | Design agents for lead generation, qualification, and outbound emailing. | ✅ Completed | `8004` |
 | **06** | [Policy Compliance Agent](file:///d:/Agentic%20AI%20Experiments/experiment-06-policy-compliance) | Build an agent with rule-based evaluation and synthetic data validation. | ⬜ Pending | `8005` |
 | **07** | [Deep Research Agent Workflow](file:///d:/Agentic%20AI%20Experiments/experiment-07-deep-research) | Implement planning + reflection loops for complex content generation. | ⬜ Pending | `8006` |
 | **08** | [Image Retrieval / Visual QA System](file:///d:/Agentic%20AI%20Experiments/experiment-08-visual-qa) | Develop a multimodal pipeline for visual questioning and image search. | ⬜ Pending | `8007` |
