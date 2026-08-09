@@ -4,7 +4,7 @@
 **Course Name:** Applied Agentic AI
 **Laboratory:** Applied Agentic AI Laboratory
 **Repository:** Applied-Agentic-AI-Lab-Experiments
-**Current Completed Experiments:** 5 / 12
+**Current Completed Experiments:** 6 / 12
 **Status:** Living Master Laboratory Reference Guide
 
 ---
@@ -761,7 +761,237 @@ Experiment 05 successfully demonstrates a Multi-Agent SDR System, proving that r
 
 ---
 
-## 11. Comparison of Experiments 01–05
+## 11. Experiment 06 — Policy Compliance Agent
+
+### A. Experiment Identification
+- **Experiment Number:** 06
+- **Experiment Name:** Policy Compliance Agent
+- **Course Code:** MR23-1CS0436
+- **Status:** ✅ Completed & Verified
+- **Directory:** `experiment-06-policy-compliance`
+- **Main Technology:** Python 3.10+, FastAPI, Pydantic v2, HTML5/CSS Glassmorphism
+- **Interface Type:** Web-Based Audit Workbench with Rule Table & Remediation Plan
+- **Default Port:** `8005`
+
+### B. Aim
+To design, implement, and evaluate an automated Policy Compliance Agent equipped with an authoritative deterministic Rule Engine, evaluating synthetic audit scenario narratives against corporate IT, PII data protection, and Generative AI usage policies to calculate compliance scores, detect violations, and synthesize actionable remediation plans.
+
+### C. Problem Statement
+Manual policy compliance auditing across complex enterprise IT, cybersecurity, and data protection standards is slow, subjective, and prone to human oversight. Depending solely on unstructured LLM prompts for compliance verification introduces hallucination risks where serious violations are overlooked. A **Policy Compliance Agent** addresses this by combining an authoritative deterministic Rule Engine (for exact keyword/prohibition verification) with structured scoring, clear severity classification, and automated remediation synthesis.
+
+### D. Learning Objectives
+1. **Authoritative Rule Engine Architecture:** Implement a deterministic rule engine baseline to evaluate policy compliance rather than relying solely on non-deterministic LLM outputs.
+2. **Multi-Dimensional Severity Scoring:** Classify policy rules into `CRITICAL`, `HIGH`, `MEDIUM`, and `LOW` severities, reducing overall compliance scores dynamically when critical violations occur.
+3. **Structured Audit Evidence Trace:** Produce transparent audit logs containing rule IDs, matched keywords, detected prohibitions, evaluation status (`PASS` | `FAIL` | `WARNING`), and specific reasons.
+4. **Actionable Remediation Generation:** Synthesize specific, prioritized technical remediation steps for non-compliant audit scenarios.
+
+### E. Concepts Used
+#### 1. Deterministic Rule Matching Engine
+The system evaluates exact policy keywords and prohibited action patterns to establish an authoritative compliance verdict:
+Verdict = RuleEngine(ScenarioText, PolicyRules)
+
+#### 2. Severity Penalty Scoring
+Compliance Score is calculated as:
+ComplianceScore = max(0, RawScore - Penalty) where Penalty = 40 if CriticalViolations > 0 else 0
+
+### F. Why This Experiment Matters
+Automated compliance verification provides reproducible, continuous security oversight for cloud infrastructure, PII handling, and AI deployment workflows.
+
+### G. Complete System Architecture
+
+```mermaid
+graph TD
+    A[User / Audit UI] -->|1. Policy ID & Scenario Narrative| B[FastAPI Backend /api/compliance/audit]
+    B -->|2. Load Policy Rules| C[Policy Loader: app/services/policy_loader.py]
+    C -->|3. Policy Rules| D[Compliance Evaluator: app/services/compliance_evaluator.py]
+    D -->|4. Execute Rule Checks| E[Rule Engine: app/services/rule_engine.py]
+    E -->|5. Rule Evaluations| D
+    D -->|6. Score & Status Synthesis| F[Remediation Recommender]
+    F -->|7. Full Audit Package| B
+    B -->|8. Render Dashboard UI| A
+```
+
+### H. Complete Workflow
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User
+    participant UI as Audit Web UI
+    participant API as FastAPI Backend
+    participant Eval as Compliance Evaluator
+    participant Rule as Deterministic Rule Engine
+
+    User->>UI: Selects Policy ("POL-PII-02") & enters Scenario Narrative
+    UI->>API: POST /api/compliance/audit
+    API->>Eval: evaluate_scenario(req)
+    Eval->>Rule: evaluate_rule(rule_dict, scenario_text)
+    Rule-->>Eval: RuleEvaluation (FAIL, CRITICAL, Reason)
+    Eval->>Eval: Calculate Compliance Score & Overall Status
+    Eval-->>API: Return ComplianceAuditResponse
+    API-->>UI: Render Scorecard, Rule Table & Remediations
+```
+
+### I. Internal Data Flow
+1. **Input**: User submits `POL-PII-02` with scenario *"Developer printed raw customer email addresses to public S3 logs via HTTP transmission."*
+2. **Rule Check 1**: Rule `RULE-PII-02A` (AES-256 / TLS 1.3 Encryption) -> `FAIL` (`CRITICAL`).
+3. **Rule Check 2**: Rule `RULE-PII-02B` (PII Log Redaction) -> `FAIL` (`HIGH`).
+4. **Score Calculation**: Passed: 0/2 (0%), Penalty for Critical Violation: -40 -> Compliance Score: **10%**.
+5. **Status Synthesis**: Score 10% with 1 Critical Violation -> Overall Status: `NON_COMPLIANT`.
+6. **Remediation Generation**: Aggregates remediation instructions: *"Configure database column-level AES-256 encryption and disable non-HTTPS endpoints."*
+
+### J. Folder Structure
+
+```
+experiment-06-policy-compliance/
+├── README.md                           # Comprehensive Documentation
+├── requirements.txt                    # Dependencies
+├── .env.example                        # Config Template
+├── data/
+│   ├── seed_policies.py                # Synthetic Policy Dataset Generator
+│   ├── policies.json                   # Policy Dataset (3 policies)
+│   └── scenarios.json                  # Test Audit Scenarios (3 scenarios)
+├── app/
+│   ├── __init__.py
+│   ├── main.py                         # FastAPI Server Router (Port 8005)
+│   ├── config.py                       # Settings
+│   ├── schemas.py                      # Pydantic Schemas
+│   ├── services/
+│   │   ├── __init__.py
+│   │   ├── policy_loader.py            # Policy Data Loader
+│   │   ├── rule_engine.py              # Authoritative Rule Engine
+│   │   └── compliance_evaluator.py     # Score & Status Evaluator
+│   └── static/                         # UI Assets (index.html, style.css, app.js)
+├── tests/                              # 11 Automated PyTest Tests
+└── screenshots/                        # 4 Verified Screenshot Artifacts
+```
+
+### K. Technology Stack
+- **Python 3.10+**: Core Backend Language
+- **FastAPI / Uvicorn**: Web Framework & ASGI Server (Port 8005)
+- **Pydantic v2**: Data Schemas & Validation
+- **HTML5/CSS3/Vanilla JS**: Glassmorphic Audit Workbench UI
+
+### L. Installation
+```powershell
+cd "D:\Agentic AI Experiments\experiment-06-policy-compliance"
+python -m venv venv
+.\venv\Scripts\activate
+pip install -r requirements.txt
+Copy-Item .env.example .env
+python data/seed_policies.py
+```
+
+### M. Exact Execution Procedure
+```powershell
+.\venv\Scripts\activate
+python -m app.main
+```
+👉 **`http://127.0.0.1:8005`**
+
+### N. How to Use the UI
+1. **Control Panel:** Select target policy from dropdown or click a sample scenario chip.
+2. **Audit Action:** Click *"Evaluate Policy Compliance"* button.
+3. **Scorecard Header:** Inspect Compliance Score percentage (`10%`), overall status pill (`NON_COMPLIANT`), and critical violation count.
+4. **Rule Breakdown Table:** Inspect rule IDs, names, severities (`CRITICAL`), PASS/FAIL badges, and evaluation reasons.
+5. **Remediation Action Plan:** Review actionable technical remediation guidance.
+
+### O. Demonstration Procedure
+1. Launch `python -m app.main` on port `8005` and open `http://127.0.0.1:8005`.
+2. Click sample scenario *"Unencrypted Customer Email Logging Incident"*.
+3. Click *"Evaluate Policy Compliance"*.
+4. Show the score drop to **10%** and status update to `NON_COMPLIANT`.
+5. Point out rule evaluation table showing `RULE-PII-02A` failure reason.
+6. Show recommended remediation plan box displaying column-level encryption guidance.
+
+### P. Sample Inputs
+- **Unencrypted PII Logging**: `POL-PII-02` -> Score **10%**, Status `NON_COMPLIANT`.
+- **Compliant MFA Setup**: `POL-SEC-01` -> Score **100%**, Status `COMPLIANT`.
+
+### Q. Expected Outputs
+- Structured JSON response containing compliance score, overall status, rule evaluation array, recommended remediations, and step duration traces.
+
+### R. Screenshots
+
+#### Screenshot 1 — Initial Audit Dashboard
+![Initial Dashboard](experiment-06-policy-compliance/screenshots/01-home-interface.png)
+*Figure 6.1: Initial Web UI dashboard of the Policy Compliance Agent showing scenario controls and empty workbench.*
+
+#### Screenshot 2 — Compliance Audit Scorecard
+![Compliance Scorecard](experiment-06-policy-compliance/screenshots/02-compliance-scorecard.png)
+*Figure 6.2: Compliance Scorecard header showing 10% score, NON_COMPLIANT overall status pill, and critical violation counter.*
+
+#### Screenshot 3 — Policy Rule Breakdown Table
+![Rule Breakdown Table](experiment-06-policy-compliance/screenshots/03-rule-breakdown-table.png)
+*Figure 6.3: Policy Rule Breakdown table displaying rule IDs, names, severities, PASS/FAIL badges, and evaluation reasons.*
+
+#### Screenshot 4 — Recommended Remediation Action Plan
+![Remediation Action Plan](experiment-06-policy-compliance/screenshots/04-remediation-action-plan.png)
+*Figure 6.4: Recommended Remediation Action Plan box displaying prioritized remediation instructions.*
+
+---
+
+### S. Testing
+Run PyTest suite:
+```powershell
+python -m pytest tests
+```
+- **Verified Test Result:** **`11 passed in 0.91s`** (covers policy loading, rule engine checks, score penalties, and FastAPI endpoints).
+
+### T. Safety & Validation
+- **Authoritative Deterministic Engine:** Uses deterministic keyword/prohibition rules for exact verification.
+- **Synthetic Data:** Operates on synthetic policy dataset (`data/policies.json`).
+
+### U. Limitations
+- **Synthetic Rule Scope:** Evaluates structured rules defined in policy dataset.
+- **Narrative Detail Dependency:** Accuracy depends on detail provided in the audit scenario narrative.
+
+### V. Troubleshooting
+- **`ModuleNotFoundError: No module named 'app'`**: Execute `python -m app.main` from `experiment-06-policy-compliance`.
+- **Port Conflict (`8005`)**: Terminate running Python processes via `Stop-Process -Name "python" -Force`.
+
+---
+
+### W. Experiment 06 Viva Questions & Answers
+
+1. **Q: What is the primary objective of Experiment 06?**
+   *A:* To build an automated Policy Compliance Agent using an authoritative deterministic Rule Engine to evaluate scenario narratives against formal IT/cybersecurity policies and generate audit reports with remediations.
+
+2. **Q: Why is a deterministic rule engine preferred over pure LLM text generation for compliance?**
+   *A:* Pure LLM generation introduces hallucination and inconsistent enforcement risks. A deterministic rule engine guarantees exact keyword and prohibition matching as the authoritative compliance baseline.
+
+3. **Q: How are policy rules structured in the system?**
+   *A:* Each rule specifies a unique `rule_id`, name, description, required keywords, prohibited actions, severity (`CRITICAL`, `HIGH`, `MEDIUM`, `LOW`), and remediation guidance.
+
+4. **Q: How is the Compliance Score calculated?**
+   *A:* Score equals $(	ext{Passed Rules} / 	ext{Total Rules}) 	imes 100$. If one or more `CRITICAL` severity rules fail, a mandatory 40-point penalty is deducted.
+
+5. **Q: What overall status categories can an audit yield?**
+   *A:* `COMPLIANT` (Score $\ge 80$, 0 fails), `WARNING` (Score 50-79, 0 critical fails), and `NON_COMPLIANT` (Score $< 50$ or $\ge 1$ critical fail).
+
+6. **Q: How does the system handle missing evidence in scenario descriptions?**
+   *A:* If a scenario narrative lacks explicit proof of mandatory controls without matching prohibited keywords, the rule engine assigns a `WARNING` status.
+
+7. **Q: What default server port is reserved for Experiment 06?**
+   *A:* Port `8005` (accessed via `http://127.0.0.1:8005`).
+
+8. **Q: What information is included in the audit trace?**
+   *A:* Step numbers, stage names (`POLICY_LOAD`, `RULE_ENGINE_EVALUATION`, `REMEDIATION_SYNTHESIS`), detailed descriptions, and execution durations in milliseconds.
+
+9. **Q: How are remediations provided to the end-user?**
+   *A:* The Remediation Recommender aggregates unique remediation guidance strings for all failed rules, presenting a prioritized technical action plan.
+
+10. **Q: How many automated tests cover Experiment 06?**
+    *A:* 11 automated PyTest unit and integration tests covering policy loading, rule matching, score calculation, non-compliant detection, and FastAPI endpoints.
+
+---
+
+### X. Conclusion
+Experiment 06 successfully demonstrates a Policy Compliance Agent, proving that combining an authoritative deterministic Rule Engine with clear severity scoring produces transparent, reproducible, and audit-ready compliance evaluations.
+
+---
+
+## 12. Comparison of Experiments 01–06
 
 | Feature / Dimension | Experiment 01 — Text-to-SQL | Experiment 02 — Hybrid RAG QA | Experiment 03 — Prompt Chaining | Experiment 04 — ReAct SQL Agent |
 | :--- | :--- | :--- | :--- | :--- |
@@ -777,7 +1007,7 @@ Experiment 05 successfully demonstrates a Multi-Agent SDR System, proving that r
 
 ---
 
-## 12. Common Execution Guide
+## 13. Common Execution Guide
 
 ### Quick Command Reference
 
@@ -817,7 +1047,7 @@ python -m app.main
 
 ---
 
-## 13. Troubleshooting Guide
+## 14. Troubleshooting Guide
 
 ### 1. `ModuleNotFoundError: No module named 'app'`
 - **Root Cause:** Executing `python app/main.py` directly without specifying the Python module execution flag (`-m`).
@@ -831,7 +1061,7 @@ python -m app.main
 
 ---
 
-## 14. Testing Guide
+## 15. Testing Guide
 
 Run tests across all completed experiments:
 
@@ -858,7 +1088,7 @@ cd "D:\Agentic AI Experiments\experiment-04-sql-agent"; python -m pytest tests
 
 ---
 
-## 15. Git & GitHub Workflow
+## 16. Git & GitHub Workflow
 
 ```powershell
 # Publication sequence:
@@ -870,7 +1100,7 @@ git push origin main
 
 ---
 
-## 16. Faculty Demonstration Cheat Sheet
+## 17. Faculty Demonstration Cheat Sheet
 
 ### If Faculty Asks to Evaluate Experiment 04 (ReAct SQL Agent):
 1. Execute `cd experiment-04-sql-agent; python -m app.main` and open `http://127.0.0.1:8003`.
@@ -883,7 +1113,7 @@ git push origin main
 
 ---
 
-## 17. Viva Preparation Guide
+## 18. Viva Preparation Guide
 
 ### Top Viva Questions Across Modules
 
@@ -892,7 +1122,7 @@ git push origin main
 
 ---
 
-## 18. Future Experiments Overview (06–12)
+## 19. Future Experiments Overview (07–12)
 
 The repository will expand with the following upcoming modules:
 - **Experiment 05 — Multi-Agent SDR System:** Multi-agent role-playing framework for outbound sales workflows.
@@ -906,7 +1136,7 @@ The repository will expand with the following upcoming modules:
 
 ---
 
-## 19. Master Guide Maintenance Policy
+## 20. Master Guide Maintenance Policy
 
 # Master Guide Maintenance Policy
 
