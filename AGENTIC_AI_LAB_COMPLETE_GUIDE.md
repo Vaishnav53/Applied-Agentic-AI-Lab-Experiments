@@ -4,7 +4,7 @@
 **Course Name:** Applied Agentic AI
 **Laboratory:** Applied Agentic AI Laboratory
 **Repository:** Applied-Agentic-AI-Lab-Experiments
-**Current Completed Experiments:** 6 / 12
+**Current Completed Experiments:** 7 / 12
 **Status:** Living Master Laboratory Reference Guide
 
 ---
@@ -991,7 +991,252 @@ Experiment 06 successfully demonstrates a Policy Compliance Agent, proving that 
 
 ---
 
-## 12. Comparison of Experiments 01–06
+## 12. Experiment 07 — Deep Research Agent Workflow
+
+### A. Experiment Identification
+- **Experiment Number:** 07
+- **Experiment Name:** Deep Research Agent Workflow
+- **Course Code:** MR23-1CS0436
+- **Status:** ✅ Completed & Verified
+- **Directory:** `experiment-07-deep-research`
+- **Main Technology:** Python 3.10+, FastAPI, Pydantic v2, HTML5/CSS Glassmorphism
+- **Interface Type:** Web-Based Studio Workbench with Reflection Trace & Dossier Viewer
+- **Default Port:** `8006`
+
+### B. Aim
+To design, implement, and evaluate a multi-agent Deep Research Workflow comprising 4 specialized agents (Research Planner, Topic Researcher, Reflection & Quality Critique Agent, and Report Synthesizer) coordinating through plan-research-reflect-refine loops to compile publication-grade research dossiers.
+
+### C. Problem Statement
+Complex research tasks require multi-step information gathering, structured subtopic decomposition, critical evaluation, and coherent synthesis. Single-pass LLM prompts often yield superficial, unverified summaries lacking depth or technical rigor. A **Deep Research Agent Workflow** addresses this by establishing an explicit plan-research-reflect-refine pipeline, where an autonomous Reflection Agent evaluates draft findings and iteratively drives subtopic enrichment until strict quality thresholds are met.
+
+### D. Learning Objectives
+1. **Multi-Subtopic Research Decomposition:** Design a Research Planner Agent that breaks down broad topics into targeted subtopic research plans.
+2. **Iterative Reflection & Quality Scoring:** Implement a Reflection Agent that evaluates draft research quality, identifies missing technical aspects, and guides iterative refinement.
+3. **Bounded Reflection Guard:** Enforce strict reflection iteration caps (max 3 loops) to prevent unbounded loops while guaranteeing score convergence ($\ge 85/100$).
+4. **Structured Markdown Dossier Synthesis:** Compile multi-section technical research dossiers featuring executive summaries, empirical findings, reflection logs, and strategic recommendations.
+
+### E. Concepts Used
+#### 1. Plan-Research-Reflect-Refine Loop
+The system executes a structured multi-agent loop with explicit reflection checkpoints:
+Dossier = Synthesizer(Reflect(Research(Plan(Topic))))
+
+#### 2. Quality Convergence Scoring
+Quality score grows iteratively with source confidence:
+QualityScore = min(98, (70 + 12 * Iteration) * AvgConfidence)
+
+### F. Why This Experiment Matters
+Autonomous deep research capabilities automate complex domain investigations, literature reviews, and technology benchmarking reports across enterprise domains.
+
+### G. Complete System Architecture
+
+```mermaid
+graph TD
+    A[User / Studio UI] -->|1. Topic & Max Loops| B[FastAPI Backend /api/research/run]
+    B -->|2. Run Research| C[Research Supervisor: app/services/supervisor.py]
+    C -->|3. Decompose Topic| D[Research Planner: app/services/planner.py]
+    D -->|4. Subtopic Plan| C
+    C -->|5. Gather Subtopic Findings| E[Topic Researcher: app/services/researcher.py]
+    E -->|6. Draft Findings| C
+    C -->|7. Audit & Score Quality| F[Reflection Agent: app/services/reflection.py]
+    F -->|8. Quality Score & Critique| C
+    C -->|9. Re-research if Score < 85| E
+    C -->|10. Compile Final Dossier| G[Report Synthesizer: app/services/synthesizer.py]
+    G -->|11. Markdown Dossier| C
+    C -->|12. Return Dossier Response| B
+    B -->|13. Render Dashboard UI| A
+```
+
+### H. Complete Workflow
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User
+    participant UI as Studio Web UI
+    participant Sup as Research Supervisor
+    participant Plan as Research Planner
+    participant Res as Topic Researcher
+    participant Ref as Reflection Agent
+    participant Syn as Report Synthesizer
+
+    User->>UI: Inputs Topic ("Autonomous Cyber Defense") & Max Loops=2
+    UI->>Sup: POST /api/research/run
+    Sup->>Plan: create_research_plan(topic)
+    Plan-->>Sup: 3 Subtopic Plans (SUB-01, SUB-02, SUB-03)
+    loop Bounded Iterations (Max 3)
+        Sup->>Res: execute_subtopic_research(subtopics, iteration)
+        Res-->>Sup: Subtopic Findings List
+        Sup->>Ref: evaluate_research(findings, iteration)
+        Ref-->>Sup: ReflectionCritique (Score, IsSufficient)
+    end
+    Sup->>Syn: synthesize_dossier(topic, plan, findings, reflections)
+    Syn-->>Sup: Markdown Dossier String
+    Sup-->>UI: Return ResearchDossierResponse
+```
+
+### I. Internal Data Flow
+1. **Input**: User submits topic *"Autonomous AI Multi-Agent Systems in Cyber Defense"* with max loops = 2.
+2. **Step 1 (Plan)**: Planner Agent creates 3 subtopics (Architectural Foundations, Incident Triage, Governance).
+3. **Step 2 (Research Iter 1)**: Researcher Agent gathers initial baseline findings.
+4. **Step 3 (Reflection Iter 1)**: Reflection Agent scores draft **76/100** -> Identifies missing empirical latency metrics -> Triggers Iteration 2.
+5. **Step 4 (Research Iter 2)**: Researcher Agent incorporates latency benchmarking metrics (< 15ms overhead).
+6. **Step 5 (Reflection Iter 2)**: Reflection Agent scores draft **89/100** -> Verdict: `Sufficient` (Score $\ge 85$).
+7. **Step 6 (Synthesis)**: Synthesizer Agent compiles publication-grade markdown dossier.
+
+### J. Folder Structure
+
+```
+experiment-07-deep-research/
+├── README.md                           # Comprehensive Documentation
+├── requirements.txt                    # Dependencies
+├── .env.example                        # Config Template
+├── data/
+│   ├── seed_research.py                # Synthetic Topic Dataset Generator
+│   └── sample_topics.json              # Sample Research Topics (3 topics)
+├── app/
+│   ├── __init__.py
+│   ├── main.py                         # FastAPI Server Router (Port 8006)
+│   ├── config.py                       # Settings
+│   ├── schemas.py                      # Pydantic Schemas
+│   ├── services/
+│   │   ├── __init__.py
+│   │   ├── planner.py                  # Research Planner Agent
+│   │   ├── researcher.py               # Topic Researcher Agent
+│   │   ├── reflection.py               # Reflection & Quality Critique Agent
+│   │   ├── synthesizer.py              # Report Synthesizer Agent
+│   │   └── supervisor.py               # Research Supervisor
+│   └── static/                         # UI Assets (index.html, style.css, app.js)
+├── tests/                              # 9 Automated PyTest Tests
+└── screenshots/                        # 4 Verified Screenshot Artifacts
+```
+
+### K. Technology Stack
+- **Python 3.10+**: Core Backend Language
+- **FastAPI / Uvicorn**: Web Framework & ASGI Server (Port 8006)
+- **Pydantic v2**: Data Validation & Schemas
+- **HTML5/CSS3/Vanilla JS**: Glassmorphic Studio UI
+
+### L. Installation
+```powershell
+cd "D:\Agentic AI Experiments\experiment-07-deep-research"
+python -m venv venv
+.\venv\Scripts\activate
+pip install -r requirements.txt
+Copy-Item .env.example .env
+python data/seed_research.py
+```
+
+### M. Exact Execution Procedure
+```powershell
+.\venv\Scripts\activate
+python -m app.main
+```
+👉 **`http://127.0.0.1:8006`**
+
+### N. How to Use the UI
+1. **Control Panel:** Enter target topic or click a sample research topic chip.
+2. **Set Iteration Limit:** Set max reflection iterations (1-3).
+3. **Launch Workflow:** Click *"Launch Deep Research Workflow"* button.
+4. **Metrics Bar:** View Quality Score (`89/100`), Subtopics Planned (`3`), and Iterations Executed (`2`).
+5. **Execution Trace:** Review step-by-step subtopic decomposition and reflection critique notes.
+6. **Compiled Dossier Viewer:** Read the full synthesized markdown report.
+
+### O. Demonstration Procedure
+1. Launch `python -m app.main` on port `8006` and open `http://127.0.0.1:8006`.
+2. Click sample topic *"Autonomous AI Multi-Agent Systems in Cyber Defense"*.
+3. Click *"Launch Deep Research Workflow"*.
+4. Point out real-time metrics showing Quality Score reaching **89/100** in 2 iterations.
+5. Scroll through reflection trace timeline cards showing Planner -> Researcher -> Reflection -> Synthesizer sequence.
+6. Display the compiled markdown research dossier showing executive summary and recommendations.
+
+### P. Sample Inputs
+- **Cyber Defense Multi-Agent Systems**: 3 subtopics -> Quality Score **89/100** in 2 iterations.
+- **Post-Quantum Cryptography**: 3 subtopics -> Quality Score **89/100** in 2 iterations.
+
+### Q. Expected Outputs
+- Structured JSON response containing research plan, findings, reflection history, compiled markdown dossier, quality score, and agent traces.
+
+### R. Screenshots
+
+#### Screenshot 1 — Initial Studio Dashboard
+![Initial Dashboard](experiment-07-deep-research/screenshots/01-home-interface.png)
+*Figure 7.1: Initial Web UI studio setup showing research topic controls, sample topic chips, active agent roles card, and empty workbench.*
+
+#### Screenshot 2 — Reflection Loop Trace & Summary Metrics
+![Reflection Loop Trace](experiment-07-deep-research/screenshots/02-reflection-loop-trace.png)
+*Figure 7.2: Research summary metrics bar and step-by-step Multi-Agent Reflection Trace timeline.*
+
+#### Screenshot 3 — Compiled Research Dossier Top Section
+![Research Dossier Top](experiment-07-deep-research/screenshots/03-research-dossier-top.png)
+*Figure 7.3: Compiled markdown research dossier top section displaying executive summary and subtopic findings.*
+
+#### Screenshot 4 — Strategic Recommendations & Conclusions
+![Dossier Recommendations](experiment-07-deep-research/screenshots/04-dossier-recommendations.png)
+*Figure 7.4: Compiled markdown research dossier bottom section displaying reflection critique log and strategic technical recommendations.*
+
+---
+
+### S. Testing
+Run PyTest suite:
+```powershell
+python -m pytest tests
+```
+- **Verified Test Result:** **`9 passed in 1.40s`** (covers planning, research, reflection score growth, supervisor loop bounds, and FastAPI endpoints).
+
+### T. Safety & Validation
+- **Bounded Reflection Guard:** Reflection iterations are strictly capped at 3 (`MAX_REFLECTION_ITERATIONS = 3`).
+- **Structured Knowledge Schema:** Ensures all subtopics are validated against confidence thresholds before compilation.
+
+### U. Limitations
+- **Synthetic Knowledge Scope:** Evaluates structured synthetic research models for benchmarking.
+- **Fixed Subtopic Decomposition:** Generates 3 subtopics per topic.
+
+### V. Troubleshooting
+- **`ModuleNotFoundError: No module named 'app'`**: Execute `python -m app.main` from `experiment-07-deep-research`.
+- **Port Conflict (`8006`)**: Terminate running Python processes via `Stop-Process -Name "python" -Force`.
+
+---
+
+### W. Experiment 07 Viva Questions & Answers
+
+1. **Q: What is the main aim of Experiment 07?**
+   *A:* To build an autonomous Deep Research Agent Workflow utilizing planning and reflection loops across specialized sub-agents to compile high-quality technical research dossiers.
+
+2. **Q: How does a plan-research-reflect-refine workflow differ from standard single-pass prompts?**
+   *A:* Single-pass prompts risk generic, surface-level summaries. Plan-reflect loops break topics into structured subtopics, evaluate draft quality, identify missing analytical aspects, and iteratively refine content until quality criteria are met.
+
+3. **Q: What agents participate in the Deep Research Workflow?**
+   *A:* Research Planner Agent, Topic Researcher Agent, Reflection & Quality Critique Agent, and Report Synthesizer Agent, orchestrated by a Research Supervisor.
+
+4. **Q: How does the Reflection Agent evaluate draft findings?**
+   *A:* It calculates a 0-100 quality score based on source confidence and subtopic depth, identifies missing aspects, and determines if the report meets the $\ge 85$ sufficiency threshold.
+
+5. **Q: What safety guard prevents infinite refinement loops?**
+   *A:* A strict iteration bound (`max_reflection_loops = min(requested, 3)`) enforced in the Research Supervisor.
+
+6. **Q: What default port is reserved for Experiment 07?**
+   *A:* Port `8006` (accessed via `http://127.0.0.1:8006`).
+
+7. **Q: What sections are included in the final synthesized research dossier?**
+   *A:* Title & Metadata, Executive Summary, Structured Research Plan, Detailed Subtopic Findings, Reflection Critique Log, and Strategic Technical Recommendations.
+
+8. **Q: How are subtopics generated for custom input topics?**
+   *A:* The Research Planner Agent analyzes topic keywords to construct 3 tailored subtopics with distinct key research objectives.
+
+9. **Q: What information is tracked in the agent step trace?**
+   *A:* Step numbers, agent name, action type, description, input payload, output summary, status (`SUCCESS`), and duration in milliseconds.
+
+10. **Q: How many automated tests cover Experiment 07?**
+    *A:* 9 automated PyTest unit and integration tests covering planning, subtopic research, reflection score growth, supervisor loop bounds, and FastAPI endpoints.
+
+---
+
+### X. Conclusion
+Experiment 07 successfully demonstrates a Deep Research Agent Workflow, proving that combining subtopic planning with bounded reflection critique loops produces rigorous, publication-grade technical research reports.
+
+---
+
+## 13. Comparison of Experiments 01–07
 
 | Feature / Dimension | Experiment 01 — Text-to-SQL | Experiment 02 — Hybrid RAG QA | Experiment 03 — Prompt Chaining | Experiment 04 — ReAct SQL Agent |
 | :--- | :--- | :--- | :--- | :--- |
@@ -1007,7 +1252,7 @@ Experiment 06 successfully demonstrates a Policy Compliance Agent, proving that 
 
 ---
 
-## 13. Common Execution Guide
+## 14. Common Execution Guide
 
 ### Quick Command Reference
 
@@ -1047,7 +1292,7 @@ python -m app.main
 
 ---
 
-## 14. Troubleshooting Guide
+## 15. Troubleshooting Guide
 
 ### 1. `ModuleNotFoundError: No module named 'app'`
 - **Root Cause:** Executing `python app/main.py` directly without specifying the Python module execution flag (`-m`).
@@ -1061,7 +1306,7 @@ python -m app.main
 
 ---
 
-## 15. Testing Guide
+## 16. Testing Guide
 
 Run tests across all completed experiments:
 
@@ -1088,7 +1333,7 @@ cd "D:\Agentic AI Experiments\experiment-04-sql-agent"; python -m pytest tests
 
 ---
 
-## 16. Git & GitHub Workflow
+## 17. Git & GitHub Workflow
 
 ```powershell
 # Publication sequence:
@@ -1100,7 +1345,7 @@ git push origin main
 
 ---
 
-## 17. Faculty Demonstration Cheat Sheet
+## 18. Faculty Demonstration Cheat Sheet
 
 ### If Faculty Asks to Evaluate Experiment 04 (ReAct SQL Agent):
 1. Execute `cd experiment-04-sql-agent; python -m app.main` and open `http://127.0.0.1:8003`.
@@ -1113,7 +1358,7 @@ git push origin main
 
 ---
 
-## 18. Viva Preparation Guide
+## 19. Viva Preparation Guide
 
 ### Top Viva Questions Across Modules
 
@@ -1122,7 +1367,7 @@ git push origin main
 
 ---
 
-## 19. Future Experiments Overview (07–12)
+## 20. Future Experiments Overview (08–12)
 
 The repository will expand with the following upcoming modules:
 - **Experiment 05 — Multi-Agent SDR System:** Multi-agent role-playing framework for outbound sales workflows.
@@ -1136,7 +1381,7 @@ The repository will expand with the following upcoming modules:
 
 ---
 
-## 20. Master Guide Maintenance Policy
+## 21. Master Guide Maintenance Policy
 
 # Master Guide Maintenance Policy
 

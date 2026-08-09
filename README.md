@@ -35,7 +35,7 @@ The curriculum advances from foundational prompt engineering and single-turn ret
 | **04** | [SQL Agent with Tool Use](file:///d:/Agentic%20AI%20Experiments/experiment-04-sql-agent) | Develop a ReAct-based agent using database tools and schema reflection. | ✅ Completed | `8003` |
 | **05** | [Multi-Agent SDR System](file:///d:/Agentic%20AI%20Experiments/experiment-05-multi-agent-sdr) | Design agents for lead generation, qualification, and outbound emailing. | ✅ Completed | `8004` |
 | **06** | [Policy Compliance Agent](file:///d:/Agentic%20AI%20Experiments/experiment-06-policy-compliance) | Build an agent with rule-based evaluation and synthetic data validation. | ✅ Completed | `8005` |
-| **07** | [Deep Research Agent Workflow](file:///d:/Agentic%20AI%20Experiments/experiment-07-deep-research) | Implement planning + reflection loops for complex content generation. | ⬜ Pending | `8006` |
+| **07** | [Deep Research Agent Workflow](file:///d:/Agentic%20AI%20Experiments/experiment-07-deep-research) | Implement planning + reflection loops for complex content generation. | ✅ Completed | `8006` |
 | **08** | [Image Retrieval / Visual QA System](file:///d:/Agentic%20AI%20Experiments/experiment-08-visual-qa) | Develop a multimodal pipeline for visual questioning and image search. | ⬜ Pending | `8007` |
 | **09** | [Reasoning Model Benchmarking](file:///d:/Agentic%20AI%20Experiments/experiment-09-reasoning-benchmark) | Compare outputs across different prompting and reasoning strategies. | ⬜ Pending | `8008` |
 | **10** | [Fine-Tuning for Domain Adaptation](file:///d:/Agentic%20AI%20Experiments/experiment-10-fine-tuning) | Train, fine-tune, and evaluate a domain-specialized LLM. | ⬜ Pending | `8009` |
