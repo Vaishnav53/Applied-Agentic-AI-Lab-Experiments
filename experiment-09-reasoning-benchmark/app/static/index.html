@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reasoning Model Benchmarking — Experiment 09</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-left">
+                <div class="logo-icon">
+                    <i class="fa-solid fa-brain"></i>
+                </div>
+                <div>
+                    <h1>Reasoning Model Benchmarking</h1>
+                    <p class="subtitle">MR23-1CS0436 — Experiment 09 · Comparative Prompting Paradigm & Strategy Evaluation</p>
+                </div>
+            </div>
+            <div class="header-right">
+                <span class="badge status-badge"><i class="fa-solid fa-signal"></i> Active (Port 8008)</span>
+                <span class="badge paradigms-badge"><i class="fa-solid fa-layer-group"></i> 4 Reasoning Paradigms</span>
+            </div>
+        </header>
+
+        <!-- Main Studio Grid -->
+        <div class="studio-grid">
+            <!-- Left Control Panel -->
+            <aside class="panel control-panel">
+                <div class="panel-header">
+                    <h2><i class="fa-solid fa-flask"></i> Benchmark Problem Selector</h2>
+                </div>
+
+                <form id="benchmark-form">
+                    <div class="form-group">
+                        <label class="input-label" for="task-select"><i class="fa-solid fa-list-check"></i> Benchmark Task Suite</label>
+                        <select id="task-select" class="control-select"></select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="input-label" for="custom-problem"><i class="fa-solid fa-pen-to-square"></i> Problem Narrative</label>
+                        <textarea id="custom-problem" class="control-textarea" rows="5"></textarea>
+                    </div>
+
+                    <button type="submit" id="run-benchmark-btn" class="btn btn-primary btn-block">
+                        <span>Execute 4-Paradigm Benchmark</span>
+                        <i class="fa-solid fa-gauge-high"></i>
+                    </button>
+                </form>
+
+                <!-- Paradigms Evaluated Overview -->
+                <div class="paradigms-card">
+                    <h3><i class="fa-solid fa-cubes"></i> Benchmark Paradigms</h3>
+                    <ul class="paradigm-list">
+                        <li><i class="fa-solid fa-bolt"></i> <strong>Zero-Shot:</strong> Direct Completion</li>
+                        <li><i class="fa-solid fa-link"></i> <strong>Chain-of-Thought:</strong> Step-by-Step</li>
+                        <li><i class="fa-solid fa-gears"></i> <strong>ReAct:</strong> Iterative Tool Use</li>
+                        <li><i class="fa-solid fa-users"></i> <strong>Multi-Agent:</strong> Role Collaboration</li>
+                    </ul>
+                </div>
+            </aside>
+
+            <!-- Right Workbench / Display Area -->
+            <main class="panel display-panel">
+                <div class="panel-header">
+                    <h2><i class="fa-solid fa-chart-column"></i> Comparative Results & Radar Tradeoff Matrix</h2>
+                    <span id="benchmark-duration-badge" class="badge duration-badge" style="display: none;">0ms</span>
+                </div>
+
+                <!-- Welcome Placeholder -->
+                <div id="welcome-card" class="welcome-card">
+                    <div class="welcome-icon"><i class="fa-solid fa-brain"></i></div>
+                    <h3>Reasoning Model Benchmark Studio</h3>
+                    <p>Select a benchmark problem and click <strong>"Execute 4-Paradigm Benchmark"</strong> to run side-by-side comparative evaluation across Zero-Shot, Chain-of-Thought, ReAct Tool Use, and Multi-Agent Collaboration.</p>
+                </div>
+
+                <!-- Results Area -->
+                <div id="results-area" class="results-area" style="display: none;">
+                    <!-- Winners Summary Row -->
+                    <div class="metrics-row">
+                        <div class="metric-card highlight">
+                            <span class="metric-label">Accuracy Champion</span>
+                            <span id="winner-accuracy-val" class="metric-val" style="font-size: 1.1rem;">Multi-Agent</span>
+                        </div>
+                        <div class="metric-card success">
+                            <span class="metric-label">Latency Champion</span>
+                            <span id="winner-efficiency-val" class="metric-val" style="font-size: 1.1rem;">Zero-Shot</span>
+                        </div>
+                    </div>
+
+                    <!-- Side-by-Side 4 Strategy Cards -->
+                    <div id="strategy-cards-container" class="cards-grid"></div>
+
+                    <!-- Tradeoff Synthesis Box -->
+                    <div class="result-card">
+                        <div class="card-header">
+                            <h3><i class="fa-solid fa-scale-balanced"></i> Architectural Trade-off Synthesis</h3>
+                        </div>
+                        <div class="card-body">
+                            <div id="tradeoff-synthesis-box" class="tradeoff-box"></div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>
