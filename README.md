@@ -39,7 +39,7 @@ The curriculum advances from foundational prompt engineering and single-turn ret
 | **08** | [Image Retrieval / Visual QA System](file:///d:/Agentic%20AI%20Experiments/experiment-08-visual-qa) | Develop a multimodal pipeline for visual questioning and image search. | ✅ Completed | `8007` |
 | **09** | [Reasoning Model Benchmarking](file:///d:/Agentic%20AI%20Experiments/experiment-09-reasoning-benchmark) | Compare outputs across different prompting and reasoning strategies. | ✅ Completed | `8008` |
 | **10** | [Fine-Tuning for Domain Adaptation](file:///d:/Agentic%20AI%20Experiments/experiment-10-fine-tuning) | Train, fine-tune, and evaluate a domain-specialized LLM. | ✅ Completed | `8009` |
-| **11** | [Model Optimization Experiment](file:///d:/Agentic%20AI%20Experiments/experiment-11-model-optimization) | Apply quantization or distillation techniques to improve efficiency. | ⬜ Pending | `8010` |
+| **11** | [Model Optimization Experiment](file:///d:/Agentic%20AI%20Experiments/experiment-11-model-optimization) | Apply quantization or distillation techniques to improve efficiency. | ✅ Completed | `8010` |
 | **12** | [Mini Project (Capstone)](file:///d:/Agentic%20AI%20Experiments/experiment-12-capstone) | Build an end-to-end agentic system integrating RAG, tools, and multi-agent systems. | ⬜ Pending | `8011` |
 
 > **Status Legend:**
