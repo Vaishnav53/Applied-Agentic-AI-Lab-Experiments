@@ -18,25 +18,27 @@
 - **Course Code:** MR23-1CS0436
 - **Course Name:** Applied Agentic AI
 - **Laboratory:** Applied Agentic AI Laboratory
-- **Module Type:** Real PEFT / LoRA Parameter Training & Base vs. Fine-Tuned Benchmark
+- **Module Type:** Real PyTorch PEFT / LoRA Parameter Training & Base vs. Fine-Tuned Benchmark
 
 ---
 
 ## 📌 C. Status
-✅ **Completed & Verified** (11 Automated Tests Passed, Runtime UI Verified on Port 8009)
+✅ **Completed & Verified** (12 Automated PyTest Tests Passed, Runtime UI Verified on Port 8009)
 
 ---
 
 ## 🎯 D. Aim
-To design, build, and evaluate a real parameter PEFT/LoRA Fine-Tuning system for domain adaptation, executing autograd backpropagation over trainable adapter tensors, tracking epoch loss decay and perplexity, proving numerical parameter value change ($\Delta \theta > 0$), saving trained checkpoint artifacts (`checkpoints/lora_adapter.pt`), and benchmarking Base Model (LoRA disabled) vs. Fine-Tuned Model (LoRA adapter enabled) outputs.
+To design, build, and evaluate a real PyTorch PEFT/LoRA Fine-Tuning system for domain adaptation, executing autograd backpropagation over trainable adapter tensors, tracking epoch loss decay and perplexity, proving numerical parameter value change ($\Delta \theta > 0$), saving trained checkpoint artifacts (`checkpoints/lora_adapter.pt`), and benchmarking Base Model (LoRA disabled) vs. Fine-Tuned Model (LoRA adapter enabled) outputs programmatically.
+
+> **Educational Model Identity & Scope Disclosure:** This experiment constructs a lightweight educational PyTorch `nn.Module` (`CyberSecurityPyTorchLoRAModel`) to demonstrate genuine autograd parameter updates, frozen base weights, and state dict checkpoint reloading without needing an impractically large external LLM download.
 
 ---
 
 ## 🎯 E. Learning Objectives
-1. **Real PEFT / LoRA Parameter Fine-Tuning:** Implement trainable adapter matrices ($A \in \mathbb{R}^{r \times d}, B \in \mathbb{R}^{d \times r}$) over frozen base model weights ($W_0$).
-2. **Autograd Backpropagation:** Execute forward pass, loss calculation, exact partial derivative computation ($\frac{\partial L}{\partial \theta}$), and SGD/AdamW parameter updates.
-3. **Parameter Change Verification:** Prove numerical weight updates by calculating $\Delta \theta = \| \theta_{\text{final}} - \theta_{\text{initial}} \| > 0.0$.
-4. **Checkpoint Serialization & Reloading:** Save trained adapter weights to `checkpoints/lora_adapter.pt`, reload into model instances, and evaluate domain adaptation performance.
+1. **Real PyTorch PEFT / LoRA Parameter Fine-Tuning:** Implement trainable adapter matrices ($A \in \mathbb{R}^{r \times d}, B \in \mathbb{R}^{d \times r}$) over frozen base model weights ($W_0$).
+2. **PyTorch Autograd Backpropagation:** Execute forward pass, loss calculation, `loss.backward()` gradient computation, and `optimizer.step()` AdamW parameter updates.
+3. **Parameter Change Verification:** Prove numerical weight updates by calculating $\Delta \theta = \| \theta_{\text{final}} - \theta_{\text{initial}} \| > 0.0$ while asserting frozen base parameters remain unchanged ($\Delta \theta_{\text{frozen}} == 0.0$).
+4. **Checkpoint Serialization & Reloading:** Save trained adapter weights to `checkpoints/lora_adapter.pt`, reload state dicts into model instances, and programmatically evaluate domain adaptation performance over 10 evaluation samples.
 
 ---
 
@@ -46,11 +48,11 @@ General-purpose LLMs struggle with specialized enterprise domains (such as cyber
 ---
 
 ## 💡 G. Real Training System Architecture & Parameter Division
-- **Base Model Identifier:** `CyberSecurity-Base-Model-v1`
+- **Base Model Identifier:** `CyberSecurity-Base-Model-v1` (Educational PyTorch `nn.Module`)
 - **Frozen Base Parameters ($W_0, b_0$):** 68 frozen parameters (`requires_grad = False`).
 - **Trainable LoRA Adapter Parameters ($A, B$):** 160 trainable parameters for rank $r=8$ (`requires_grad = True`).
-- **Dataset Partitioning:** 4 training instruction samples, 2 validation samples, 4 evaluation samples (`data/seed_dataset.py`).
-- **Parameter Change Proof:** Initial adapter weights $B = \mathbf{0}$. After 5 training epochs, $\Delta \theta = \| B_{\text{final}} - B_{\text{initial}} \| = 0.011712 > 0.0$.
+- **Dataset Partitioning:** 4 training instruction samples, 2 validation samples, 10 evaluation samples (`data/eval_dataset.jsonl`).
+- **Parameter Change Proof:** Initial adapter weights $B = \mathbf{0}$. After training epochs, $\Delta \theta_{\text{trainable}} = \| B_{\text{final}} - B_{\text{initial}} \| > 0.0$ while $\Delta \theta_{\text{frozen}} == 0.0$.
 - **Checkpoint Artifact:** Serialized to `checkpoints/lora_adapter.pt`.
 
 ---
@@ -59,153 +61,64 @@ General-purpose LLMs struggle with specialized enterprise domains (such as cyber
 
 ```mermaid
 graph TD
-    A[User / Fine-Tuning UI] -->|1. Set LoRA Rank & Epochs| B[FastAPI Backend /api/train/run]
-    B -->|2. Load Instruction Dataset| C[Dataset Curator: app/services/dataset_curator.py]
-    B -->|3. Initialize Real Model & LoRA Adapter| D[Model Engine: app/services/model_engine.py]
-    B -->|4. Execute Real Training Loop| E[Real Trainer: app/services/trainer.py]
-    E -->|5. Forward -> Loss -> Backprop -> Optimizer Update| D
-    E -->|6. Verify Parameter Change Norm > 0| E
-    E -->|7. Save Trained Checkpoint| F[checkpoints/lora_adapter.pt]
-    B -->|8. Evaluate Base vs Trained Model| G[Model Evaluator: app/services/evaluator.py]
-    G -->|9. Load Saved Checkpoint Artifact| F
-    B -->|10. Render Training & Eval Studio UI| A
+    A["User Request / Hyperparameters (r=8, alpha=16)"] --> B["RealLoRATrainer (app/services/trainer.py)"]
+    B --> C["CyberSecurityPyTorchLoRAModel (app/services/model_engine.py)"]
+    C --> D["Frozen Base Layer (68 Params, requires_grad=False)"]
+    C --> E["Trainable LoRA Adapters (160 Params, requires_grad=True)"]
+    B --> F["PyTorch Autograd Training Loop (loss.backward(), optimizer.step())"]
+    F --> G["Parameter Change Verification (delta_trainable > 0, delta_frozen == 0)"]
+    G --> H["PyTorch Checkpoint Serialization (checkpoints/lora_adapter.pt)"]
+    H --> I["ModelEvaluatorService (app/services/evaluator.py)"]
+    I --> J["Programmatic Evaluation (10 eval samples, Base vs Fine-Tuned Accuracy)"]
 ```
 
 ---
 
-## 📁 I. Folder & File Structure
-
-```
-experiment-10-fine-tuning/
-├── README.md                           # Comprehensive Documentation
-├── requirements.txt                    # Dependencies
-├── .env.example                        # Config Template
-├── checkpoints/
-│   └── lora_adapter.pt                 # Serialized Trained Checkpoint Artifact
-├── data/
-│   ├── seed_dataset.py                 # Dataset Generator
-│   ├── train_dataset.jsonl             # Training Instruction Samples (4)
-│   ├── val_dataset.jsonl               # Validation Samples (2)
-│   └── eval_dataset.jsonl              # Evaluation Samples (4)
-├── app/
-│   ├── __init__.py
-│   ├── main.py                         # FastAPI Server Router (Port 8009)
-│   ├── config.py                       # Settings
-│   ├── schemas.py                      # Pydantic Schemas
-│   ├── services/
-│   │   ├── __init__.py
-│   │   ├── model_engine.py             # Real Autograd LoRA Model Engine
-│   │   ├── trainer.py                  # Real Parameter Trainer
-│   │   ├── evaluator.py                # Base vs Trained Checkpoint Evaluator
-│   │   └── dataset_curator.py          # Dataset Loader
-│   └── static/                         # UI Assets (index.html, style.css, app.js)
-├── tests/                              # 11 Automated PyTest Tests
-└── screenshots/                        # 4 Verified Screenshot Artifacts
-```
-
----
-
-## 💻 J. Technology Stack
-- **Python 3.10+**: Core Backend Language
-- **FastAPI / Uvicorn**: Web Framework & ASGI Server (Port 8009)
-- **Pydantic v2**: Data Validation & Schemas
-- **HTML5/CSS3/Vanilla JS**: Glassmorphic Studio UI
-
----
-
-## ⚙️ K. Installation & Setup
-
-### Windows PowerShell:
+## 🧪 I. Test Suite & Verification Results
 ```powershell
-cd "D:\Agentic AI Experiments\experiment-10-fine-tuning"
-python -m venv venv
-.\venv\Scripts\activate
-pip install -r requirements.txt
-Copy-Item .env.example .env
-python data/seed_dataset.py
+python -m pytest experiment-10-fine-tuning/tests -q
+# Output: 12 passed in 6.22s
 ```
 
-### Execution:
-```powershell
-.\venv\Scripts\activate
-python -m app.main
-```
-👉 **`http://127.0.0.1:8009`**
+### Verified Test Assertions:
+1. `test_pytorch_nn_module_subclass`: Verifies model subclasses `torch.nn.Module`.
+2. `test_trainable_and_frozen_parameter_counts`: Verifies 68 frozen vs 160 trainable parameters.
+3. `test_pytorch_autograd_training_parameter_change`: Asserts `frozen_diff == 0.0` and `trainable_diff > 0.0`.
+4. `test_checkpoint_save_and_reload`: Verifies PyTorch `torch.save()` and `torch.load()` state dict equality.
+5. `test_evaluate_models_comparison`: Verifies programmatic evaluation over 10 evaluation dataset samples.
 
 ---
 
-## 🖥️ L. How to Use the UI
-1. **Header Panel:** Displays title *"Fine-Tuning & Domain Adaptation Studio"* and badge (`Real PEFT / LoRA Parameter Trainer`).
-2. **LoRA Hyperparameter Setup:** Select LoRA rank ($r=8, 16, 32$), training epochs count, and learning rate.
-3. **Execute Real LoRA Fine-Tuning:** Click *"Execute Real LoRA Fine-Tuning"* to run real autograd training over adapter parameters.
-4. **Training Job Summary Card:** View base model identifier, trainable parameter count (160), frozen parameter count (68), parameter change norm ($\Delta \theta$), and saved checkpoint path.
-5. **Epoch Loss Decay Log Table:** Inspect real train loss, val loss, perplexity decay, and duration per epoch.
-6. **Base vs. Fine-Tuned Model Evaluator:** Review side-by-side output comparison between Base Model (LoRA disabled, 55% accuracy) and Fine-Tuned Model (trained checkpoint loaded, 95% accuracy, 2.0% hallucination rate).
+## 📷 J. UI Screenshots & Hashes
+
+| View | Screenshot Filename | SHA-256 Hash | Byte Size |
+| :--- | :--- | :--- | :--- |
+| **01. Initial Studio Interface** | `screenshots/01-home-interface.png` | `CAE29264323165E1650CB88F99A479323BFB1C6D152BB424B11FB5204A0ABAD6` | 267,698 B |
+| **02. PyTorch Training Loss Curves** | `screenshots/02-training-loss-curves.png` | `3153C8C89FA282D477462AEA1BFC889BAFF80A4EDAF52520497A26F1ABF9F789` | 271,191 B |
+| **03. Base vs Fine-Tuned Evaluation** | `screenshots/03-base-vs-finetuned-eval.png` | `F05226A457BFCC1AAD86BE6A147152C2CAFCD5E0636EC9BA85FA62F7575337B3` | 274,780 B |
+| **04. Accuracy Improvement Metrics** | `screenshots/04-accuracy-improvement-gauge.png` | `BEC5DA96A2F116F5FFF12287BECAA9D4BB73B674E97A2F0D7CD5C1928C4A3ADC` | 273,128 B |
 
 ---
 
-## 🧪 M. Automated Testing
-Run PyTest test suite:
-```powershell
-python -m pytest tests
-```
-- **Verified Test Result:** **`11 passed in 1.01s`** (covers dataset loading, parameter count division, autograd parameter change proof, checkpoint save/reload, base vs trained model evaluation, and FastAPI endpoints).
-
----
-
-## 🖼️ N. Screenshots & Visual Evidence
-
-#### Screenshot 1 — Initial Studio Dashboard
-![Initial Dashboard](screenshots/01-home-interface.png)
-*Figure 10.1: Initial Web UI setup showing LoRA hyperparameter setup form, domain dataset stats, and evaluation form.*
-
-#### Screenshot 2 — Real Training Loss Curves & Job Summary
-![Training Job Summary](screenshots/02-training-loss-curves.png)
-*Figure 10.2: Training job summary card displaying trainable vs frozen parameter counts, parameter change norm (Δθ), checkpoint artifact path, and epoch loss decay table.*
-
-#### Screenshot 3 — Base vs Fine-Tuned Model Evaluation Comparison
-![Base vs Fine-Tuned Eval](screenshots/03-base-vs-finetuned-eval.png)
-*Figure 10.3: Side-by-side evaluation comparison showing generic un-adapted base model response vs domain-adapted fine-tuned model output.*
-
-#### Screenshot 4 — Domain Accuracy Improvement Gauge
-![Accuracy Gauge](screenshots/04-accuracy-improvement-gauge.png)
-*Figure 10.4: Domain adaptation performance card highlighting +72.7% accuracy improvement and reduction of hallucination rate from 25.0% to 2.0%.*
-
----
-
-## ❓ O. Experiment 10 Viva Questions & Answers
+## ❓ K. Viva Voce Q&A Preparation
 
 1. **Q: What is the primary objective of Experiment 10?**
-   *A:* To implement real parameter PEFT/LoRA fine-tuning for domain adaptation, proving trainable tensor updates ($\Delta \theta > 0$), saving trained checkpoints, and evaluating Base vs. Fine-Tuned model outputs.
-
-2. **Q: How does Parameter-Efficient Fine-Tuning (PEFT / LoRA) differ from full parameter fine-tuning?**
-   *A:* PEFT/LoRA freezes base model weights ($W_0$) and trains low-rank adapter matrices ($A, B$), reducing trainable parameters by over 90% while achieving domain adaptation.
-
+   *A:* To build a real PyTorch PEFT/LoRA training engine that freezes base parameters, trains adapter weights using autograd backpropagation, serializes checkpoints, and programmatically evaluates domain adaptation gains.
+2. **Q: How does PEFT / LoRA differ from full parameter fine-tuning?**
+   *A:* Full fine-tuning updates all model parameters ($W_0$). LoRA freezes $W_0$ (`requires_grad = False`) and injects low-rank trainable matrices $A$ and $B$ (`requires_grad = True`), reducing trainable parameters by over 90%.
 3. **Q: How is parameter update verified in this experiment?**
-   *A:* By taking initial adapter snapshots before training, computing gradient updates via backpropagation, and verifying $\Delta \theta = \| \theta_{\text{final}} - \theta_{\text{initial}} \| > 0.0$.
-
+   *A:* By computing $\Delta \theta = \| \theta_{\text{final}} - \theta_{\text{initial}} \|$. The system asserts $\Delta \theta_{\text{trainable}} > 0.0$ and $\Delta \theta_{\text{frozen}} == 0.0$.
 4. **Q: How are trained checkpoint artifacts serialized and reloaded?**
-   *A:* Trained adapter matrices $A$ and $B$ are saved to `checkpoints/lora_adapter.pt` and reloaded into model instances during evaluation.
-
+   *A:* Via `torch.save(checkpoint_data, path)` and `torch.load(path)`. The evaluator reloads state dicts to instantiate trained models for benchmark evaluation.
 5. **Q: What default port is reserved for Experiment 10?**
-   *A:* Port `8009` (accessed via `http://127.0.0.1:8009`).
-
-6. **Q: What happens when LoRA adapter is disabled during evaluation?**
-   *A:* The model evaluates inputs using frozen base weights ($W_0$), producing generic un-adapted outputs with lower domain accuracy (55%).
-
-7. **Q: What accuracy improvement is achieved after domain adaptation?**
-   *A:* Fine-tuned model accuracy increases to 95%, with hallucination rate dropping from 25.0% to 2.0%.
-
-8. **Q: What parameters are frozen vs trainable in this model setup?**
-   *A:* Base model weight and bias matrices are frozen (68 parameters), while LoRA rank-adapter matrices are trainable (160 parameters for $r=8$).
-
+   *A:* Port `8009`.
+6. **Q: How are evaluation accuracy metrics computed?**
+   *A:* Accuracy is programmatically derived from predictions over 10 dataset samples in `eval_dataset.jsonl` ($\text{Accuracy} = \frac{\text{Correct Predictions}}{\text{Total Samples}} \times 100$).
+7. **Q: What parameters are frozen vs trainable in this model setup?**
+   *A:* Base linear weights ($W_0 \in \mathbb{R}^{4 \times 16}, b_0 \in \mathbb{R}^{4}$, 68 params) are frozen. LoRA adapter matrices ($A \in \mathbb{R}^{8 \times 16}, B \in \mathbb{R}^{4 \times 8}$, 160 params) are trainable.
+8. **Q: What loss function and optimizer are used?**
+   *A:* PyTorch `nn.CrossEntropyLoss` and `torch.optim.Adam` optimizer.
 9. **Q: What datasets are used for training and evaluation?**
-   *A:* Instruction-tuning datasets generated in `data/seed_dataset.py` containing domain cybersecurity QA and policy enforcement samples.
-
+   *A:* `data/train_dataset.jsonl` (4 samples), `data/val_dataset.jsonl` (2 samples), and `data/eval_dataset.jsonl` (10 samples).
 10. **Q: How many automated tests cover Experiment 10?**
-    *A:* 11 automated PyTest unit and integration tests covering dataset loading, parameter count division, autograd parameter updates, checkpoint save/reload, evaluator service, and FastAPI endpoints.
-
----
-
-## 📝 P. Conclusion
-Experiment 10 successfully demonstrates a Real Parameter Fine-Tuning System, proving that training low-rank adapter tensors over domain instruction datasets produces verified parameter updates, saved reloaded checkpoints, and dramatic domain accuracy improvements over un-adapted base models.
+    *A:* 12 automated PyTest unit and integration tests.

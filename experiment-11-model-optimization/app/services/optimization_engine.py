@@ -28,14 +28,14 @@ class ModelOptimizationEngine:
         ]
 
         size_champion = max(profiles, key=lambda p: p.metrics.compression_ratio_percent)
-        throughput_champion = max(profiles, key=lambda p: p.metrics.throughput_tokens_sec)
+        throughput_champion = max(profiles, key=lambda p: p.metrics.throughput_inferences_sec)
 
         synthesis = (
             f"Optimization Synthesis for '{req.base_model_name}' on {req.target_hardware}: "
             f"Packed INT4 Quantization achieved highest artifact size reduction ({size_champion.metrics.compression_ratio_percent}% file size reduction, "
             f"from {profiles[0].metrics.serialized_file_size_mb} MB down to {size_champion.metrics.serialized_file_size_mb} MB). "
-            f"Dynamic INT8 Post-Training Quantization provides the optimal balance of 99.4% quality retention, 75.0% memory reduction, "
-            f"and high-throughput edge deployment on workstation hardware."
+            f"Dynamic INT8 Post-Training Quantization provides the optimal balance of quality retention ({profiles[1].metrics.quality_retention_percent}%), "
+            f"75.0% memory reduction, and high-throughput ({profiles[1].metrics.throughput_inferences_sec} inf/s) edge deployment."
         )
 
         duration = round((time.time() - start_time) * 1000, 2)

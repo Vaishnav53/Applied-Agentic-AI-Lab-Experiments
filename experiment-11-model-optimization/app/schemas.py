@@ -11,8 +11,13 @@ class OptimizationMetrics(BaseModel):
     compression_ratio_percent: float
     vram_usage_gb: float
     measured_latency_ms: float
-    throughput_tokens_sec: float
+    throughput_inferences_sec: float
     quality_retention_percent: float
+    reconstruction_mse: float = 0.0
+
+    @property
+    def throughput_tokens_sec(self) -> float:
+        return self.throughput_inferences_sec
 
 class OptimizationProfile(BaseModel):
     level_name: str  # "FP32 Baseline", "Dynamic INT8 Post-Training Quantization", "Packed INT4 Uniform Quantization", "Distilled 2-Layer Student Model"

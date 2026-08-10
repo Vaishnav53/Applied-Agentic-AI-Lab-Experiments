@@ -9,13 +9,13 @@ from app.main import app
 client = TestClient(app)
 
 def test_api_stats_endpoint():
-    response = client.get("/api/dataset/stats")
+    response = client.get("/api/fine-tuning/dataset")
     assert response.status_code == 200
     stats = response.json()
     assert stats["train_samples_count"] >= 3
 
 def test_api_train_endpoint():
-    response = client.post("/api/train/run", json={
+    response = client.post("/api/fine-tuning/train", json={
         "lora_rank": 8,
         "lora_alpha": 16,
         "learning_rate": 0.01,
@@ -30,9 +30,10 @@ def test_api_train_endpoint():
     assert data["parameter_change_norm"] > 0.0
 
 def test_api_eval_endpoint():
-    response = client.post("/api/eval/run", json={
+    response = client.post("/api/fine-tuning/evaluate", json={
         "instruction": "What is the recommended NIST PQC key exchange algorithm?"
     })
     assert response.status_code == 200
     data = response.json()
-    assert data["finetuned_model_accuracy"] >= 90
+    assert data["total_evaluated_samples"] == 10
+    assert data["finetuned_model_accuracy"] >= data["base_model_accuracy"]

@@ -58,11 +58,12 @@ class EvalRequest(BaseModel):
 class ModelEvalResponse(BaseModel):
     instruction: str
     context_input: str
+    total_evaluated_samples: int
     base_model_output: str
-    base_model_accuracy: int  # 0-100
-    base_model_hallucination_rate: float
+    base_correct_count: int
+    base_model_accuracy: float  # Computed percentage (0-100)
     finetuned_model_output: str
-    finetuned_model_accuracy: int  # 0-100
-    finetuned_model_hallucination_rate: float
+    finetuned_correct_count: int
+    finetuned_model_accuracy: float  # Computed percentage (0-100)
     accuracy_improvement_percent: float
     evaluation_duration_ms: float

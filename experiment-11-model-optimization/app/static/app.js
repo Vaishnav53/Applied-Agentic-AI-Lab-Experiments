@@ -97,11 +97,12 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                     </div>
                     <div style="display:grid; grid-template-columns:repeat(2, 1fr); gap:0.4rem; font-size:0.75rem; border-top:1px solid var(--border-color); padding-top:0.6rem; font-family:var(--font-mono);">
-                        <div>Artifact Size: <strong>${m.serialized_file_size_mb || m.file_size_gb} MB</strong></div>
+                        <div>Disk Size: <strong>${m.serialized_file_size_mb} MB</strong></div>
                         <div>Size Reduction: <strong style="color:var(--success);">${m.compression_ratio_percent}%</strong></div>
-                        <div>Measured Latency: <strong>${m.measured_latency_ms || m.latency_ms} ms</strong></div>
-                        <div>Throughput: <strong>${m.throughput_tokens_sec} tok/s</strong></div>
-                        <div style="grid-column: span 2;">Quality Retention: <strong style="color:var(--secondary);">${m.quality_retention_percent}%</strong></div>
+                        <div>Measured Latency: <strong>${m.measured_latency_ms} ms</strong></div>
+                        <div>Throughput: <strong>${m.throughput_inferences_sec || m.throughput_tokens_sec} inf/s</strong></div>
+                        <div>Reconstruction MSE: <strong>${m.reconstruction_mse}</strong></div>
+                        <div>Quality Retention: <strong style="color:var(--secondary);">${m.quality_retention_percent}%</strong></div>
                     </div>
                 </div>
             `;

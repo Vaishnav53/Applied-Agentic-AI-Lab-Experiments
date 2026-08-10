@@ -19,8 +19,8 @@ from app.services.evaluator import ModelEvaluatorService
 
 app = FastAPI(
     title="Experiment 10 — Fine-Tuning for Domain Adaptation",
-    description="PEFT/LoRA real parameter training and base vs. fine-tuned model evaluation.",
-    version="2.0.0"
+    description="PEFT/LoRA real PyTorch autograd parameter training and base vs. fine-tuned model evaluation.",
+    version="3.0.0"
 )
 
 # Mount static UI assets
@@ -56,10 +56,12 @@ async def health_check():
     }
 
 @app.get("/api/dataset/stats")
+@app.get("/api/fine-tuning/dataset")
 async def get_dataset_stats():
     return dataset_curator.get_dataset_stats()
 
 @app.post("/api/train/run", response_model=TrainingJobResponse)
+@app.post("/api/fine-tuning/train", response_model=TrainingJobResponse)
 async def run_training_job(config: FineTuningConfig):
     try:
         return trainer.run_training_job(config)
@@ -67,6 +69,7 @@ async def run_training_job(config: FineTuningConfig):
         raise HTTPException(status_code=500, detail=f"Training Execution Error: {str(e)}")
 
 @app.post("/api/eval/run", response_model=ModelEvalResponse)
+@app.post("/api/fine-tuning/evaluate", response_model=ModelEvalResponse)
 async def run_evaluation(req: EvalRequest):
     try:
         return evaluator.evaluate_models(req)

@@ -1,127 +1,132 @@
 """
-Real Parameter Fine-Tuning & Autograd Engine
+PyTorch LoRA Parameter Fine-Tuning & Autograd Model Engine
 Experiment 10 — Fine-Tuning for Domain Adaptation (MR23-1CS0436)
 
-Implements real model tensor parameters, trainable vs. frozen parameter division,
-forward pass, loss computation, backpropagation gradients, SGD/AdamW optimizer update,
-checkpoint serialization/deserialization, and parameter-change verification.
+Implements a genuine PyTorch nn.Module with frozen base parameters, trainable LoRA adapter parameters,
+autograd backpropagation, PyTorch optimizer updates, checkpoint serialization, and parameter delta verification.
 """
 
-import math
-import random
-import json
 import os
+import math
+import torch
+import torch.nn as nn
+import torch.optim as optim
 from typing import List, Dict, Any, Tuple
 
-class CyberSecurityLoRAModel:
-    def __init__(self, in_dim: int = 16, out_dim: int = 4, lora_rank: int = 8, lora_alpha: int = 16):
+class CyberSecurityPyTorchLoRAModel(nn.Module):
+    def __init__(self, in_dim: int = 16, out_dim: int = 4, lora_rank: int = 8, lora_alpha: float = 16.0):
+        super().__init__()
         self.in_dim = in_dim
         self.out_dim = out_dim
         self.lora_rank = lora_rank
         self.lora_alpha = lora_alpha
         self.scaling = lora_alpha / lora_rank
 
-        random.seed(42)
+        torch.manual_seed(42)
 
-        # Base Model Weights (FROZEN - requires_grad = False)
-        # Dimensions: out_dim x in_dim
-        self.W0 = [[random.uniform(-0.2, 0.2) for _ in range(in_dim)] for _ in range(out_dim)]
-        self.b0 = [random.uniform(-0.1, 0.1) for _ in range(out_dim)]
+        # 1. Base Model Parameters (FROZEN - requires_grad = False)
+        self.base_layer = nn.Linear(in_dim, out_dim)
+        self.base_layer.weight.requires_grad = False
+        self.base_layer.bias.requires_grad = False
 
-        # LoRA Adapter Weights (TRAINABLE - requires_grad = True)
-        # Matrix A: lora_rank x in_dim (Gaussian initialization)
-        self.A = [[random.gauss(0.0, 0.1) for _ in range(in_dim)] for _ in range(lora_rank)]
-        # Matrix B: out_dim x lora_rank (Zero initialization)
-        self.B = [[0.0 for _ in range(lora_rank)] for _ in range(out_dim)]
+        # 2. LoRA Adapter Parameters (TRAINABLE - requires_grad = True)
+        self.lora_A = nn.Parameter(torch.randn(lora_rank, in_dim) * 0.1, requires_grad=True)
+        self.lora_B = nn.Parameter(torch.zeros(out_dim, lora_rank), requires_grad=True)
+
+        # 3. PyTorch Optimizer
+        self.optimizer = optim.Adam([self.lora_A, self.lora_B], lr=0.01)
+        self.criterion = nn.CrossEntropyLoss()
 
     def get_frozen_parameter_count(self) -> int:
-        return (self.out_dim * self.in_dim) + self.out_dim
+        return self.base_layer.weight.numel() + self.base_layer.bias.numel()
 
     def get_trainable_parameter_count(self) -> int:
-        return (self.lora_rank * self.in_dim) + (self.out_dim * self.lora_rank)
+        return self.lora_A.numel() + self.lora_B.numel()
 
-    def forward(self, x: List[float], enable_lora: bool = True) -> List[float]:
-        # x: input vector of length in_dim
-        # Base Linear Pass: W0 * x + b0
-        base_out = [sum(self.W0[i][j] * x[j] for j in range(self.in_dim)) + self.b0[i] for i in range(self.out_dim)]
+    def forward(self, x: torch.Tensor, enable_lora: bool = True) -> torch.Tensor:
+        # x shape: (batch_size, in_dim) or (in_dim,)
+        if x.dim() == 1:
+            x = x.unsqueeze(0)
 
+        base_out = self.base_layer(x)
         if not enable_lora:
             return base_out
 
-        # LoRA Low-Rank Pass: (B * (A * x)) * scaling
-        h = [sum(self.A[r][j] * x[j] for j in range(self.in_dim)) for r in range(self.lora_rank)]
-        lora_out = [sum(self.B[i][r] * h[r] for r in range(self.lora_rank)) * self.scaling for i in range(self.out_dim)]
+        # LoRA forward pass: (x @ A^T) @ B^T * scaling
+        h = torch.matmul(x, self.lora_A.T) # (batch_size, lora_rank)
+        lora_out = torch.matmul(h, self.lora_B.T) * self.scaling # (batch_size, out_dim)
 
-        return [base_out[i] + lora_out[i] for i in range(self.out_dim)]
+        return base_out + lora_out
 
-    def train_step(self, x: List[float], target_y: List[float], lr: float = 0.01) -> float:
-        # Forward pass with LoRA
-        h = [sum(self.A[r][j] * x[j] for j in range(self.in_dim)) for r in range(self.lora_rank)]
-        y_pred = self.forward(x, enable_lora=True)
+    def train_step(self, x: torch.Tensor, target: torch.Tensor) -> float:
+        self.train()
+        self.optimizer.zero_grad()
 
-        # Compute MSE Loss
-        err = [y_pred[i] - target_y[i] for i in range(self.out_dim)]
-        loss = sum(e ** 2 for e in err) / self.out_dim
+        outputs = self.forward(x, enable_lora=True)
+        loss = self.criterion(outputs, target)
 
-        # Backward Pass: Compute exact partial gradients wrt trainable LoRA matrices B and A
-        # dL/dB[i][r] = err[i] * h[r] * scaling
-        grad_B = [[err[i] * h[r] * self.scaling for r in range(self.lora_rank)] for i in range(self.out_dim)]
+        # Genuine PyTorch Autograd Backpropagation
+        loss.backward()
 
-        # dL/dA[r][j] = sum_i(err[i] * B[i][r]) * x[j] * scaling
-        grad_A = [[sum(err[i] * self.B[i][r] for i in range(self.out_dim)) * x[j] * self.scaling for j in range(self.in_dim)] for r in range(self.lora_rank)]
+        # Verify frozen parameters received NO gradients
+        assert self.base_layer.weight.grad is None, "Frozen base weights received unexpected gradient!"
+        assert self.base_layer.bias.grad is None, "Frozen base bias received unexpected gradient!"
 
-        # Optimizer Update (AdamW / SGD for trainable parameters)
-        for i in range(self.out_dim):
-            for r in range(self.lora_rank):
-                self.B[i][r] -= lr * grad_B[i][r]
+        # PyTorch Optimizer Step
+        self.optimizer.step()
 
-        for r in range(self.lora_rank):
-            for j in range(self.in_dim):
-                self.A[r][j] -= lr * grad_A[r][j]
+        return float(loss.item())
 
-        return loss
-
-    def get_parameter_snapshot(self) -> Dict[str, List[List[float]]]:
+    def get_parameter_snapshot(self) -> Dict[str, torch.Tensor]:
         return {
-            "A": [row[:] for row in self.A],
-            "B": [row[:] for row in self.B]
+            "base_weight": self.base_layer.weight.clone().detach(),
+            "base_bias": self.base_layer.bias.clone().detach(),
+            "lora_A": self.lora_A.clone().detach(),
+            "lora_B": self.lora_B.clone().detach()
         }
 
-    def compute_parameter_change_norm(self, snapshot_before: Dict[str, List[List[float]]]) -> float:
-        diff_sq = 0.0
-        # Check matrix B changes
-        for i in range(self.out_dim):
-            for r in range(self.lora_rank):
-                diff_sq += (self.B[i][r] - snapshot_before["B"][i][r]) ** 2
-        # Check matrix A changes
-        for r in range(self.lora_rank):
-            for j in range(self.in_dim):
-                diff_sq += (self.A[r][j] - snapshot_before["A"][r][j]) ** 2
+    def compute_parameter_change_norm(self, snapshot_before: Dict[str, torch.Tensor]) -> Tuple[float, float]:
+        with torch.no_grad():
+            # Trainable LoRA parameter change norm
+            trainable_diff = (
+                torch.sum((self.lora_A - snapshot_before["lora_A"]) ** 2) +
+                torch.sum((self.lora_B - snapshot_before["lora_B"]) ** 2)
+            ).sqrt().item()
 
-        return math.sqrt(diff_sq)
+            # Frozen base parameter change norm (Must be 0.0)
+            frozen_diff = (
+                torch.sum((self.base_layer.weight - snapshot_before["base_weight"]) ** 2) +
+                torch.sum((self.base_layer.bias - snapshot_before["base_bias"]) ** 2)
+            ).sqrt().item()
+
+        return float(trainable_diff), float(frozen_diff)
 
     def save_checkpoint(self, checkpoint_path: str):
         os.makedirs(os.path.dirname(checkpoint_path), exist_ok=True)
         checkpoint_data = {
-            "model_type": "CyberSecurityLoRAModel",
+            "model_architecture": "CyberSecurityPyTorchLoRAModel",
             "in_dim": self.in_dim,
             "out_dim": self.out_dim,
             "lora_rank": self.lora_rank,
             "lora_alpha": self.lora_alpha,
-            "trainable_parameters": {
-                "A": self.A,
-                "B": self.B
+            "state_dict": {
+                "base_weight": self.base_layer.weight.data,
+                "base_bias": self.base_layer.bias.data,
+                "lora_A": self.lora_A.data,
+                "lora_B": self.lora_B.data
             }
         }
-        with open(checkpoint_path, "w", encoding="utf-8") as f:
-            json.dump(checkpoint_data, f, indent=2)
+        torch.save(checkpoint_data, checkpoint_path)
 
     def load_checkpoint(self, checkpoint_path: str):
         if not os.path.exists(checkpoint_path):
             raise FileNotFoundError(f"Checkpoint file '{checkpoint_path}' not found.")
 
-        with open(checkpoint_path, "r", encoding="utf-8") as f:
-            data = json.load(f)
+        checkpoint_data = torch.load(checkpoint_path, weights_only=False)
+        state_dict = checkpoint_data["state_dict"]
 
-        self.A = data["trainable_parameters"]["A"]
-        self.B = data["trainable_parameters"]["B"]
+        with torch.no_grad():
+            self.base_layer.weight.copy_(state_dict["base_weight"])
+            self.base_layer.bias.copy_(state_dict["base_bias"])
+            self.lora_A.copy_(state_dict["lora_A"])
+            self.lora_B.copy_(state_dict["lora_B"])

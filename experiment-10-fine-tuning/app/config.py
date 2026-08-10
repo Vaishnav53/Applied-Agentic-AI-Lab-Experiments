@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     HOST: str = "127.0.0.1"
     TRAIN_DATASET_PATH: str = "data/train_dataset.jsonl"
     VAL_DATASET_PATH: str = "data/val_dataset.jsonl"
+    EVAL_DATASET_PATH: str = "data/eval_dataset.jsonl"
 
     model_config = SettingsConfigDict(
         env_file=".env",
