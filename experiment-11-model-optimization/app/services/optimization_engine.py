@@ -2,8 +2,9 @@
 Real Optimization Benchmark Engine
 Experiment 11 — Model Optimization Experiment (MR23-1CS0436)
 
-Evaluates FP32 Baseline, Dynamic INT8 Quantization, Packed INT4 Quantization,
-and Distilled Student Model profiles using real serialized disk artifacts and latency timers.
+Evaluates FP32 Baseline, Symmetric INT8 Quantization, Packed INT4 Quantization,
+and Distilled Student Model profiles using real serialized disk artifacts and timing metrics.
+Explicitly separates genuine model forward passes/sec from synthetic scalar arithmetic microbenchmarks (operations/sec).
 """
 
 import time
@@ -33,9 +34,9 @@ class ModelOptimizationEngine:
         synthesis = (
             f"Optimization Synthesis for '{req.base_model_name}' on {req.target_hardware}: "
             f"Packed INT4 Quantization achieved highest artifact size reduction ({size_champion.metrics.compression_ratio_percent}% file size reduction, "
-            f"from {profiles[0].metrics.serialized_file_size_mb} MB down to {size_champion.metrics.serialized_file_size_mb} MB). "
-            f"Dynamic INT8 Post-Training Quantization provides the optimal balance of quality retention ({profiles[1].metrics.quality_retention_percent}%), "
-            f"75.0% memory reduction, and high-throughput ({profiles[1].metrics.throughput_inferences_sec} inf/s) edge deployment."
+            f"from {profiles[0].metrics.serialized_file_size_mb} MB down to {size_champion.metrics.serialized_file_size_mb} MB, MSE={profiles[2].metrics.reconstruction_mse}). "
+            f"Symmetric INT8 Post-Training Quantization provides 75.0% memory reduction with negligible reconstruction error (MSE={profiles[1].metrics.reconstruction_mse}). "
+            f"The 3B Distilled Student Architecture provides genuine PyTorch model forward pass execution ({profiles[3].metrics.forward_passes_sec} forward passes/sec)."
         )
 
         duration = round((time.time() - start_time) * 1000, 2)

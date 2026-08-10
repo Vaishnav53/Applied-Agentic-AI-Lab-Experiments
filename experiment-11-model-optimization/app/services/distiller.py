@@ -5,6 +5,7 @@ Experiment 11 — Model Optimization Experiment (MR23-1CS0436)
 Executes genuine PyTorch teacher-student distillation training.
 The teacher model parameters are frozen (requires_grad = False).
 The student model parameters are trained (requires_grad = True) using KL divergence & MSE distillation loss.
+Measures genuine model forward passes per second (forward_passes_sec) using time.perf_counter().
 Proves numerical student parameter change, frozen teacher stability, and serializes trained student PyTorch artifacts.
 """
 
@@ -119,7 +120,7 @@ class RealKnowledgeDistillationService:
         size_fp32 = os.path.getsize(fp32_path) if os.path.exists(fp32_path) else 400000
         ratio = round((1.0 - (size_bytes / size_fp32)) * 100.0, 1)
 
-        # Measure Student Model Inference Latency & Throughput
+        # Measure Genuine Student Model Forward Passes Latency & Throughput
         self.student_model.eval()
         test_x = torch.randn(1, 16)
         runs = 50
@@ -132,15 +133,13 @@ class RealKnowledgeDistillationService:
 
         avg_ms = round(((end_t - start_t) / runs) * 1000.0, 2)
         avg_ms = max(0.01, avg_ms)
-        inferences_sec = round(1000.0 / avg_ms, 2)
+        forward_sec = round(1000.0 / avg_ms, 2)
 
         # Compute Output MSE between Teacher and Distilled Student
         with torch.no_grad():
             t_out = self.teacher_model(test_x)
             s_out = self.student_model(test_x)
             distill_mse = round(F.mse_loss(s_out, t_out).item(), 6)
-
-        quality = max(0.0, round(100.0 - (distill_mse * 10.0), 2))
 
         return OptimizationProfile(
             level_name="3B Distilled Student Architecture",
@@ -152,8 +151,8 @@ class RealKnowledgeDistillationService:
                 compression_ratio_percent=ratio,
                 vram_usage_gb=1.1,
                 measured_latency_ms=avg_ms,
-                throughput_inferences_sec=inferences_sec,
-                quality_retention_percent=quality,
+                forward_passes_sec=forward_sec,
+                synthetic_operations_sec=None,
                 reconstruction_mse=distill_mse
             )
         )

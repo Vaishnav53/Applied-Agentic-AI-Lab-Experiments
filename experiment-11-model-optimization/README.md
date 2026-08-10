@@ -28,15 +28,20 @@
 ---
 
 ## 🎯 D. Aim
-To design, implement, and benchmark real model optimization techniques—including dynamic 8-bit quantization, 4-bit nibble packing/unpacking dequantization round-trips, and genuine PyTorch Teacher-Student Knowledge Distillation training—serializing disk artifacts, measuring filesystem byte sizes via `os.path.getsize()`, computing reconstruction MSE errors, and evaluating inference latency and throughput in `inferences/sec`.
+To design, implement, and benchmark real model optimization techniques—including symmetric 8-bit post-training weight quantization, 4-bit nibble packing/unpacking dequantization round-trips, and genuine PyTorch Teacher-Student Knowledge Distillation training—serializing disk artifacts, measuring filesystem byte sizes via `os.path.getsize()`, computing reconstruction MSE errors, and evaluating model forward passes per second.
+
+> **Educational Model & Benchmark Disclosure:**
+> 1. **Teacher Model Identity:** The teacher model (`TeacherPyTorchModel`) is a locally initialized educational neural network used to demonstrate PyTorch logit distillation mechanics. It is not a production pretrained LLM.
+> 2. **Quantization Terminology:** INT8 quantization is implemented as symmetric per-tensor post-training weight quantization.
+> 3. **Performance Metrics:** Model forward pass throughput is measured in `forward passes/sec` using `time.perf_counter()`. Synthetic scalar arithmetic microbenchmarks are explicitly labeled as `operations/sec`.
 
 ---
 
 ## 🎯 E. Learning Objectives
-1. **Dynamic INT8 Quantization:** Implement 8-bit symmetric tensor quantization ($W_{\text{int8}} = \text{round}(W / S)$) and measure file size reduction against FP32 reference baselines.
+1. **Symmetric INT8 Weight Quantization:** Implement 8-bit symmetric tensor quantization ($W_{\text{int8}} = \text{round}(W / S)$) and measure file size reduction against FP32 reference baselines.
 2. **Packed INT4 Uniform Quantization:** Implement 4-bit nibble packing (`(w1 << 4) | w2`), 2-weights-per-byte serialization, unpacking, dequantization round-trips, and MSE reconstruction error calculation.
 3. **PyTorch Knowledge Distillation Training:** Train a 2-layer PyTorch student network (`StudentPyTorchModel`) using KL divergence distillation loss from a frozen 4-layer teacher (`TeacherPyTorchModel`).
-4. **Empirical Benchmarking & Metrics:** Measure wall-clock latency via `time.perf_counter()`, express throughput in `inferences/sec`, and read artifact file sizes directly from disk (`os.path.getsize()`).
+4. **Empirical Benchmarking & Metrics:** Measure wall-clock latency via `time.perf_counter()`, express student model throughput in `forward passes/sec`, and read artifact file sizes directly from disk (`os.path.getsize()`).
 
 ---
 
@@ -46,10 +51,10 @@ High-parameter LLMs impose massive VRAM and disk storage demands, making deploym
 ---
 
 ## 💡 G. Real Serialized Artifacts & Optimization Levels
-- **FP32 Reference Baseline (`artifacts/model_fp32_baseline.bin`):** 400,000 bytes (0.3815 MB), 100.0% quality reference.
-- **Dynamic INT8 Quantized (`artifacts/model_int8_quantized.bin`):** 100,004 bytes (0.0954 MB), **75.0% file size reduction**, verified dequantization MSE reconstruction error.
+- **FP32 Reference Baseline (`artifacts/model_fp32_baseline.bin`):** 400,000 bytes (0.3815 MB), reference MSE = 0.0.
+- **Symmetric INT8 Quantized (`artifacts/model_int8_quantized.bin`):** 100,004 bytes (0.0954 MB), **75.0% file size reduction**, verified dequantization MSE reconstruction error.
 - **Packed INT4 Uniform (`artifacts/model_int4_packed.bin`):** 50,004 bytes (0.0477 MB), **87.5% file size reduction**, verified 4-bit nibble packing/unpacking round-trip.
-- **Distilled PyTorch Student (`artifacts/model_distilled_student.bin`):** 120,000 bytes (0.1144 MB), **70.0% file size reduction**, trained via PyTorch autograd KL-divergence loss.
+- **Distilled PyTorch Student (`artifacts/model_distilled_student.bin`):** 4,221 bytes (0.0040 MB), **98.9% file size reduction**, trained via PyTorch autograd KL-divergence loss.
 
 ---
 
@@ -58,7 +63,7 @@ High-parameter LLMs impose massive VRAM and disk storage demands, making deploym
 ```mermaid
 graph TD
     A["FP32 Weight Matrix (100,000 Floats)"] --> B["RealQuantizationEngineService (app/services/quantizer.py)"]
-    B --> C["Dynamic INT8 Quantization (model_int8_quantized.bin, 75.0% Reduction)"]
+    B --> C["Symmetric INT8 Quantization (model_int8_quantized.bin, 75.0% Reduction)"]
     B --> D["Packed INT4 Nibble Quantization (model_int4_packed.bin, 87.5% Reduction)"]
     C --> E["INT8 Dequantization & MSE Reconstruction Error Calculation"]
     D --> F["INT4 Unpacking & Dequantization Round-Trip Test"]
@@ -99,13 +104,13 @@ python -m pytest experiment-11-model-optimization/tests -q
 ## ❓ K. Viva Voce Q&A Preparation
 
 1. **Q: What is the primary objective of Experiment 11?**
-   *A:* To implement and benchmark dynamic INT8 quantization, packed INT4 nibble quantization, and PyTorch teacher-student distillation training on serialized disk artifacts.
-2. **Q: How does Dynamic INT8 Quantization achieve 75% memory reduction?**
-   *A:* By mapping 32-bit floats (4 bytes) to 8-bit signed integers (1 byte) using dynamic scale factors ($S = \frac{\max(|W|)}{127.0}$).
+   *A:* To implement and benchmark symmetric INT8 quantization, packed INT4 nibble quantization, and PyTorch teacher-student distillation training on serialized disk artifacts.
+2. **Q: How does Symmetric INT8 Quantization achieve 75% memory reduction?**
+   *A:* By mapping 32-bit floats (4 bytes) to 8-bit signed integers (1 byte) using per-tensor scale factors ($S = \frac{\max(|W|)}{127.0}$).
 3. **Q: How does Packed INT4 Uniform Quantization operate?**
    *A:* It maps weights to 4-bit integers ($[-8, 7]$) and packs two 4-bit nibbles into a single byte (`(w1 << 4) | w2`), achieving an 87.5% file size reduction.
 4. **Q: How is inference latency and throughput measured in this benchmark?**
-   *A:* Latency is measured using high-resolution wall-clock timers (`time.perf_counter()`), and throughput is calculated in `inferences/sec` ($\text{Throughput} = \frac{1000.0}{\text{Latency (ms)}}$).
+   *A:* Latency is measured using high-resolution wall-clock timers (`time.perf_counter()`), and student model throughput is calculated in `forward passes/sec`.
 5. **Q: What default port is reserved for Experiment 11?**
    *A:* Port `8010`.
 6. **Q: What is Knowledge Distillation in model optimization?**
@@ -113,7 +118,7 @@ python -m pytest experiment-11-model-optimization/tests -q
 7. **Q: How are quantization errors evaluated?**
    *A:* By unpacking and dequantizing integer weights back to float representations and computing Mean Squared Error (MSE) against original FP32 baseline weights.
 8. **Q: What throughput units are used for performance benchmarking?**
-   *A:* `inferences/sec` (inf/s), accurately representing completed matrix inference operations per second.
+   *A:* `forward passes/sec` for model forward execution, and `operations/sec` for synthetic scalar microbenchmarks.
 9. **Q: How are model artifact file sizes verified?**
    *A:* Directly from the filesystem using Python `os.path.getsize()`.
 10. **Q: How many automated tests cover Experiment 11?**

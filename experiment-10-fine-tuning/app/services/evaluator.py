@@ -3,7 +3,8 @@ Real PyTorch Base vs Fine-Tuned Model Evaluator
 Experiment 10 — Fine-Tuning for Domain Adaptation (MR23-1CS0436)
 
 Evaluates explicit evaluation dataset samples programmatically across Base Model (LoRA disabled)
-vs. Fine-Tuned Model (trained LoRA adapter loaded from checkpoint).
+vs. Fine-Tuned Model (trained LoRA adapter reloaded from checkpoint).
+Uses a canonical reproducible training workflow with fixed seeds and explicit percentage-points calculations.
 """
 
 import time
@@ -24,7 +25,7 @@ class ModelEvaluatorService:
         checkpoint_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "checkpoints")
         checkpoint_path = os.path.join(checkpoint_dir, "lora_adapter.pt")
 
-        # If checkpoint does not exist, auto-train a checkpoint first
+        # Canonical Reproducible Training Workflow: auto-train canonical checkpoint if missing
         if not os.path.exists(checkpoint_path):
             from app.services.trainer import RealLoRATrainer
             trainer = RealLoRATrainer()
@@ -60,7 +61,7 @@ class ModelEvaluatorService:
                 if base_pred == target_idx:
                     base_correct += 1
 
-                # Fine-Tuned Model Prediction (LoRA adapter enabled)
+                # Fine-Tuned Model Prediction (LoRA adapter enabled & reloaded from checkpoint)
                 ft_logits = model.forward(x_tensor, enable_lora=True)
                 ft_pred = int(torch.argmax(ft_logits, dim=-1).item())
                 if ft_pred == target_idx:
@@ -68,7 +69,10 @@ class ModelEvaluatorService:
 
         base_accuracy = round((base_correct / total_samples) * 100.0, 2)
         finetuned_accuracy = round((finetuned_correct / total_samples) * 100.0, 2)
-        improvement = round(finetuned_accuracy - base_accuracy, 2)
+
+        # Technically accurate difference in percentage points
+        diff_pts = round(finetuned_accuracy - base_accuracy, 2)
+        relative_pct = round(((finetuned_accuracy - base_accuracy) / base_accuracy) * 100.0, 2) if base_accuracy > 0 else 0.0
 
         instr = req.instruction or "Explain how to mitigate CVE-2023-23397 Outlook vulnerability in an enterprise environment."
         ctx = req.context_input or "System environment: Windows Server 2019, Microsoft 365 Hybrid."
@@ -78,7 +82,7 @@ class ModelEvaluatorService:
             f"Correct: {base_correct}/{total_samples} ({base_accuracy}% accuracy). Generic un-adapted baseline response."
         )
 
-        status_text = "Reloaded from Checkpoint" if checkpoint_loaded else "Initial Active Weights"
+        status_text = "Reloaded from Trained Checkpoint" if checkpoint_loaded else "Initial Active Weights"
         finetuned_output = (
             f"Fine-Tuned Domain Adapter (LoRA Enabled & {status_text}): "
             f"Programmatically evaluated on {total_samples} samples. "
@@ -98,6 +102,7 @@ class ModelEvaluatorService:
             finetuned_model_output=finetuned_output,
             finetuned_correct_count=finetuned_correct,
             finetuned_model_accuracy=finetuned_accuracy,
-            accuracy_improvement_percent=improvement,
+            accuracy_improvement_percentage_points=diff_pts,
+            relative_improvement_percent=relative_pct,
             evaluation_duration_ms=duration
         )

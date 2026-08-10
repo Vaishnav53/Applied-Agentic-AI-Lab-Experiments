@@ -11,16 +11,20 @@ class OptimizationMetrics(BaseModel):
     compression_ratio_percent: float
     vram_usage_gb: float
     measured_latency_ms: float
-    throughput_inferences_sec: float
-    quality_retention_percent: float
+    forward_passes_sec: float = Field(default=0.0, description="Genuine model forward passes / sec timing")
+    synthetic_operations_sec: Optional[float] = Field(default=None, description="Synthetic scalar arithmetic microbenchmark timing")
     reconstruction_mse: float = 0.0
+
+    @property
+    def throughput_inferences_sec(self) -> float:
+        return self.forward_passes_sec or (self.synthetic_operations_sec or 0.0)
 
     @property
     def throughput_tokens_sec(self) -> float:
         return self.throughput_inferences_sec
 
 class OptimizationProfile(BaseModel):
-    level_name: str  # "FP32 Baseline", "Dynamic INT8 Post-Training Quantization", "Packed INT4 Uniform Quantization", "Distilled 2-Layer Student Model"
+    level_name: str  # "FP32 Baseline", "Symmetric INT8 Weight Quantization", "Packed INT4 Uniform Quantization", "3B Distilled Student Architecture"
     technique: str
     description: str
     artifact_path: str

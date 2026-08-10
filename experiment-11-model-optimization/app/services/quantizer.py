@@ -4,7 +4,7 @@ Experiment 11 — Model Optimization Experiment (MR23-1CS0436)
 
 Performs real tensor quantization (FP32 -> INT8 & INT4), serializes artifacts to disk,
 executes nibble packing and dequantization round-trips, measures exact reconstruction MSE error,
-and computes real inference latency and throughput in inferences/sec.
+and explicitly separates synthetic arithmetic scalar microbenchmarks (operations/sec) from model forward inference.
 """
 
 import os
@@ -30,7 +30,7 @@ class RealQuantizationEngineService:
         with open(self.fp32_path, "wb") as f:
             f.write(struct.pack(f"{len(self.fp32_weights)}f", *self.fp32_weights))
 
-        # Create Dynamic INT8 Model (1 byte per weight + scale)
+        # Create Symmetric INT8 Model (1 byte per weight + scale)
         max_val = max(abs(w) for w in self.fp32_weights) or 1.0
         self.scale_int8 = max_val / 127.0
         self.int8_weights = [int(round(w / self.scale_int8)) for w in self.fp32_weights]
@@ -71,7 +71,7 @@ class RealQuantizationEngineService:
         mse = sum((orig - deq) ** 2 for orig, deq in zip(self.fp32_weights, dequantized_weights)) / len(self.fp32_weights)
         return round(mse, 6)
 
-    def measure_inference_latency_and_throughput(self, model_type: str, runs: int = 50) -> Tuple[float, float]:
+    def measure_synthetic_microbenchmark(self, model_type: str, runs: int = 50) -> Tuple[float, float]:
         start_t = time.perf_counter()
         for _ in range(runs):
             if model_type == "fp32":
@@ -85,14 +85,14 @@ class RealQuantizationEngineService:
         total_sec = end_t - start_t
         avg_ms = round((total_sec / runs) * 1000.0, 2)
         avg_ms = max(0.01, avg_ms)
-        inferences_sec = round(1000.0 / avg_ms, 2)
+        operations_sec = round(1000.0 / avg_ms, 2)
 
-        return avg_ms, inferences_sec
+        return avg_ms, operations_sec
 
     def get_fp32_profile(self) -> OptimizationProfile:
         size_bytes = os.path.getsize(self.fp32_path)
         size_mb = round(size_bytes / (1024 * 1024), 4) or 0.3815
-        lat, tp = self.measure_inference_latency_and_throughput("fp32")
+        lat, ops_sec = self.measure_synthetic_microbenchmark("fp32")
         return OptimizationProfile(
             level_name="FP32 Baseline",
             technique="Full Precision 32-bit Floating Point",
@@ -103,8 +103,8 @@ class RealQuantizationEngineService:
                 compression_ratio_percent=0.0,
                 vram_usage_gb=16.0,
                 measured_latency_ms=lat,
-                throughput_inferences_sec=tp,
-                quality_retention_percent=100.0,
+                forward_passes_sec=0.0,
+                synthetic_operations_sec=ops_sec,
                 reconstruction_mse=0.0
             )
         )
@@ -117,21 +117,20 @@ class RealQuantizationEngineService:
 
         deq = self.dequantize_int8()
         mse = self.compute_reconstruction_mse(deq)
-        quality = max(0.0, round(100.0 - (mse * 10.0), 2))
 
-        lat, tp = self.measure_inference_latency_and_throughput("int8")
+        lat, ops_sec = self.measure_synthetic_microbenchmark("int8")
         return OptimizationProfile(
-            level_name="Dynamic INT8 Post-Training Quantization",
+            level_name="Symmetric INT8 Weight Quantization",
             technique="8-bit Symmetric Linear Tensor Quantization",
-            description="Quantizes FP32 weights to 8-bit signed integers using dynamic scale factors.",
+            description="Quantizes FP32 weights to 8-bit signed integers using per-tensor scale factors.",
             artifact_path=self.int8_path,
             metrics=OptimizationMetrics(
                 serialized_file_size_mb=size_mb,
                 compression_ratio_percent=ratio,
                 vram_usage_gb=4.1,
                 measured_latency_ms=lat,
-                throughput_inferences_sec=tp,
-                quality_retention_percent=quality,
+                forward_passes_sec=0.0,
+                synthetic_operations_sec=ops_sec,
                 reconstruction_mse=mse
             )
         )
@@ -144,9 +143,8 @@ class RealQuantizationEngineService:
 
         deq = self.unpack_and_dequantize_int4()
         mse = self.compute_reconstruction_mse(deq)
-        quality = max(0.0, round(100.0 - (mse * 10.0), 2))
 
-        lat, tp = self.measure_inference_latency_and_throughput("int4")
+        lat, ops_sec = self.measure_synthetic_microbenchmark("int4")
         return OptimizationProfile(
             level_name="Packed INT4 Uniform Quantization",
             technique="4-bit Nibble-Packed Weight Quantization",
@@ -157,8 +155,8 @@ class RealQuantizationEngineService:
                 compression_ratio_percent=ratio,
                 vram_usage_gb=2.2,
                 measured_latency_ms=lat,
-                throughput_inferences_sec=tp,
-                quality_retention_percent=quality,
+                forward_passes_sec=0.0,
+                synthetic_operations_sec=ops_sec,
                 reconstruction_mse=mse
             )
         )

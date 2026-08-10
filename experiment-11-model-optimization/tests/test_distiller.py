@@ -14,7 +14,8 @@ def test_distillation_profile_and_pytorch_training():
     assert os.path.exists(profile.artifact_path)
     assert profile.metrics.serialized_file_size_mb > 0
     assert profile.metrics.compression_ratio_percent > 0.0
-    assert profile.metrics.throughput_tokens_sec > 0.0
+    assert profile.metrics.forward_passes_sec > 0.0
+    assert profile.metrics.synthetic_operations_sec is None
     assert profile.metrics.reconstruction_mse >= 0.0
 
 def test_student_checkpoint_reload():

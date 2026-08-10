@@ -65,5 +65,10 @@ class ModelEvalResponse(BaseModel):
     finetuned_model_output: str
     finetuned_correct_count: int
     finetuned_model_accuracy: float  # Computed percentage (0-100)
-    accuracy_improvement_percent: float
+    accuracy_improvement_percentage_points: float  # Absolute percentage points difference (e.g. 40.0 percentage points)
+    relative_improvement_percent: float  # Relative % change: ((finetuned - base) / base) * 100
     evaluation_duration_ms: float
+
+    @property
+    def accuracy_improvement_percent(self) -> float:
+        return self.accuracy_improvement_percentage_points

@@ -80,6 +80,15 @@ document.addEventListener('DOMContentLoaded', () => {
         let html = '';
         profiles.forEach(p => {
             const m = p.metrics;
+            let perfText = '';
+            if (m.forward_passes_sec && m.forward_passes_sec > 0) {
+                perfText = `<div>Forward Throughput: <strong style="color:var(--success);">${m.forward_passes_sec} passes/s</strong></div>`;
+            } else if (m.synthetic_operations_sec && m.synthetic_operations_sec > 0) {
+                perfText = `<div>Microbenchmark: <strong style="color:var(--text-muted);">${m.synthetic_operations_sec} ops/s</strong></div>`;
+            } else {
+                perfText = `<div>Throughput: <strong>N/A</strong></div>`;
+            }
+
             html += `
                 <div class="profile-card" style="background:var(--card-bg); border:1px solid var(--border-color); border-radius:12px; padding:1rem; display:flex; flex-direction:column; justify-content:space-between;">
                     <div>
@@ -100,9 +109,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         <div>Disk Size: <strong>${m.serialized_file_size_mb} MB</strong></div>
                         <div>Size Reduction: <strong style="color:var(--success);">${m.compression_ratio_percent}%</strong></div>
                         <div>Measured Latency: <strong>${m.measured_latency_ms} ms</strong></div>
-                        <div>Throughput: <strong>${m.throughput_inferences_sec || m.throughput_tokens_sec} inf/s</strong></div>
-                        <div>Reconstruction MSE: <strong>${m.reconstruction_mse}</strong></div>
-                        <div>Quality Retention: <strong style="color:var(--secondary);">${m.quality_retention_percent}%</strong></div>
+                        ${perfText}
+                        <div style="grid-column: span 2;">Reconstruction Error (MSE): <strong style="color:var(--secondary);">${m.reconstruction_mse}</strong></div>
                     </div>
                 </div>
             `;

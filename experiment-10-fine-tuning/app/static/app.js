@@ -1,108 +1,127 @@
 /**
  * Interactive Client Controller
- * Experiment 10 — Fine-Tuning & Domain Adaptation (MR23-1CS0436)
+ * Experiment 10 — Fine-Tuning for Domain Adaptation (MR23-1CS0436)
  */
 
 document.addEventListener('DOMContentLoaded', () => {
-    const trainForm = document.getElementById('train-form');
-    const loraRankSelect = document.getElementById('lora-rank');
-    const numEpochsInput = document.getElementById('num-epochs');
-    const learningRateInput = document.getElementById('learning-rate');
-    const runTrainBtn = document.getElementById('run-train-btn');
-
+    const ftForm = document.getElementById('train-form');
     const evalForm = document.getElementById('eval-form');
+
+    const loraRankInput = document.getElementById('lora-rank');
+    const loraAlphaInput = document.getElementById('lora-alpha');
+    const learningRateInput = document.getElementById('learning-rate');
+    const numEpochsInput = document.getElementById('num-epochs');
+    const startTrainingBtn = document.getElementById('run-train-btn');
+
     const evalInstructionInput = document.getElementById('eval-instruction');
+    const evalContextInput = document.getElementById('eval-context');
     const runEvalBtn = document.getElementById('run-eval-btn');
 
+    const durationBadge = document.getElementById('ft-duration-badge');
     const datasetStatsBox = document.getElementById('dataset-stats-box');
-    const durationBadge = document.getElementById('train-duration-badge');
-
     const jobSummaryCard = document.getElementById('job-summary-card');
     const jobSummaryBox = document.getElementById('job-summary-box');
-
     const lossTableContainer = document.getElementById('loss-table-container');
     const lossTableBody = document.getElementById('loss-table-body');
-
     const evalResultsContainer = document.getElementById('eval-results-container');
 
-    // Fetch Initial Dataset Stats
     fetchDatasetStats();
 
-    trainForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
+    if (ftForm) {
+        ftForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
 
-        const reqBody = {
-            lora_rank: parseInt(loraRankSelect.value),
-            num_epochs: parseInt(numEpochsInput.value),
-            learning_rate: parseFloat(learningRateInput.value)
-        };
+            const reqBody = {
+                lora_rank: loraRankInput ? parseInt(loraRankInput.value) : 8,
+                lora_alpha: loraAlphaInput ? parseInt(loraAlphaInput.value) : 16,
+                learning_rate: learningRateInput ? parseFloat(learningRateInput.value) : 0.01,
+                num_epochs: numEpochsInput ? parseInt(numEpochsInput.value) : 5
+            };
 
-        runTrainBtn.disabled = true;
-        runTrainBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Executing PyTorch Autograd Training...';
+            if (startTrainingBtn) {
+                startTrainingBtn.disabled = true;
+                startTrainingBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Training PyTorch Adapters...';
+            }
 
-        try {
-            const res = await fetch('/api/fine-tuning/train', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(reqBody)
-            });
+            try {
+                const res = await fetch('/api/fine-tuning/train', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(reqBody)
+                });
 
-            if (!res.ok) throw new Error(`HTTP Error: ${res.status}`);
+                if (!res.ok) {
+                    throw new Error(`HTTP Error: ${res.status}`);
+                }
 
-            const data = await res.json();
-            renderTrainingResults(data);
-        } catch (err) {
-            console.error('Training Error:', err);
-            alert(`Fine-Tuning Error: ${err.message}`);
-        } finally {
-            runTrainBtn.disabled = false;
-            runTrainBtn.innerHTML = '<span>Execute Real LoRA Fine-Tuning</span> <i class="fa-solid fa-play"></i>';
-        }
-    });
+                const data = await res.json();
+                renderTrainingResults(data);
+            } catch (err) {
+                console.error('Training error:', err);
+                alert(`Fine-Tuning Training Error: ${err.message}`);
+            } finally {
+                if (startTrainingBtn) {
+                    startTrainingBtn.disabled = false;
+                    startTrainingBtn.innerHTML = '<span>Execute Real LoRA Fine-Tuning</span> <i class="fa-solid fa-play"></i>';
+                }
+            }
+        });
+    }
 
-    evalForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
+    if (evalForm) {
+        evalForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
 
-        const reqBody = {
-            instruction: evalInstructionInput.value
-        };
+            const reqBody = {
+                instruction: evalInstructionInput ? evalInstructionInput.value : '',
+                context_input: evalContextInput ? evalContextInput.value : ''
+            };
 
-        runEvalBtn.disabled = true;
-        runEvalBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Evaluating Models...';
+            if (runEvalBtn) {
+                runEvalBtn.disabled = true;
+                runEvalBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Evaluating Checkpoint...';
+            }
 
-        try {
-            const res = await fetch('/api/fine-tuning/evaluate', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(reqBody)
-            });
+            try {
+                const res = await fetch('/api/fine-tuning/evaluate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(reqBody)
+                });
 
-            if (!res.ok) throw new Error(`HTTP Error: ${res.status}`);
+                if (!res.ok) {
+                    throw new Error(`HTTP Error: ${res.status}`);
+                }
 
-            const data = await res.json();
-            renderEvalResults(data);
-        } catch (err) {
-            console.error('Evaluation Error:', err);
-            alert(`Evaluation Error: ${err.message}`);
-        } finally {
-            runEvalBtn.disabled = false;
-            runEvalBtn.innerHTML = '<span>Evaluate Base vs. Trained Checkpoint</span> <i class="fa-solid fa-code-compare"></i>';
-        }
-    });
+                const data = await res.json();
+                renderEvalResults(data);
+            } catch (err) {
+                console.error('Evaluation error:', err);
+                alert(`Model Evaluation Error: ${err.message}`);
+            } finally {
+                if (runEvalBtn) {
+                    runEvalBtn.disabled = false;
+                    runEvalBtn.innerHTML = '<span>Evaluate Base vs. Trained Checkpoint</span> <i class="fa-solid fa-scale-balanced"></i>';
+                }
+            }
+        });
+    }
 
     async function fetchDatasetStats() {
         try {
             const res = await fetch('/api/fine-tuning/dataset');
             if (!res.ok) return;
             const data = await res.json();
-            datasetStatsBox.innerHTML = `
-                <div><strong>Train Samples:</strong> ${data.train_samples_count}</div>
-                <div><strong>Val Samples:</strong> ${data.val_samples_count}</div>
-                <div><strong>Eval Samples:</strong> ${data.eval_samples_count}</div>
-                <div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.4rem;">
-                    Pre-curated cybersecurity domain adaptation dataset
-                </div>
-            `;
+            if (datasetStatsBox) {
+                datasetStatsBox.innerHTML = `
+                    <div><strong>Train Samples:</strong> ${data.train_samples_count}</div>
+                    <div><strong>Val Samples:</strong> ${data.val_samples_count}</div>
+                    <div><strong>Eval Samples:</strong> ${data.eval_samples_count}</div>
+                    <div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.4rem;">
+                        Pre-curated cybersecurity domain adaptation dataset
+                    </div>
+                `;
+            }
         } catch (err) {
             console.error('Failed to fetch dataset stats:', err);
         }
@@ -157,6 +176,9 @@ document.addEventListener('DOMContentLoaded', () => {
         evalResultsContainer.style.gap = '1rem';
         evalResultsContainer.style.marginTop = '1rem';
 
+        const diffPts = data.accuracy_improvement_percentage_points !== undefined ? data.accuracy_improvement_percentage_points : data.accuracy_improvement_percent;
+        const relPct = data.relative_improvement_percent !== undefined ? data.relative_improvement_percent : 0.0;
+
         evalResultsContainer.innerHTML = `
             <div class="model-eval-card" style="background:var(--card-bg); border:1px solid var(--border-color); border-radius:12px; padding:1rem;">
                 <div style="font-weight:700; color:var(--text-muted); margin-bottom:0.5rem; display:flex; align-items:center; justify-content:space-between;">
@@ -180,7 +202,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     ${data.finetuned_model_output}
                 </div>
                 <div style="font-size:0.75rem; color:var(--success); font-family:var(--font-mono); font-weight:600;">
-                    Evaluated Correct: ${data.finetuned_correct_count} / ${data.total_evaluated_samples} samples (+${data.accuracy_improvement_percent}% Gain)
+                    Evaluated Correct: ${data.finetuned_correct_count} / ${data.total_evaluated_samples} samples (+${diffPts} percentage points gain | +${relPct}% relative)
                 </div>
             </div>
         `;

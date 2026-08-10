@@ -16,11 +16,14 @@ def test_quantization_profiles_and_artifacts():
     assert os.path.exists(int8.artifact_path)
     assert os.path.exists(int4.artifact_path)
 
+    assert int8.level_name == "Symmetric INT8 Weight Quantization"
     assert int8.metrics.serialized_file_size_mb < fp32.metrics.serialized_file_size_mb
     assert int4.metrics.serialized_file_size_mb < int8.metrics.serialized_file_size_mb
     assert int8.metrics.compression_ratio_percent > 0.0
     assert int4.metrics.compression_ratio_percent > int8.metrics.compression_ratio_percent
     assert int8.metrics.measured_latency_ms > 0.0
+    assert int8.metrics.synthetic_operations_sec > 0.0
+    assert int8.metrics.forward_passes_sec == 0.0
 
 def test_int8_dequantization_round_trip():
     quantizer = RealQuantizationEngineService()
