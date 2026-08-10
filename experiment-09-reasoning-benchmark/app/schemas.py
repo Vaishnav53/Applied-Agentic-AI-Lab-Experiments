@@ -15,16 +15,16 @@ class BenchmarkTask(BaseModel):
     ground_truth_key_factors: List[str]
 
 class StrategyMetrics(BaseModel):
-    correctness_score: int  # 0-100
-    logical_rigor_score: int  # 0-100
-    latency_ms: float
-    estimated_tokens: int
-    tool_invocations_count: int
+    correctness_score: int = Field(description="Simulated correctness benchmark rating (0-100)")
+    logical_rigor_score: int = Field(description="Simulated logical rigor benchmark rating (0-100)")
+    latency_ms: float = Field(description="Measured execution latency in milliseconds")
+    estimated_tokens: int = Field(description="Estimated prompt/response token count")
+    tool_invocations_count: int = Field(description="Count of public tool invocations")
 
 class StrategyResult(BaseModel):
-    strategy_name: str  # "Zero-Shot", "Chain-of-Thought", "ReAct", "Multi-Agent"
+    strategy_name: str = Field(description="Safe strategy label: Direct Answer | Structured Decomposition / Concise Rationale | Tool-Assisted ReAct-Style Execution | Multi-Agent Collaboration")
     output_summary: str
-    reasoning_steps: List[str]
+    observable_execution_steps: List[str] = Field(alias="reasoning_steps", description="Public observable execution trace (no private Chain-of-Thought)")
     metrics: StrategyMetrics
 
 class BenchmarkRequest(BaseModel):

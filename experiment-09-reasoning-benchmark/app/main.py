@@ -17,7 +17,7 @@ from app.services.benchmark_engine import ReasoningBenchmarkEngine, load_benchma
 
 app = FastAPI(
     title="Experiment 09 — Reasoning Model Benchmarking",
-    description="Comparative benchmark engine for Zero-Shot, CoT, ReAct, and Multi-Agent reasoning strategies.",
+    description="Comparative benchmark engine for Direct Answer, Structured Decomposition, Tool-Assisted ReAct, and Multi-Agent strategies.",
     version="1.0.0"
 )
 
@@ -51,11 +51,13 @@ async def health_check():
         "benchmark_tasks_status": "loaded"
     }
 
+@app.get("/api/tasks")
 @app.get("/api/benchmarks/tasks")
 async def get_tasks() -> List[BenchmarkTask]:
     tasks = load_benchmark_tasks()
     return [BenchmarkTask(**t) for t in tasks]
 
+@app.post("/api/benchmark", response_model=BenchmarkComparisonResponse)
 @app.post("/api/benchmarks/evaluate", response_model=BenchmarkComparisonResponse)
 async def evaluate_benchmark(req: BenchmarkRequest):
     try:

@@ -1,9 +1,9 @@
 # Experiment 03 — Prompt Chaining for Summarization
 
-**Course Code:** MR23-1CS0436  
-**Course Name:** Applied Agentic AI  
-**Laboratory:** Applied Agentic AI Laboratory  
-**Status:** ✅ Completed & Verified  
+**Course Code:** MR23-1CS0436
+**Course Name:** Applied Agentic AI
+**Laboratory:** Applied Agentic AI Laboratory
+**Status:** ✅ Completed & Verified
 
 ---
 
@@ -151,7 +151,7 @@ The API response includes a `chain_trace` array capturing:
 graph TD
     A[User / Web UI] -->|1. Document Text, Style, Length| B[FastAPI Backend /api/summarize]
     B -->|2. Invoke Chain Orchestrator| C[Chain Service]
-    
+
     C -->|3. Run Stage 1| D[Stage 1: Document Analysis]
     D -->|Stage 1 Output| E[Stage 2: Key Information Extraction]
     C -->|Run Stage 2| E
@@ -163,7 +163,7 @@ graph TD
     C -->|Run Stage 5| H
     H -->|Stage 5 Refined Summary| I[Stage 6: Final Output Assembly]
     C -->|Run Stage 6| I
-    
+
     I -->|4. Return Final Summary + Trace + Inspector| B
     B -->|5. Render Studio UI| A
 ```
@@ -177,19 +177,19 @@ graph LR
     Doc[Original Document Text] --> S1[Stage 1: Analysis]
     Doc --> S2[Stage 2: Extraction]
     S1 -->|Topic & Domain| S2
-    
+
     Doc --> S3[Stage 3: Draft]
     S1 -->|Analysis Data| S3
     S2 -->|Key Points & Terms| S3
-    
+
     Doc --> S4[Stage 4: Critique]
     S2 -->|Key Facts| S4
     S3 -->|Draft Summary| S4
-    
+
     S3 -->|Draft Summary| S5[Stage 5: Refinement]
     S4 -->|Critique Recommendations| S5
     S2 -->|Key Facts| S5
-    
+
     S5 -->|Refined Summary| S6[Stage 6: Final Output]
     S2 -->|Glossary & Points| S6
 ```
@@ -357,7 +357,7 @@ python app/main.py
 uvicorn app.main:app --host 127.0.0.1 --port 8002 --reload
 ```
 
-Access Web UI at: 👉 **`http://localhost:8002`**  
+Access Web UI at: 👉 **`http://localhost:8002`**
 Access Swagger Docs at: 👉 **`http://localhost:8002/docs`**
 
 ---
@@ -534,17 +534,17 @@ Experiment 03 demonstrates the principles and advantages of **Prompt Chaining**.
 
 ## 39. Viva Voce Questions & Answers
 
-1. **Q: What is Prompt Chaining and how does it differ from a single prompt?**  
+1. **Q: What is Prompt Chaining and how does it differ from a single prompt?**
    *A:* Prompt Chaining decomposes a complex task into multiple sequential prompt stages where the output of one prompt becomes the input to the next. Single prompts attempt to perform reading, extraction, drafting, critique, and formatting in one step, leading to factual omissions and lack of step-by-step auditability.
 
-2. **Q: Why is Stage 4 (Critique) essential in the summarization pipeline?**  
+2. **Q: Why is Stage 4 (Critique) essential in the summarization pipeline?**
    *A:* Stage 4 evaluates the Stage 3 draft summary against extracted key facts to identify missing information, redundancy, or style non-compliance. This enables Stage 5 (Refinement) to fix errors explicitly before publishing the final summary.
 
-3. **Q: How does the system ensure context propagation across stages?**  
+3. **Q: How does the system ensure context propagation across stages?**
    *A:* The orchestrator (`app/services/chain_service.py`) maintains a state dictionary that stores output data from preceding stages and passes them directly into prompt templates and heuristic functions for subsequent stages.
 
-4. **Q: What is the purpose of the Prompt Chain Inspector?**  
+4. **Q: What is the purpose of the Prompt Chain Inspector?**
    *A:* The Prompt Chain Inspector provides per-stage diagnostic transparency, displaying the stage number, purpose, inputs consumed, output preview, and execution timing for auditability during demonstrations.
 
-5. **Q: How does the system handle different summary styles and lengths?**  
+5. **Q: How does the system handle different summary styles and lengths?**
    *A:* Summary style (Executive, Concise, Detailed, Bullet, Academic) and length (Short, Medium, Long) are passed as explicit parameter inputs into Stage 3 (Drafting) and Stage 5 (Refinement), dictating output formatting and word boundaries.

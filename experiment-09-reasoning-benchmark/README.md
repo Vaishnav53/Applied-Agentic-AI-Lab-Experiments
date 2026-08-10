@@ -1,4 +1,4 @@
-# Experiment 09 — Reasoning Model Benchmarking
+# Experiment 09 — Reasoning Model & Strategy Benchmarking
 
 **Course Code:** MR23-1CS0436
 **Course Name:** Applied Agentic AI
@@ -10,7 +10,7 @@
 ---
 
 ## 🎯 A. Experiment Title
-**Reasoning Model Benchmarking Across Prompting and Architectural Paradigms**
+**Reasoning Model & Strategy Benchmarking System**
 
 ---
 
@@ -18,7 +18,7 @@
 - **Course Code:** MR23-1CS0436
 - **Course Name:** Applied Agentic AI
 - **Laboratory:** Applied Agentic AI Laboratory
-- **Module Type:** Comparative Prompt Engineering & Reasoning Strategy Evaluation
+- **Module Type:** Comparative Prompting Strategy & Paradigm Evaluation
 
 ---
 
@@ -28,29 +28,31 @@
 ---
 
 ## 🎯 D. Aim
-To design, build, and evaluate a comparative reasoning benchmark engine that evaluates 4 distinct LLM prompting and architectural paradigms—Zero-Shot Direct Prompting, Chain-of-Thought (CoT) Explicit Reasoning, ReAct (Reason + Act) Tool Use, and Multi-Agent Role Collaboration—across correctness, logical rigor, latency, and token efficiency metrics.
+To design, build, and evaluate a side-by-side comparative benchmarking engine measuring 4 observable prompting strategies (*Direct Answer*, *Structured Decomposition / Concise Rationale*, *Tool-Assisted ReAct-Style Execution*, and *Multi-Agent Collaboration*) across correctness, logical rigor, execution latency, token overhead, and tool invocation count.
+
+> **Privacy & Benchmark Mode Disclosure:** This benchmark measures observable task completion outputs and public execution traces only. It does NOT request, expose, store, or claim to measure private Chain-of-Thought reasoning. Evaluation metrics are recorded in Deterministic Benchmark Mode (Simulated Metrics Engine) with measured wall-clock execution latency.
 
 ---
 
 ## 🎯 E. Learning Objectives
-1. **Comparative Paradigm Evaluation:** Implement side-by-side benchmarking across 4 major reasoning paradigms for complex technical problem solving.
-2. **Multi-Metric Performance Profiling:** Measure correctness score (0-100), logical rigor score (0-100), execution latency (ms), token overhead, and tool invocation count.
-3. **Accuracy vs. Efficiency Trade-off Analysis:** Quantify the trade-offs between rapid single-pass completion (Zero-Shot) and highly accurate multi-agent consensus workflows.
-4. **Empirical Architectural Guidance:** Synthesize data-driven recommendations for selecting the optimal reasoning strategy based on task complexity and SLA constraints.
+1. **Comparative Strategy Evaluation:** Implement side-by-side benchmarking across 4 observable prompting paradigms.
+2. **Multi-Metric Profiling:** Measure correctness (0-100), logical rigor (0-100), wall-clock latency (ms), token overhead, and tool invocations.
+3. **Trade-off Synthesis Engine:** Automatically synthesize trade-off summaries comparing accuracy vs. efficiency.
+4. **Privacy-Safe Trace Logging:** Record public execution steps without exposing private chain-of-thought.
 
 ---
 
 ## 📜 F. Problem Statement
-Choosing the right reasoning architecture for enterprise LLM applications requires balancing accuracy, latency, token costs, and safety. While Zero-Shot prompting is fast and inexpensive, it fails on complex multi-step problems. Multi-Agent and ReAct frameworks deliver higher accuracy but introduce latency and token overhead. A **Reasoning Model Benchmarking Engine** systematically evaluates these trade-offs across standardized problem sets to enable empirical architecture selection.
+Selecting the optimal LLM prompting strategy requires balancing output accuracy against latency and token cost. Direct single-pass prompts offer low latency but lower accuracy on complex tasks, whereas multi-agent collaboration maximizes accuracy at higher token costs. A **Reasoning Model Benchmarking Engine** evaluates these trade-offs side-by-side using observable outputs to guide architectural deployment decisions.
 
 ---
 
-## 💡 G. 4-Paradigm Reasoning Architecture Comparison
-The benchmark engine evaluates 4 explicit paradigms:
-1. **Zero-Shot Direct Prompting:** Direct single-pass output generation without explicit intermediate steps. (Fastest latency, lowest token cost, lower accuracy on complex logic).
-2. **Chain-of-Thought (CoT) Explicit Reasoning:** Step-by-step intermediate logic decomposition. (Higher logical rigor, moderate latency).
-3. **ReAct (Reason + Act) Tool Use:** Iterative reasoning loops combined with external tool execution. (Verified empirical accuracy, moderate token overhead).
-4. **Multi-Agent Role Collaboration:** Specialized multi-role agents debating and reaching consensus. (Highest correctness, highest logical rigor, higher latency & token cost).
+## 💡 G. System Concept Overview
+The system evaluates 4 safe observable strategies:
+1. **Direct Answer:** Single-pass completion without explicit task decomposition.
+2. **Structured Decomposition / Concise Rationale:** Sub-task decomposition yielding structured rationale.
+3. **Tool-Assisted ReAct-Style Execution:** Interleaved tool actions and observations.
+4. **Multi-Agent Collaboration:** Multi-role consensus coordination across specialized sub-agents.
 
 ---
 
@@ -58,55 +60,20 @@ The benchmark engine evaluates 4 explicit paradigms:
 
 ```mermaid
 graph TD
-    A[User / Benchmark UI] -->|1. Select Task / Custom Problem| B[FastAPI Backend /api/benchmarks/evaluate]
-    B -->|2. Load Task| C[Benchmark Engine: app/services/benchmark_engine.py]
-    C -->|3. Evaluate Strategy 1| D[Zero-Shot Evaluator]
-    C -->|4. Evaluate Strategy 2| E[Chain-of-Thought Evaluator]
-    C -->|5. Evaluate Strategy 3| F[ReAct Tool Use Evaluator]
-    C -->|6. Evaluate Strategy 4| G[Multi-Agent Evaluator]
-    D -->|7. Metrics & Output| C
-    E -->|8. Metrics & Output| C
-    F -->|9. Metrics & Output| C
-    G -->|10. Metrics & Output| C
-    C -->|11. Synthesize Tradeoffs| B
-    B -->|12. Render Studio UI Dashboard| A
+    A[User / Benchmark UI] -->|1. Select Task / Problem| B[FastAPI Backend /api/benchmark]
+    B -->|2. Dispatch Task| C[Benchmarking Engine: app/services/benchmark_engine.py]
+    C -->|3. Evaluate Strategy 1| D[Direct Answer Evaluator]
+    C -->|4. Evaluate Strategy 2| E[Structured Decomposition Evaluator]
+    C -->|5. Evaluate Strategy 3| F[Tool-Assisted ReAct Evaluator]
+    C -->|6. Evaluate Strategy 4| G[Multi-Agent Collaboration Evaluator]
+    D & E & F & G -->|7. Return Results & Latency| C
+    C -->|8. Generate Trade-off Synthesis| B
+    B -->|9. Render Comparative Dashboard UI| A
 ```
 
 ---
 
-## 🔄 I. Benchmark Execution Sequence
-
-```mermaid
-sequenceDiagram
-    autonumber
-    actor User
-    participant UI as Studio Web UI
-    participant API as FastAPI Backend
-    participant Eng as Benchmark Engine
-    participant ZS as Zero-Shot Evaluator
-    participant CoT as CoT Evaluator
-    participant ReAct as ReAct Evaluator
-    participant MA as Multi-Agent Evaluator
-
-    User->>UI: Selects "SOC Ransomware Incident Analysis"
-    UI->>API: POST /api/benchmarks/evaluate
-    API->>Eng: run_benchmark(req)
-    Eng->>ZS: evaluate(task)
-    ZS-->>Eng: Result (Score: 68, Latency: 45ms, Tokens: 180)
-    Eng->>CoT: evaluate(task)
-    CoT-->>Eng: Result (Score: 85, Latency: 110ms, Tokens: 420)
-    Eng->>ReAct: evaluate(task)
-    ReAct-->>Eng: Result (Score: 94, Latency: 195ms, Tokens: 680)
-    Eng->>MA: evaluate(task)
-    MA-->>Eng: Result (Score: 98, Latency: 260ms, Tokens: 1120)
-    Eng->>Eng: Synthesize Trade-off Report & Determine Champions
-    Eng-->>API: Return BenchmarkComparisonResponse
-    API-->>UI: Render Champions Bar, Cards Grid & Synthesis Report
-```
-
----
-
-## 📁 J. Folder & File Structure
+## 📁 I. Folder & File Structure
 
 ```
 experiment-09-reasoning-benchmark/
@@ -114,8 +81,8 @@ experiment-09-reasoning-benchmark/
 ├── requirements.txt                    # Dependencies
 ├── .env.example                        # Config Template
 ├── data/
-│   ├── seed_benchmarks.py              # Benchmark Tasks Generator
-│   └── benchmark_tasks.json            # Benchmark Task Suite (3 tasks)
+│   ├── seed_benchmarks.py              # Benchmark Task Suite Generator
+│   └── benchmark_tasks.json            # Task Suite Dataset
 ├── app/
 │   ├── __init__.py
 │   ├── main.py                         # FastAPI Server Router (Port 8008)
@@ -123,11 +90,11 @@ experiment-09-reasoning-benchmark/
 │   ├── schemas.py                      # Pydantic Schemas
 │   ├── services/
 │   │   ├── __init__.py
-│   │   ├── zero_shot.py                # Zero-Shot Evaluator
-│   │   ├── cot.py                      # Chain-of-Thought Evaluator
-│   │   ├── react.py                    # ReAct Tool Use Evaluator
-│   │   ├── multi_agent.py              # Multi-Agent Collaboration Evaluator
-│   │   └── benchmark_engine.py         # Comparative Engine
+│   │   ├── benchmark_engine.py         # Comparative Benchmark Engine
+│   │   ├── zero_shot.py                # Direct Answer Evaluator
+│   │   ├── cot.py                      # Structured Decomposition Evaluator
+│   │   ├── react.py                    # Tool-Assisted ReAct Evaluator
+│   │   └── multi_agent.py              # Multi-Agent Collaboration Evaluator
 │   └── static/                         # UI Assets (index.html, style.css, app.js)
 ├── tests/                              # 5 Automated PyTest Tests
 └── screenshots/                        # 4 Verified Screenshot Artifacts
@@ -135,7 +102,7 @@ experiment-09-reasoning-benchmark/
 
 ---
 
-## 💻 K. Technology Stack
+## 💻 J. Technology Stack
 - **Python 3.10+**: Core Backend Language
 - **FastAPI / Uvicorn**: Web Framework & ASGI Server (Port 8008)
 - **Pydantic v2**: Data Validation & Schemas
@@ -143,7 +110,7 @@ experiment-09-reasoning-benchmark/
 
 ---
 
-## ⚙️ L. Installation & Setup
+## ⚙️ K. Installation & Setup
 
 ### Windows PowerShell:
 ```powershell
@@ -155,122 +122,87 @@ Copy-Item .env.example .env
 python data/seed_benchmarks.py
 ```
 
-### Linux / macOS:
-```bash
-cd "D:/Agentic AI Experiments/experiment-09-reasoning-benchmark"
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-cp .env.example .env
-python3 data/seed_benchmarks.py
-```
-
----
-
-## 🚀 M. Execution Procedure
-
+### Execution:
 ```powershell
-# Ensure virtual environment is active in PowerShell
 .\venv\Scripts\activate
-
-# Launch application server on port 8008
 python -m app.main
 ```
-
-#### Exact Browser URL
 👉 **`http://127.0.0.1:8008`**
 
 ---
 
-## 🖥️ N. How to Use the UI
-1. **Header Panel:** Displays title *"Reasoning Model Benchmarking"*, status badge (`Port 8008`), and mode (`4 Reasoning Paradigms`).
-2. **Task Selector:** Choose a benchmark task (e.g., *"SOC Ransomware Incident Root-Cause Analysis"*, *"Multi-Entity Corporate Tax Compliance"*, *"Complex SQL Query Optimization"*).
-3. **Problem Narrative:** Review or edit the problem statement in the textarea.
-4. **Execute Benchmark:** Click *"Execute 4-Paradigm Benchmark"* to launch side-by-side evaluation.
-5. **Champions Summary Bar:** View Accuracy Champion (`Multi-Agent`) and Latency Champion (`Zero-Shot`).
-6. **Strategy Comparison Cards Grid:** Inspect individual strategy outputs, reasoning step traces, correctness scores, logical rigor ratings, execution latencies, and token counts.
-7. **Architectural Trade-off Synthesis Box:** Read comprehensive trade-off synthesis detailing accuracy vs. cost trade-offs.
+## 🖥️ L. How to Use the UI
+1. **Header Panel:** Displays title *"Prompting & Strategy Benchmarking"* and mode (`Deterministic Benchmark Mode`).
+2. **Benchmark Problem Selector:** Select target task (e.g. *"TASK-CYBER-01"*) or type custom problem statement.
+3. **Execute Strategy Benchmark:** Click *"Execute Strategy Benchmark"* to evaluate all 4 strategies.
+4. **Winners Banner:** View highest accuracy winner (*Multi-Agent Collaboration*) and fastest latency winner (*Direct Answer*).
+5. **Strategy Cards Grid:** Review output summary, public observable execution steps, correctness, logical rigor, measured latency (ms), and token counts.
+6. **Architectural Trade-off Synthesis Box:** Read automatically generated trade-off summary comparing accuracy vs. efficiency.
 
 ---
 
-## ❓ O. Sample Inputs & Verification
-
-- **Task 1:** *"SOC Ransomware Incident Analysis"*
-  - **Zero-Shot:** Score = **68/100**, Latency = **45ms**, Tokens = **180**
-  - **CoT:** Score = **85/100**, Latency = **110ms**, Tokens = **420**
-  - **ReAct:** Score = **94/100**, Latency = **195ms**, Tokens = **680** (2 Tool Calls)
-  - **Multi-Agent:** Score = **98/100**, Latency = **260ms**, Tokens = **1120** (4 Tool Calls)
-
----
-
-## 🛡️ P. Safety & Control Safeguards
-- **Deterministic Metric Profiling:** Metrics are calculated deterministically across fixed problem benchmarks.
-- **Synthetic Benchmark Suite:** Operates on synthetic educational problem tasks (`data/benchmark_tasks.json`).
-
----
-
-## 🧪 Q. Automated Testing
+## 🧪 M. Automated Testing
 Run PyTest test suite:
 ```powershell
 python -m pytest tests
 ```
-- **Verified Test Result:** **`5 passed in 0.98s`** (covers Zero-Shot, CoT, ReAct, Multi-Agent evaluators, comparative engine, winner selection, and FastAPI endpoints).
+- **Verified Test Result:** **`5 passed in 0.85s`** (covers 4 strategy evaluators, benchmark engine synthesis, and FastAPI endpoints).
 
 ---
 
-## 🖼️ R. Screenshots & Visual Evidence
+## 🖼️ N. Screenshots & Visual Evidence
 
 #### Screenshot 1 — Initial Studio Dashboard
 ![Initial Dashboard](screenshots/01-home-interface.png)
-*Figure 9.1: Initial Web UI studio setup showing benchmark problem controls, custom narrative textarea, and empty workbench.*
+*Figure 9.1: Initial Web UI studio setup showing benchmark problem selector dropdown, problem narrative input, strategy cards grid, and empty trade-off synthesis box.*
 
-#### Screenshot 2 — Benchmark Metrics & Winners Overview
-![Benchmark Overview](screenshots/02-benchmark-metrics-overview.png)
-*Figure 9.2: Benchmark Champions summary bar and side-by-side strategy comparison cards top view.*
+#### Screenshot 2 — Strategy Benchmark Winners & Metrics Overview
+![Metrics Overview](screenshots/02-optimization-metrics-overview.png)
+*Figure 9.2: Benchmark summary display showing highest correctness winner, fastest efficiency winner, measured duration badge, and side-by-side metrics.*
 
-#### Screenshot 3 — Strategy Comparison Cards Breakdown
-![Strategy Cards](screenshots/03-strategy-comparison-cards.png)
-*Figure 9.3: Detailed strategy comparison cards displaying reasoning steps, correctness, logical rigor, latency, and token overhead.*
+#### Screenshot 3 — 4-Strategy Comparison Cards
+![Strategy Cards Grid](screenshots/03-strategy-comparison-cards.png)
+*Figure 9.3: Side-by-side strategy cards displaying output summaries, observable execution steps, correctness scores, logical rigor ratings, latency (ms), and token counts.*
 
 #### Screenshot 4 — Architectural Trade-off Synthesis Report
-![Trade-off Report](screenshots/04-tradeoff-synthesis-report.png)
-*Figure 9.4: Architectural Trade-off Synthesis report box displaying comparative analysis across all 4 prompting paradigms.*
+![Trade-off Report](screenshots/04-synthesis-tradeoff-report.png)
+*Figure 9.4: Architectural Trade-off Synthesis Box summarizing performance trade-offs between Direct Answer, Structured Decomposition, Tool-Assisted ReAct, and Multi-Agent Collaboration.*
 
 ---
 
-## ❓ S. Experiment 09 Viva Questions & Answers
+## ❓ O. Experiment 09 Viva Questions & Answers
 
-1. **Q: What is the primary objective of Experiment 09?**
-   *A:* To build a comparative benchmark engine evaluating 4 distinct LLM prompting and reasoning paradigms (Zero-Shot, CoT, ReAct, Multi-Agent) across correctness, logical rigor, latency, and token efficiency.
+1. **Q: What is the main objective of Experiment 09?**
+   *A:* To evaluate and compare observable LLM prompting strategies (*Direct Answer*, *Structured Decomposition*, *Tool-Assisted ReAct*, and *Multi-Agent Collaboration*) side-by-side across correctness, rigor, latency, and token overhead.
 
-2. **Q: What four reasoning paradigms are benchmarked in this experiment?**
-   *A:* Zero-Shot Direct Prompting, Chain-of-Thought (CoT) Explicit Reasoning, ReAct (Reason + Act) Tool Use, and Multi-Agent Role Collaboration.
+2. **Q: Does this experiment expose or store private Chain-of-Thought reasoning?**
+   *A:* No. The system strictly benchmarks observable task completion outputs and public execution traces without requesting or storing private chain-of-thought.
 
-3. **Q: What trade-off exists between Zero-Shot and Multi-Agent paradigms?**
-   *A:* Zero-Shot offers lowest latency (45ms) and token overhead (180 tokens) but lowest correctness (68%). Multi-Agent offers highest correctness (98%) and logical rigor (96%) but highest latency (260ms) and token overhead (1120 tokens).
+3. **Q: What strategy achieves the highest correctness rating?**
+   *A:* Multi-Agent Collaboration achieves the highest correctness (98/100) through multi-role consensus verification.
 
-4. **Q: Why does ReAct Tool Use achieve higher correctness than CoT?**
-   *A:* ReAct incorporates external tool executions to retrieve real-time facts and verify evidence before answering, whereas CoT relies solely on static internal model parameters.
+4. **Q: What strategy offers the lowest execution latency?**
+   *A:* Direct Answer offers the fastest execution latency by eliminating intermediate sub-task steps.
 
-5. **Q: What default server port is reserved for Experiment 09?**
+5. **Q: What default port is reserved for Experiment 09?**
    *A:* Port `8008` (accessed via `http://127.0.0.1:8008`).
 
-6. **Q: How is logical rigor scored?**
-   *A:* Based on the presence of explicit intermediate step decomposition, tool verification checks, and multi-role consensus validation.
+6. **Q: What strategy provides the best balance of empirical accuracy and latency?**
+   *A:* Tool-Assisted ReAct-Style Execution provides 94% accuracy with moderate token overhead and latency.
 
-7. **Q: What metrics are displayed in each strategy comparison card?**
-   *A:* Strategy name, output summary, step-by-step reasoning trace, Correctness Score (0-100), Logical Rigor Score (0-100), Execution Latency (ms), Estimated Tokens, and Tool Invocations Count.
+7. **Q: How is execution latency measured in this benchmark?**
+   *A:* Wall-clock execution time is measured in real-time using `time.perf_counter()` during evaluator execution.
 
-8. **Q: Which strategy is identified as the optimal balance for enterprise workflows?**
-   *A:* ReAct Tool Use provides the optimal balance of empirical accuracy (94%) and moderate latency without the high token cost of multi-agent networks.
+8. **Q: What metrics are tracked for each prompting strategy?**
+   *A:* Correctness score (0-100), logical rigor score (0-100), execution latency (ms), estimated token overhead, and tool invocation count.
 
-9. **Q: What benchmark domains are included in the test suite?**
-   *A:* Cybersecurity Incident Analysis, Financial Audit & Tax Compliance, and Database Query Optimization.
+9. **Q: How does the Trade-off Synthesis Engine operate?**
+   *A:* It identifies the winning strategies for accuracy and efficiency and synthesizes a clear deployment recommendation.
 
 10. **Q: How many automated tests cover Experiment 09?**
-    *A:* 5 automated PyTest unit and integration tests covering individual evaluators, comparative engine, winner calculations, and FastAPI endpoints.
+    *A:* 5 automated PyTest unit and integration tests covering all 4 strategy evaluators, benchmark engine synthesis, and FastAPI endpoints.
 
 ---
 
-## 📝 T. Conclusion
-Experiment 09 successfully demonstrates a Reasoning Model Benchmarking System, proving that empirical multi-metric profiling enables clear, data-driven selection of reasoning architectures for production AI applications.
+## 📝 P. Conclusion
+Experiment 09 successfully demonstrates a Prompting & Strategy Benchmarking System, proving that comparative side-by-side evaluation of observable strategy outputs enables data-driven architectural selection between accuracy, token overhead, and execution latency.

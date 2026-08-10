@@ -1,9 +1,9 @@
 # Experiment 02 — RAG-Based Question Answering System
 
-**Course Code:** MR23-1CS0436  
-**Course Name:** Applied Agentic AI  
-**Laboratory:** Applied Agentic AI Laboratory  
-**Status:** ✅ Completed & Verified  
+**Course Code:** MR23-1CS0436
+**Course Name:** Applied Agentic AI
+**Laboratory:** Applied Agentic AI Laboratory
+**Status:** ✅ Completed & Verified
 
 ---
 
@@ -23,7 +23,7 @@ To design, build, and evaluate a Retrieval-Augmented Generation (RAG) system for
 ---
 
 ## 4. Problem Statement
-Standard Large Language Models (LLMs) operate strictly on parametric knowledge learned during pre-training. Consequently, they suffer from knowledge cutoffs, hallucination of facts, and an inability to access private or domain-specific enterprise documentation. Simply passing entire document archives directly into an LLM prompt exceeds token context windows, inflates execution latency, and incurs prohibitive API costs. 
+Standard Large Language Models (LLMs) operate strictly on parametric knowledge learned during pre-training. Consequently, they suffer from knowledge cutoffs, hallucination of facts, and an inability to access private or domain-specific enterprise documentation. Simply passing entire document archives directly into an LLM prompt exceeds token context windows, inflates execution latency, and incurs prohibitive API costs.
 
 A Retrieval-Augmented Generation (RAG) architecture overcomes these limitations by maintaining a non-parametric external memory (vector store). User queries dynamically retrieve only the top-$K$ most relevant document passages, which are injected into the prompt as grounding evidence.
 

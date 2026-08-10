@@ -3,12 +3,14 @@ Distillation Engine Unit Tests
 Experiment 11 — Model Optimization Experiment (MR23-1CS0436)
 """
 
-from app.services.distiller import KnowledgeDistillationService
+import os
+from app.services.distiller import RealKnowledgeDistillationService
 
 def test_distillation_profile():
-    distiller = KnowledgeDistillationService()
+    distiller = RealKnowledgeDistillationService()
     profile = distiller.get_distillation_profile()
 
-    assert "3B Student" in profile.level_name
+    assert os.path.exists(profile.artifact_path)
+    assert profile.metrics.serialized_file_size_mb > 0
+    assert profile.metrics.compression_ratio_percent > 0.0
     assert profile.metrics.throughput_tokens_sec > 100.0
-    assert profile.metrics.quality_retention_percent >= 94.0

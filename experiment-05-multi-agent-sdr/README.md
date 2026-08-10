@@ -28,12 +28,12 @@
 ---
 
 ## 🎯 D. Aim
-To design, build, and evaluate an autonomous Multi-Agent SDR System comprising 5 specialized agents (Supervisor Orchestrator, Lead Discovery Agent, Lead Enrichment Agent, Lead Qualification Agent, Email Drafting Agent, and Quality & Compliance Reviewer Agent) coordinating to automate B2B lead discovery, multi-dimensional scoring, draft outreach personalization, and compliance safety verification.
+To design, build, and evaluate an autonomous Multi-Agent SDR System comprising 5 specialized worker agents (Lead Discovery Agent, Lead Enrichment Agent, Lead Qualification Agent, Email Drafting Agent, and Quality & Compliance Reviewer Agent) coordinated by 1 Supervisor Orchestrator to automate B2B lead discovery, multi-dimensional scoring, draft outreach personalization, and compliance safety verification.
 
 ---
 
 ## 🎯 E. Learning Objectives
-1. **Multi-Agent Architecture & Role Collaboration:** Implement a modular multi-agent system where specialized agents communicate via structured state contracts.
+1. **Multi-Agent Architecture & Role Collaboration:** Implement a modular multi-agent system where specialized worker agents communicate via structured state contracts.
 2. **Transparent Lead Qualification Scoring:** Develop a deterministic 4-dimensional scoring model (Fit, Need, Intent, Budget) to grade leads accurately.
 3. **Safe Outbound Personalization:** Generate personalized cold outreach email drafts incorporating specific engagement signals and corporate value propositions without sending actual unsolicited emails.
 4. **Automated Quality & Compliance Auditing:** Implement a dedicated reviewer agent to check email drafts for personalization, unverified claims, and B2B tone standards.
@@ -46,7 +46,7 @@ Manual B2B Sales Development Representative (SDR) workflows suffer from inconsis
 ---
 
 ## 💡 G. Multi-Agent System Concept Overview
-The system coordinates 5 specialized sub-agents managed by a Supervisor Orchestrator:
+The system features 5 specialized worker agents coordinated by 1 Supervisor Orchestrator:
 1. **Supervisor Orchestrator:** Controls campaign execution, manages inter-agent state transitions, and records step timing traces.
 2. **Lead Discovery Agent:** Filters synthetic B2B lead records based on target industry and region criteria.
 3. **Lead Enrichment Agent:** Analyzes executive decision-maker roles, tech stack alignment, and engagement intensity.

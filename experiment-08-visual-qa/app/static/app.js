@@ -199,7 +199,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <strong>Grounded Evidence:</strong> ${(data.grounded_evidence || []).join(' | ')}
             </div>
             <div style="font-size:0.8rem; color:var(--text-muted);">
-                <strong>Referenced Visual Objects:</strong> ${(data.detected_objects_referenced || []).join(', ')} · <strong>Confidence:</strong> ${data.confidence_score}
+                <strong>Referenced Catalog Annotations:</strong> ${(data.detected_objects_referenced || []).join(', ')} · <strong>Confidence:</strong> ${data.confidence_score}
             </div>
         `;
 

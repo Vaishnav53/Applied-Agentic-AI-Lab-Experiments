@@ -18,7 +18,7 @@ def test_api_train_endpoint():
     response = client.post("/api/train/run", json={
         "lora_rank": 8,
         "lora_alpha": 16,
-        "learning_rate": 0.0002,
+        "learning_rate": 0.01,
         "num_epochs": 2,
         "batch_size": 4
     })
@@ -26,6 +26,8 @@ def test_api_train_endpoint():
     data = response.json()
     assert data["training_status"] == "COMPLETED"
     assert len(data["epoch_metrics"]) == 2
+    assert data["trainable_parameter_count"] > 0
+    assert data["parameter_change_norm"] > 0.0
 
 def test_api_eval_endpoint():
     response = client.post("/api/eval/run", json={

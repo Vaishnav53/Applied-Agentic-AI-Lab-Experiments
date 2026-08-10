@@ -78,21 +78,21 @@ Agentic AI Experiments/
 │   └── README.md
 ├── experiment-03-prompt-chaining/      # Exp 3: Prompt Chaining Summarization (✅ Completed)
 │   └── README.md
-├── experiment-04-sql-agent/            # Exp 4: ReAct SQL Agent with Tool Use (⬜ Pending)
+├── experiment-04-sql-agent/            # Exp 4: ReAct SQL Agent with Tool Use (✅ Completed)
 │   └── README.md
-├── experiment-05-multi-agent-sdr/      # Exp 5: Multi-Agent SDR System (⬜ Pending)
+├── experiment-05-multi-agent-sdr/      # Exp 5: Multi-Agent SDR System (✅ Completed)
 │   └── README.md
-├── experiment-06-policy-compliance/   # Exp 6: Policy Compliance Agent (⬜ Pending)
+├── experiment-06-policy-compliance/   # Exp 6: Policy Compliance Agent (✅ Completed)
 │   └── README.md
-├── experiment-07-deep-research/        # Exp 7: Deep Research Agent Workflow (⬜ Pending)
+├── experiment-07-deep-research/        # Exp 7: Deep Research Agent Workflow (✅ Completed)
 │   └── README.md
-├── experiment-08-visual-qa/            # Exp 8: Visual QA & Image Retrieval (⬜ Pending)
+├── experiment-08-visual-qa/            # Exp 8: Visual QA & Image Retrieval (✅ Completed)
 │   └── README.md
-├── experiment-09-reasoning-benchmark/  # Exp 9: Reasoning Model Benchmarking (⬜ Pending)
+├── experiment-09-reasoning-benchmark/  # Exp 9: Reasoning Model Benchmarking (✅ Completed)
 │   └── README.md
-├── experiment-10-fine-tuning/          # Exp 10: Fine-Tuning Domain Adaptation (⬜ Pending)
+├── experiment-10-fine-tuning/          # Exp 10: Fine-Tuning Domain Adaptation (✅ Completed)
 │   └── README.md
-├── experiment-11-model-optimization/  # Exp 11: Model Quantization & Distillation (⬜ Pending)
+├── experiment-11-model-optimization/  # Exp 11: Model Quantization & Distillation (✅ Completed)
 │   └── README.md
 ├── experiment-12-capstone/             # Exp 12: Mini Project Capstone (⬜ Pending)
 │   └── README.md

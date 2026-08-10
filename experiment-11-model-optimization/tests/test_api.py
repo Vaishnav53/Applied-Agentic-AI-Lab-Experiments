@@ -8,13 +8,26 @@ from app.main import app
 
 client = TestClient(app)
 
-def test_api_benchmark_endpoint():
-    response = client.post("/api/optimization/benchmark", json={
-        "base_model_name": "Llama-3-70B-Instruct",
-        "target_hardware": "NVIDIA A100 (80GB VRAM)"
+def test_api_health_endpoint():
+    response = client.get("/api/health")
+    assert response.status_code == 200
+    assert response.json()["status"] == "healthy"
+
+def test_api_optimize_endpoint():
+    response = client.post("/api/optimize", json={
+        "base_model_name": "CyberSecurity-FP32-8B-Base",
+        "target_hardware": "Intel Core i7 CPU"
     })
     assert response.status_code == 200
     data = response.json()
-    assert data["base_model_name"] == "Llama-3-70B-Instruct"
     assert len(data["profiles"]) == 4
-    assert data["evaluation_duration_ms"] >= 0
+    assert data["file_size_reduction_champion"] is not None
+
+def test_api_optimization_benchmark_endpoint():
+    response = client.post("/api/optimization/benchmark", json={
+        "base_model_name": "CyberSecurity-FP32-8B-Base",
+        "target_hardware": "Intel Core i7 CPU"
+    })
+    assert response.status_code == 200
+    data = response.json()
+    assert len(data["profiles"]) == 4

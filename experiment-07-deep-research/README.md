@@ -28,7 +28,7 @@
 ---
 
 ## 🎯 D. Aim
-To design, implement, and evaluate a multi-agent Deep Research Workflow comprising 4 specialized agents (Research Planner, Topic Researcher, Reflection & Quality Critique Agent, and Report Synthesizer) coordinating through plan-research-reflect-refine loops to compile publication-grade research dossiers.
+To design, implement, and evaluate a multi-agent Deep Research Workflow comprising 4 specialized agents (Research Planner, Topic Researcher, Reflection & Quality Critique Agent, and Report Synthesizer) coordinating through plan-research-reflect-refine loops to compile comprehensive technical research dossiers in an offline synthetic evidence mode (no external citations are produced).
 
 ---
 
@@ -243,32 +243,37 @@ python -m pytest tests
 
 2. **Q: How does a plan-research-reflect-refine workflow differ from standard single-pass prompts?**
    *A:* Single-pass prompts risk generic, surface-level summaries. Plan-reflect loops break topics into structured subtopics, evaluate draft quality, identify missing analytical aspects, and iteratively refine content until quality criteria are met.
+1. **Q: What is the primary objective of Experiment 07?**
+   *A:* To build an autonomous Deep Research Workflow using planning, topic research, reflection critique loops, and report synthesis.
 
-3. **Q: What agents participate in the Deep Research Workflow?**
-   *A:* Research Planner Agent, Topic Researcher Agent, Reflection & Quality Critique Agent, and Report Synthesizer Agent, orchestrated by a Research Supervisor.
+2. **Q: How does the reflection loop operate in this experiment?**
+   *A:* The Reflection & Quality Critique Agent reviews research findings against quality criteria, assigns a 0-100 score, and triggers revision loops if score < 85 (up to a maximum of 3 loops).
 
-4. **Q: How does the Reflection Agent evaluate draft findings?**
-   *A:* It calculates a 0-100 quality score based on source confidence and subtopic depth, identifies missing aspects, and determines if the report meets the $\ge 85$ sufficiency threshold.
+3. **Q: What is the maximum number of reflection loops allowed?**
+   *A:* The workflow enforces a strict maximum of 3 reflection loops (`min(requested, 3)`) to prevent infinite recursion.
 
-5. **Q: What safety guard prevents infinite refinement loops?**
-   *A:* A strict iteration bound (`max_reflection_loops = min(requested, 3)`) enforced in the Research Supervisor.
+4. **Q: How does the system handle evidence retrieval?**
+   *A:* The system operates in an offline synthetic evidence mode; no external web citations or fabricated references are produced.
 
-6. **Q: What default port is reserved for Experiment 07?**
+5. **Q: What default port is reserved for Experiment 07?**
    *A:* Port `8006` (accessed via `http://127.0.0.1:8006`).
 
-7. **Q: What sections are included in the final synthesized research dossier?**
-   *A:* Title & Metadata, Executive Summary, Structured Research Plan, Detailed Subtopic Findings, Reflection Critique Log, and Strategic Technical Recommendations.
+6. **Q: What role does the Research Planner Agent perform?**
+   *A:* Decomposes high-level research topics into 3-4 structured subtopic objectives with target key outcomes.
 
-8. **Q: How are subtopics generated for custom input topics?**
-   *A:* The Research Planner Agent analyzes topic keywords to construct 3 tailored subtopics with distinct key research objectives.
+7. **Q: What happens when the reflection quality score reaches 85/100 or higher?**
+   *A:* The supervisor agent detects quality convergence and immediately terminates further reflection iterations.
 
-9. **Q: What information is tracked in the agent step trace?**
-   *A:* Step numbers, agent name, action type, description, input payload, output summary, status (`SUCCESS`), and duration in milliseconds.
+8. **Q: What components are compiled into the final research dossier?**
+   *A:* Executive Summary, Structured Research Plan, Detailed Subtopic Findings, Reflection & Critique Log, and Strategic Technical Recommendations.
+
+9. **Q: Are private chain-of-thought traces exposed in UI or API outputs?**
+   *A:* No. Only public structured plans, subtopic findings, reflection critique summaries, and final dossiers are exposed.
 
 10. **Q: How many automated tests cover Experiment 07?**
-    *A:* 9 automated PyTest unit and integration tests covering planning, subtopic research, reflection score growth, supervisor loop bounds, and FastAPI endpoints.
+    *A:* 9 automated PyTest unit and integration tests covering planner, researcher, reflection engine, synthesizer, supervisor orchestrator, and FastAPI endpoints.
 
 ---
 
 ## 📝 T. Conclusion
-Experiment 07 successfully demonstrates a Deep Research Agent Workflow, proving that combining subtopic planning with bounded reflection critique loops produces rigorous, publication-grade technical research reports.
+Experiment 07 successfully demonstrates a Deep Research Agent Workflow, proving that combining subtopic planning with bounded reflection critique loops produces rigorous, comprehensive technical research dossiers.

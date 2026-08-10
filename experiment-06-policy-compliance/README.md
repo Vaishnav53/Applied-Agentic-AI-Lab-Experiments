@@ -173,7 +173,7 @@ python -m app.main
 2. **Sample Audit Scenarios:** Click quick scenario chips (e.g., *"Unencrypted Customer Email Logging Incident"*, *"MFA Enforcement on Cloud Admin Console"*, *"Pasting API Keys into Public Chatbot"*).
 3. **Audit Controls:** Select target policy from dropdown and edit scenario text narrative.
 4. **Evaluate Action:** Click *"Evaluate Policy Compliance"* to execute deterministic rule matching.
-5. **Scorecard Header:** View Compliance Score percentage (`10%`), overall status pill (`NON_COMPLIANT`), rules evaluated breakdown, and critical violation counters.
+5. **Scorecard Header:** View Compliance Score percentage (`0%` for total failure, `10%` for 1/2 passed with critical violation), overall status pill (`NON_COMPLIANT`), rules evaluated breakdown, and critical violation counters.
 6. **Policy Rule Evaluations Table:** Review rule-by-rule statuses (`PASS` | `FAIL`), severities, and detailed evaluation reasons.
 7. **Recommended Remediation Plan:** View prioritized technical remediation instructions for failed policy controls.
 
@@ -184,11 +184,15 @@ python -m app.main
 - **Scenario 1 (Non-Compliant PII Logging):**
   - **Policy:** `POL-PII-02` (Customer PII Handling Standard)
   - **Scenario:** *"Developer printed raw customer email addresses and unencrypted PII directly to public S3 logs via HTTP transmission."*
-  - **Result:** Score = **10%**, Status = `NON_COMPLIANT`, Critical Violations = 1. Rule `RULE-PII-02A` (Encryption) FAILED.
-- **Scenario 2 (Compliant MFA Setup):**
+  - **Result:** Passed = 0/2 (0%), Critical Violations = 1 -> Score = **0%**, Status = `NON_COMPLIANT`.
+- **Scenario 2 (Partial Compliance with Critical Violation):**
+  - **Policy:** `POL-PII-02` (Customer PII Handling Standard)
+  - **Scenario:** *"Middleware applies log sanitization masking, but transmits data over HTTP."*
+  - **Result:** Passed = 1/2 (Raw Score 50%), Critical Penalty (-40%) -> Score = **10%**, Status = `NON_COMPLIANT`.
+- **Scenario 3 (Compliant MFA Setup):**
   - **Policy:** `POL-SEC-01` (Multi-Factor Authentication Standard)
   - **Scenario:** *"DevOps team enforced MFA 2FA hardware security keys on all remote VPN access portals with complex passphrases."*
-  - **Result:** Score = **100%**, Status = `COMPLIANT`, Critical Violations = 0. All rules PASSED.
+  - **Result:** Passed = 2/2 (100%), Critical Violations = 0 -> Score = **100%**, Status = `COMPLIANT`.
 
 ---
 

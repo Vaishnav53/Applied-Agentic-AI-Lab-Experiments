@@ -14,13 +14,13 @@ import os
 from app.config import settings
 from app.schemas import FineTuningConfig, TrainingJobResponse, EvalRequest, ModelEvalResponse
 from app.services.dataset_curator import DatasetCuratorService
-from app.services.trainer import LoRATrainerSimulator
+from app.services.trainer import RealLoRATrainer
 from app.services.evaluator import ModelEvaluatorService
 
 app = FastAPI(
     title="Experiment 10 — Fine-Tuning for Domain Adaptation",
-    description="PEFT/LoRA fine-tuning simulator and base vs. fine-tuned model evaluation.",
-    version="1.0.0"
+    description="PEFT/LoRA real parameter training and base vs. fine-tuned model evaluation.",
+    version="2.0.0"
 )
 
 # Mount static UI assets
@@ -29,7 +29,7 @@ if os.path.exists(static_dir):
     app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
 dataset_curator = DatasetCuratorService()
-trainer = LoRATrainerSimulator()
+trainer = RealLoRATrainer()
 evaluator = ModelEvaluatorService()
 
 @app.get("/")
@@ -64,7 +64,7 @@ async def run_training_job(config: FineTuningConfig):
     try:
         return trainer.run_training_job(config)
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Training Simulation Error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Training Execution Error: {str(e)}")
 
 @app.post("/api/eval/run", response_model=ModelEvalResponse)
 async def run_evaluation(req: EvalRequest):

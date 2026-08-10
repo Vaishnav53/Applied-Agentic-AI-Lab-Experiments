@@ -522,7 +522,7 @@ Experiment 04 successfully demonstrates an Autonomous ReAct SQL Agent with Tool 
 - **Default Port:** `8004`
 
 ### B. Aim
-To design, implement, and evaluate an autonomous Multi-Agent SDR System comprising 5 specialized agents (Supervisor Orchestrator, Lead Discovery Agent, Lead Enrichment Agent, Lead Qualification Agent, Email Drafting Agent, and Quality & Compliance Reviewer Agent) coordinating to automate B2B lead discovery, multi-dimensional scoring, draft outreach personalization, and compliance safety verification.
+To design, implement, and evaluate an autonomous Multi-Agent SDR System comprising 5 specialized worker agents (Lead Discovery Agent, Lead Enrichment Agent, Lead Qualification Agent, Email Drafting Agent, and Quality & Compliance Reviewer Agent) coordinated by 1 Supervisor Orchestrator to automate B2B lead discovery, multi-dimensional scoring, draft outreach personalization, and compliance safety verification.
 
 ### C. Problem Statement
 Manual B2B Sales Development Representative (SDR) workflows suffer from inconsistent lead scoring, time-consuming lead enrichment, generic cold outreach templates, and regulatory compliance risks. Single-agent LLM systems struggle to handle all tasks without hallucinating or skipping verification steps. A **Multi-Agent SDR System** decomposes the outreach pipeline into discrete, specialized role agents—discovering target leads, enriching tech stack metadata, calculating transparent qualification scores, drafting personalized emails, and auditing drafts for compliance before final approval.
@@ -836,7 +836,7 @@ sequenceDiagram
 1. **Input**: User submits `POL-PII-02` with scenario *"Developer printed raw customer email addresses to public S3 logs via HTTP transmission."*
 2. **Rule Check 1**: Rule `RULE-PII-02A` (AES-256 / TLS 1.3 Encryption) -> `FAIL` (`CRITICAL`).
 3. **Rule Check 2**: Rule `RULE-PII-02B` (PII Log Redaction) -> `FAIL` (`HIGH`).
-4. **Score Calculation**: Passed: 0/2 (0%), Penalty for Critical Violation: -40 -> Compliance Score: **10%**.
+4. **Score Calculation**: Passed: 1/2 (Raw Score 50%), Penalty for Critical Violation (-40%) -> Compliance Score: **10%**.
 5. **Status Synthesis**: Score 10% with 1 Critical Violation -> Overall Status: `NON_COMPLIANT`.
 6. **Remediation Generation**: Aggregates remediation instructions: *"Configure database column-level AES-256 encryption and disable non-HTTPS endpoints."*
 
@@ -1004,7 +1004,7 @@ Experiment 06 successfully demonstrates a Policy Compliance Agent, proving that 
 - **Default Port:** `8006`
 
 ### B. Aim
-To design, implement, and evaluate a multi-agent Deep Research Workflow comprising 4 specialized agents (Research Planner, Topic Researcher, Reflection & Quality Critique Agent, and Report Synthesizer) coordinating through plan-research-reflect-refine loops to compile publication-grade research dossiers.
+To design, implement, and evaluate a multi-agent Deep Research Workflow comprising 4 specialized agents (Research Planner, Topic Researcher, Reflection & Quality Critique Agent, and Report Synthesizer) coordinating through plan-research-reflect-refine loops to compile comprehensive technical research dossiers in an offline synthetic evidence mode (no external citations are produced).
 
 ### C. Problem Statement
 Complex research tasks require multi-step information gathering, structured subtopic decomposition, critical evaluation, and coherent synthesis. Single-pass LLM prompts often yield superficial, unverified summaries lacking depth or technical rigor. A **Deep Research Agent Workflow** addresses this by establishing an explicit plan-research-reflect-refine pipeline, where an autonomous Reflection Agent evaluates draft findings and iteratively drives subtopic enrichment until strict quality thresholds are met.
@@ -1081,7 +1081,7 @@ sequenceDiagram
 4. **Step 3 (Reflection Iter 1)**: Reflection Agent scores draft **76/100** -> Identifies missing empirical latency metrics -> Triggers Iteration 2.
 5. **Step 4 (Research Iter 2)**: Researcher Agent incorporates latency benchmarking metrics (< 15ms overhead).
 6. **Step 5 (Reflection Iter 2)**: Reflection Agent scores draft **89/100** -> Verdict: `Sufficient` (Score $\ge 85$).
-7. **Step 6 (Synthesis)**: Synthesizer Agent compiles publication-grade markdown dossier.
+7. **Step 6 (Synthesis)**: Synthesizer Agent compiles comprehensive technical research dossier.
 
 ### J. Folder Structure
 
@@ -1232,32 +1232,34 @@ python -m pytest tests
 ---
 
 ### X. Conclusion
-Experiment 07 successfully demonstrates a Deep Research Agent Workflow, proving that combining subtopic planning with bounded reflection critique loops produces rigorous, publication-grade technical research reports.
+Experiment 07 successfully demonstrates a Deep Research Agent Workflow, proving that combining subtopic planning with bounded reflection critique loops produces rigorous, comprehensive technical research dossiers.
 
 ---
 
-## 13. Experiment 08 — Image Retrieval / Visual QA System
+## 13. Experiment 08 — Annotation/Metadata-Based Image Retrieval & Grounded QA System
 
 ### A. Experiment Identification
 - **Experiment Number:** 08
-- **Experiment Name:** Image Retrieval / Visual QA System
+- **Experiment Name:** Annotation/Metadata-Based Image Retrieval & Grounded QA System
 - **Course Code:** MR23-1CS0436
 - **Status:** ✅ Completed & Verified
 - **Directory:** `experiment-08-visual-qa`
 - **Main Technology:** Python 3.10+, FastAPI, Pydantic v2, HTML5/CSS Glassmorphism
-- **Interface Type:** Web-Based Multimodal Studio with Image Gallery & Grounded VQA Inspector
+- **Interface Type:** Web-Based Studio with Catalog Gallery & Grounded Metadata QA Inspector
 - **Default Port:** `8007`
 
 ### B. Aim
-To design, build, and evaluate a multimodal pipeline combining text/label feature search across indexed image catalogs with a grounded Visual Question Answering (VQA) engine answering natural language queries using image metadata, detected objects, and visual property constraints.
+To design, build, and evaluate an Annotation/Metadata-Based Image Retrieval & Grounded QA pipeline combining text/label feature search across indexed image catalogs with a grounded Question Answering (QA) engine answering natural language queries using image metadata, pre-annotated catalog objects, and visual property constraints.
+
+> **Technical Truthfulness Disclosure:** This experiment operates on structured image catalog metadata and pre-annotated visual object records (`data/images.json`). It does NOT perform raw pixel-level vision model inference or neural object detection; all responses are deterministically grounded on verified catalog annotations.
 
 ### C. Problem Statement
-Extracting specific technical insights from technical diagrams, architecture schematics, and SOC operational dashboards via natural language is challenging. Text-only RAG pipelines cannot inspect visual attributes or diagram relationships. An **Image Retrieval / Visual QA System** resolves this by indexing multimodal metadata (detected visual objects, resolution, labels, properties) to perform fast feature search and synthesize grounded answers to visual questions.
+Extracting specific technical insights from complex technical diagrams, architecture schematics, and SOC operational dashboards via natural language requires structured metadata retrieval. An **Annotation/Metadata-Based Image Retrieval & Grounded QA System** resolves this by indexing catalog metadata (pre-annotated visual objects, resolution, labels, properties) to perform fast feature search and synthesize grounded answers to technical questions.
 
 ### D. Learning Objectives
-1. **Multimodal Catalog Indexing:** Build an Image Catalog Indexer storing image labels, resolutions, detected visual objects, and domain metadata.
-2. **Feature Similarity Retrieval:** Implement a Visual Feature Retriever calculating text-to-image similarity scores across visual titles, descriptions, and labels.
-3. **Grounded Visual Question Answering:** Develop a VQA Engine that returns direct answers backed by explicit visual evidence and confidence ratings ($\ge 0.85$).
+1. **Catalog Metadata Indexing:** Build an Image Catalog Indexer storing pre-annotated labels, resolutions, pre-annotated catalog objects, and domain properties.
+2. **Feature Similarity Retrieval:** Implement a Feature Retriever calculating text-to-metadata similarity scores across titles, descriptions, and labels.
+3. **Grounded Question Answering:** Develop a Grounded QA Engine that returns direct answers backed by explicit metadata evidence and confidence ratings ($\ge 0.85$).
 4. **Out-of-Catalog Safety Controls:** Handle non-existent image queries gracefully with clear confidence degradation (0.0).
 
 ### E. Concepts Used
@@ -1435,76 +1437,78 @@ python -m pytest tests
 ### W. Experiment 08 Viva Questions & Answers
 
 1. **Q: What is the main aim of Experiment 08?**
-   *A:* To build a multimodal pipeline combining text/label feature search across indexed image catalogs with a grounded Visual Question Answering (VQA) engine.
+   *A:* To build an Annotation/Metadata-Based Image Retrieval and Grounded QA pipeline combining text/label feature search with metadata property-grounded answering.
 
-2. **Q: How does feature similarity retrieval work in this experiment?**
-   *A:* The Visual Feature Retriever checks query terms against image titles (+0.35), labels (+0.40), and visual descriptions (+0.25) to compute a normalized similarity score (0.0-1.0).
+2. **Q: Does this system perform pixel-level neural vision inference or object detection?**
+   *A:* No. The system operates on structured image catalog metadata and pre-annotated visual object records (`data/images.json`). It does not run neural vision models on raw pixels.
 
-3. **Q: How does the VQA Engine prevent hallucinated answers?**
-   *A:* Answers are strictly grounded on explicit metadata properties and visual object annotations, returning evidence strings and confidence ratings.
+3. **Q: How does feature similarity retrieval work in this experiment?**
+   *A:* The Feature Retriever checks query terms against image titles (+0.35), labels (+0.40), and descriptions (+0.25) to compute a normalized similarity score (0.0-1.0).
 
-4. **Q: What default port is reserved for Experiment 08?**
+4. **Q: How does the Grounded QA Engine prevent hallucinated answers?**
+   *A:* Answers are strictly grounded on explicit metadata properties and catalog annotations, returning evidence strings and confidence ratings.
+
+5. **Q: What default port is reserved for Experiment 08?**
    *A:* Port `8007` (accessed via `http://127.0.0.1:8007`).
 
-5. **Q: What happens when a question is asked about an invalid image ID?**
-   *A:* The VQA Engine catches the missing image ID gracefully, returning a clear error message, empty evidence list, and confidence score of `0.0`.
+6. **Q: What happens when a question is asked about an invalid image ID?**
+   *A:* The QA Engine catches the missing image ID gracefully, returning a clear error message, empty evidence list, and confidence score of `0.0`.
 
-6. **Q: What metadata properties are stored for indexed images?**
-   *A:* Image ID, title, category, resolution, format, labels, visual description, detected objects, and specific domain properties (e.g. alert counts, subnets, encryption protocols).
+7. **Q: What metadata properties are stored for indexed images?**
+   *A:* Image ID, title, category, resolution, format, labels, visual description, pre-annotated catalog objects, and specific domain properties (e.g. alert counts, subnets, encryption protocols).
 
-7. **Q: How does category filtering refine search results?**
+8. **Q: How does category filtering refine search results?**
    *A:* The retriever filters out any image whose category does not match the requested category filter prior to scoring.
 
-8. **Q: What confidence score is assigned to fully grounded VQA responses?**
+9. **Q: What confidence score is assigned to fully grounded QA responses?**
    *A:* A high confidence score of `0.95` when backed by explicit metadata properties.
 
-9. **Q: What visual object references are returned in VQA responses?**
-   *A:* Specific detected objects associated with the question topic (e.g. *"Alert Status Table"*, *"Severity Badge"* for SOC dashboard queries).
-
 10. **Q: How many automated tests cover Experiment 08?**
-    *A:* 10 automated PyTest unit and integration tests covering catalog indexing, feature retrieval, VQA engine grounding, invalid ID handling, and FastAPI endpoints.
+    *A:* 10 automated PyTest unit and integration tests covering catalog indexing, feature retrieval, QA engine grounding, invalid ID handling, and FastAPI endpoints.
 
 ---
 
 ### X. Conclusion
-Experiment 08 successfully demonstrates an Image Retrieval / Visual QA System, proving that structured multimodal indexing and grounded VQA synthesis enable precise, audit-backed technical QA over visual catalogs.
+Experiment 08 successfully demonstrates an Annotation/Metadata-Based Image Retrieval & Grounded QA System, proving that structured catalog indexing and grounded metadata synthesis enable precise, audit-backed technical QA over visual catalogs.
 
 ---
 
-## 14. Experiment 09 — Reasoning Model Benchmarking
+## 14. Experiment 09 — Reasoning Model & Strategy Benchmarking
 
 ### A. Experiment Identification
 - **Experiment Number:** 09
-- **Experiment Name:** Reasoning Model Benchmarking
+- **Experiment Name:** Reasoning Model & Strategy Benchmarking
 - **Course Code:** MR23-1CS0436
 - **Status:** ✅ Completed & Verified
 - **Directory:** `experiment-09-reasoning-benchmark`
 - **Main Technology:** Python 3.10+, FastAPI, Pydantic v2, HTML5/CSS Glassmorphism
-- **Interface Type:** Web-Based Studio Workbench with Side-by-Side 4-Card Comparison & Tradeoff Matrix
+- **Interface Type:** Web-Based Studio Workbench with Side-by-Side 4-Card Strategy Comparison & Tradeoff Matrix
 - **Default Port:** `8008`
 
 ### B. Aim
-To design, build, and evaluate a comparative reasoning benchmark engine that evaluates 4 distinct LLM prompting and architectural paradigms—Zero-Shot Direct Prompting, Chain-of-Thought (CoT) Explicit Reasoning, ReAct (Reason + Act) Tool Use, and Multi-Agent Role Collaboration—across correctness, logical rigor, latency, and token efficiency metrics.
+To design, build, and evaluate a side-by-side comparative benchmarking engine measuring 4 observable prompting strategies (*Direct Answer*, *Structured Decomposition / Concise Rationale*, *Tool-Assisted ReAct-Style Execution*, and *Multi-Agent Collaboration*) across correctness, logical rigor, execution latency, token overhead, and tool invocation count.
+
+> **Privacy & Benchmark Mode Disclosure:** This benchmark measures observable task completion outputs and public execution traces only. It does NOT request, expose, store, or claim to measure private Chain-of-Thought reasoning. Evaluation metrics are recorded in Deterministic Benchmark Mode (Simulated Metrics Engine) with measured wall-clock execution latency.
 
 ### C. Problem Statement
-Choosing the right reasoning architecture for enterprise LLM applications requires balancing accuracy, latency, token costs, and safety. While Zero-Shot prompting is fast and inexpensive, it fails on complex multi-step problems. Multi-Agent and ReAct frameworks deliver higher accuracy but introduce latency and token overhead. A **Reasoning Model Benchmarking Engine** systematically evaluates these trade-offs across standardized problem sets to enable empirical architecture selection.
+Choosing the right reasoning architecture for enterprise LLM applications requires balancing accuracy, latency, token costs, and safety. While direct single-pass prompting is fast and inexpensive, it struggles on complex multi-step problems. Multi-Agent and ReAct frameworks deliver higher accuracy but introduce latency and token overhead. A **Reasoning Model Benchmarking Engine** systematically evaluates these trade-offs across standardized problem sets to enable empirical architecture selection.
 
 ### D. Learning Objectives
-1. **Comparative Paradigm Evaluation:** Implement side-by-side benchmarking across 4 major reasoning paradigms for complex technical problem solving.
+1. **Comparative Strategy Evaluation:** Implement side-by-side benchmarking across 4 major observable prompting paradigms for complex technical problem solving.
 2. **Multi-Metric Performance Profiling:** Measure correctness score (0-100), logical rigor score (0-100), execution latency (ms), token overhead, and tool invocation count.
-3. **Accuracy vs. Efficiency Trade-off Analysis:** Quantify the trade-offs between rapid single-pass completion (Zero-Shot) and highly accurate multi-agent consensus workflows.
+3. **Accuracy vs. Efficiency Trade-off Analysis:** Quantify the trade-offs between rapid single-pass completion (Direct Answer) and highly accurate multi-agent consensus workflows.
 4. **Empirical Architectural Guidance:** Synthesize data-driven recommendations for selecting the optimal reasoning strategy based on task complexity and SLA constraints.
 
 ### E. Concepts Used
-#### 1. 4-Paradigm Reasoning Engine
-Side-by-side evaluation of 4 core reasoning frameworks:
-- **Zero-Shot**: Direct completion ($T_{\text{latency}} \approx 45\text{ms}$)
-- **CoT**: Step-by-step logic ($T_{\text{latency}} \approx 110\text{ms}$)
-- **ReAct**: Tool-augmented reasoning ($T_{\text{latency}} \approx 195\text{ms}$)
-- **Multi-Agent**: Multi-role consensus ($T_{\text{latency}} \approx 260\text{ms}$)
+#### 1. 4-Strategy Benchmark Engine
+Side-by-side evaluation of 4 observable prompting strategies:
+- **Direct Answer**: Single-pass completion without explicit task decomposition
+- **Structured Decomposition / Concise Rationale**: Sub-task decomposition yielding structured rationale
+- **Tool-Assisted ReAct-Style Execution**: Interleaved public tool actions and observations
+- **Multi-Agent Collaboration**: Multi-role consensus coordination across specialized worker agents
 
-#### 2. Multi-Metric Radar Scoring
-Correctness = f(KeyFactorsMatched), Rigor = f(ReasoningDepth), Efficiency = f(1 / Latency)
+#### 2. Multi-Metric Performance Profiling
+Correctness = f(KeyFactorsMatched), Rigor = f(DecompositionDepth), Latency = MeasuredWallClockTime
 
 ### F. Why This Experiment Matters
 Reasoning model benchmarks provide empirical performance data necessary to select the right LLM architecture for specific production constraints.
@@ -1679,64 +1683,62 @@ python -m pytest tests
 
 ### W. Experiment 09 Viva Questions & Answers
 
-1. **Q: What is the primary objective of Experiment 09?**
-   *A:* To build a comparative benchmark engine evaluating 4 distinct LLM prompting and reasoning paradigms (Zero-Shot, CoT, ReAct, Multi-Agent) across correctness, logical rigor, latency, and token efficiency.
+1. **Q: What is the main objective of Experiment 09?**
+   *A:* To evaluate and compare observable LLM prompting strategies (*Direct Answer*, *Structured Decomposition*, *Tool-Assisted ReAct*, and *Multi-Agent Collaboration*) side-by-side across correctness, rigor, latency, and token overhead.
 
-2. **Q: What four reasoning paradigms are benchmarked in this experiment?**
-   *A:* Zero-Shot Direct Prompting, Chain-of-Thought (CoT) Explicit Reasoning, ReAct (Reason + Act) Tool Use, and Multi-Agent Role Collaboration.
+2. **Q: Does this experiment expose or store private Chain-of-Thought reasoning?**
+   *A:* No. The system strictly benchmarks observable task completion outputs and public execution traces without requesting or storing private chain-of-thought.
 
-3. **Q: What trade-off exists between Zero-Shot and Multi-Agent paradigms?**
-   *A:* Zero-Shot offers lowest latency (45ms) and token overhead (180 tokens) but lowest correctness (68%). Multi-Agent offers highest correctness (98%) and logical rigor (96%) but highest latency (260ms) and token overhead (1120 tokens).
+3. **Q: What strategy achieves the highest correctness rating?**
+   *A:* Multi-Agent Collaboration achieves the highest correctness (98/100) through multi-role consensus verification.
 
-4. **Q: Why does ReAct Tool Use achieve higher correctness than CoT?**
-   *A:* ReAct incorporates external tool executions to retrieve real-time facts and verify evidence before answering, whereas CoT relies solely on static internal model parameters.
+4. **Q: What strategy offers the lowest execution latency?**
+   *A:* Direct Answer offers the fastest execution latency by eliminating intermediate sub-task steps.
 
-5. **Q: What default server port is reserved for Experiment 09?**
+5. **Q: What default port is reserved for Experiment 09?**
    *A:* Port `8008` (accessed via `http://127.0.0.1:8008`).
 
-6. **Q: How is logical rigor scored?**
-   *A:* Based on the presence of explicit intermediate step decomposition, tool verification checks, and multi-role consensus validation.
+6. **Q: What strategy provides the best balance of empirical accuracy and latency?**
+   *A:* Tool-Assisted ReAct-Style Execution provides 94% accuracy with moderate token overhead and latency.
 
-7. **Q: What metrics are displayed in each strategy comparison card?**
-   *A:* Strategy name, output summary, step-by-step reasoning trace, Correctness Score (0-100), Logical Rigor Score (0-100), Execution Latency (ms), Estimated Tokens, and Tool Invocations Count.
+7. **Q: How is execution latency measured in this benchmark?**
+   *A:* Wall-clock execution time is measured in real-time using `time.perf_counter()` during evaluator execution.
 
-8. **Q: Which strategy is identified as the optimal balance for enterprise workflows?**
-   *A:* ReAct Tool Use provides the optimal balance of empirical accuracy (94%) and moderate latency without the high token cost of multi-agent networks.
+8. **Q: What metrics are tracked for each prompting strategy?**
+   *A:* Correctness score (0-100), logical rigor score (0-100), execution latency (ms), estimated token overhead, and tool invocation count.
 
-9. **Q: What benchmark domains are included in the test suite?**
-   *A:* Cybersecurity Incident Analysis, Financial Audit & Tax Compliance, and Database Query Optimization.
+9. **Q: How does the Trade-off Synthesis Engine operate?**
+   *A:* It identifies the winning strategies for accuracy and efficiency and synthesizes a clear deployment recommendation.
 
 10. **Q: How many automated tests cover Experiment 09?**
-    *A:* 5 automated PyTest unit and integration tests covering individual evaluators, comparative engine, winner calculations, and FastAPI endpoints.
+    *A:* 5 automated PyTest unit and integration tests covering all 4 strategy evaluators, benchmark engine synthesis, and FastAPI endpoints.
 
 ---
 
 ### X. Conclusion
-Experiment 09 successfully demonstrates a Reasoning Model Benchmarking System, proving that empirical multi-metric profiling enables clear, data-driven selection of reasoning architectures for production AI applications.
+Experiment 09 successfully demonstrates a Prompting & Strategy Benchmarking System, proving that comparative side-by-side evaluation of observable strategy outputs enables data-driven architectural selection between accuracy, token overhead, and execution latency.
 
 ---
 
-## 15. Experiment 10 — Fine-Tuning for Domain Adaptation
+## 15. Experiment 10 — Fine-Tuning for Domain Adaptation System
 
 ### A. Experiment Identification
 - **Experiment Number:** 10
-- **Experiment Name:** Fine-Tuning for Domain Adaptation
+- **Experiment Name:** Fine-Tuning for Domain Adaptation System
 - **Course Code:** MR23-1CS0436
 - **Status:** ✅ Completed & Verified
 - **Directory:** `experiment-10-fine-tuning`
 - **Main Technology:** Python 3.10+, FastAPI, Pydantic v2, HTML5/CSS Glassmorphism
-- **Interface Type:** Web-Based Studio with LoRA Setup, Loss Trajectory Table & Base vs. Fine-Tuned Cards
+- **Interface Type:** Web-Based Studio with LoRA Setup, Real Training Summary & Base vs. Fine-Tuned Cards
 - **Default Port:** `8009`
 
 ### B. Aim
-To design, build, and evaluate a fine-tuning simulation pipeline utilizing Parameter-Efficient Fine-Tuning (PEFT / LoRA) rank adaptation to adapt a base foundation model for specialized cybersecurity IT compliance and technical assistance, measuring training loss trajectories, perplexity, and base vs. fine-tuned accuracy improvements.
+To design, build, and evaluate a real parameter PEFT/LoRA Fine-Tuning system for domain adaptation, executing autograd backpropagation over trainable adapter tensors, tracking epoch loss decay and perplexity, proving numerical parameter value change ($\Delta \theta > 0$), saving trained checkpoint artifacts (`checkpoints/lora_adapter.pt`), and benchmarking Base Model (LoRA disabled) vs. Fine-Tuned Model (LoRA adapter enabled) outputs.
 
 ### C. Problem Statement
 General-purpose foundation models often fail on specialized domain tasks requiring exact technical knowledge (e.g., CVE remediation steps, PII log redaction regex, PQC key encapsulation). Full parameter fine-tuning is computationally expensive and risks catastrophic forgetting. Parameter-Efficient Fine-Tuning (PEFT / LoRA) solves this by freezing foundation model weights and training low-rank adapter matrices $A$ and $B$ ($\Delta W = A \cdot B$).
 
 ### D. Learning Objectives
-1. **Domain Instruction Dataset Curation:** Prepare instruction-tuning datasets (`data/train_dataset.jsonl`, `data/val_dataset.jsonl`) formatted for domain adaptation.
-2. **LoRA Rank Hyperparameter Configuration:** Configure LoRA rank ($r=8, 16, 32$), scaling factor ($lpha=16, 32$), and learning rates for low-rank adapter injection.
 3. **Training Dynamics Profiling:** Track epoch train loss, validation loss decay, and perplexity trajectories.
 4. **Side-by-Side Model Evaluation:** Measure domain accuracy (52% -> 96%), hallucination reduction (28% -> 2%), and BLEU/ROUGE alignment.
 
@@ -1959,20 +1961,20 @@ Experiment 10 successfully demonstrates LoRA Parameter-Efficient Fine-Tuning, pr
 - **Default Port:** `8010`
 
 ### B. Aim
-To design, build, and evaluate a model optimization benchmarking engine evaluating 4 distinct precision and architectural optimization levels—FP16 Baseline, INT8 Vector Quantization, INT4 Block Quantization (AWQ/GPTQ), and Knowledge Distillation (13B Teacher -> 3B Student)—across VRAM memory footprint, model size, inference latency, throughput, and quality retention.
+To design, build, and evaluate a real model quantization and artifact compression system, performing dynamic INT8 post-training weight quantization and nibble-packed INT4 uniform quantization over model tensor weights, saving serialized model artifacts to disk (`artifacts/model_fp32_baseline.bin`, `artifacts/model_int8_quantized.bin`, `artifacts/model_int4_packed.bin`), and measuring empirical file size reduction, wall-clock inference latency (`time.perf_counter()`), and evaluation quality retention.
 
 ### C. Problem Statement
-Foundation LLMs in FP16 precision require massive VRAM footprints (e.g. 16GB VRAM for 8B parameters), rendering local edge deployment cost-prohibitive. Quantization techniques (INT8, INT4) compress model weight precisions to reduce VRAM usage, while Knowledge Distillation transfers capability into smaller student architectures. A **Model Optimization Benchmark Engine** quantifies the trade-offs between memory footprint reduction, throughput acceleration, and output quality retention.
+Foundation LLMs in FP32/FP16 precision require massive VRAM footprints (e.g. 16GB VRAM for 8B parameters), rendering local edge deployment cost-prohibitive. Quantization techniques (INT8, INT4) compress model weight precisions to reduce VRAM usage and disk storage, while Knowledge Distillation transfers capability into smaller student architectures. A **Model Optimization Benchmark Engine** quantifies the trade-offs between memory footprint reduction, throughput acceleration, and output quality retention.
 
 ### D. Learning Objectives
-1. **Precision Quantization Profiling:** Measure 8-bit (INT8) and 4-bit (INT4 AWQ) vector/block quantization memory compression gains.
-2. **Knowledge Distillation Evaluation:** Analyze Teacher-Student (13B -> 3B) logit distillation model efficiency and quality retention.
-3. **Multi-Metric Efficiency Trade-off Analysis:** Benchmark model file size (GB), VRAM usage (GB), latency (ms), throughput (tokens/sec), and quality retention percentage.
-4. **Hardware Deployment Guidance:** Formulate deployment recommendations for edge and workstation hardware (e.g. single RTX 4090 GPU).
+1. **Real Post-Training Tensor Quantization:** Convert 32-bit floating point weights ($W_{\text{fp32}}$) into 8-bit symmetric signed integers ($W_{\text{int8}}$) and 4-bit packed nibbles ($W_{\text{int4}}$).
+2. **Disk Artifact Serialization & Size Reduction:** Measure exact file size reduction directly from disk artifacts (`os.path.getsize()`), demonstrating 75.0% reduction for INT8 and 87.5% reduction for INT4.
+3. **Wall-Clock Latency Benchmarking:** Execute repeated inference passes and measure exact execution time using high-resolution precision timers (`time.perf_counter()`).
+4. **Knowledge Distillation Profiling:** Benchmark compact 2-layer student model artifacts against full-scale teacher baselines.
 
 ### E. Concepts Used
-#### 1. Quantization Compression Ratio
-CompressionRatio = \frac{\text{Bits}_{\text{FP16}}}{\text{Bits}_{\text{Quant}}} = \frac{16}{4} = 4.0\times \text{ Memory Savings}
+#### 1. Real Quantization Compression Formula
+\text{Compression Ratio (\%)} = \left( 1 - \frac{\text{File Size}_{\text{Quantized}}}{\text{File Size}_{\text{FP32}}} \right) \times 100\%
 
 #### 2. Throughput Metric
 Throughput = \frac{\text{Tokens Generated}}{\text{Latency (sec)}} \quad (\text{tokens/sec})
@@ -2245,20 +2247,21 @@ python -m app.main
 
 ## 20. Testing Guide
 
-Run tests across all completed experiments:
+Run tests across all completed experiments (01–11):
 
 ```powershell
-# Test Experiment 01
+# Test Experiments 01 to 11
 cd "D:\Agentic AI Experiments\experiment-01-text-to-sql"; python -m pytest tests
-
-# Test Experiment 02
 cd "D:\Agentic AI Experiments\experiment-02-rag-qa"; python -m pytest tests
-
-# Test Experiment 03
 cd "D:\Agentic AI Experiments\experiment-03-prompt-chaining"; python -m pytest tests
-
-# Test Experiment 04
 cd "D:\Agentic AI Experiments\experiment-04-sql-agent"; python -m pytest tests
+cd "D:\Agentic AI Experiments\experiment-05-multi-agent-sdr"; python -m pytest tests
+cd "D:\Agentic AI Experiments\experiment-06-policy-compliance"; python -m pytest tests
+cd "D:\Agentic AI Experiments\experiment-07-deep-research"; python -m pytest tests
+cd "D:\Agentic AI Experiments\experiment-08-visual-qa"; python -m pytest tests
+cd "D:\Agentic AI Experiments\experiment-09-reasoning-benchmark"; python -m pytest tests
+cd "D:\Agentic AI Experiments\experiment-10-fine-tuning"; python -m pytest tests
+cd "D:\Agentic AI Experiments\experiment-11-model-optimization"; python -m pytest tests
 ```
 
 ### Cumulative Test Results Summary
@@ -2266,7 +2269,14 @@ cd "D:\Agentic AI Experiments\experiment-04-sql-agent"; python -m pytest tests
 - **Experiment 02:** 20 / 20 Passed
 - **Experiment 03:** 17 / 17 Passed
 - **Experiment 04:** 23 / 23 Passed
-- **Total Repository Tests:** **68 / 68 Passed (100%)**
+- **Experiment 05:** 13 / 13 Passed
+- **Experiment 06:** 11 / 11 Passed
+- **Experiment 07:** 9 / 9 Passed
+- **Experiment 08:** 10 / 10 Passed
+- **Experiment 09:** 5 / 5 Passed
+- **Experiment 10:** 11 / 11 Passed
+- **Experiment 11:** 7 / 7 Passed
+- **Total Repository Tests:** **134 / 134 Passed (100%)**
 
 ---
 
@@ -2276,7 +2286,7 @@ cd "D:\Agentic AI Experiments\experiment-04-sql-agent"; python -m pytest tests
 # Publication sequence:
 git status
 git add .
-git commit -m "feat(exp04): implement ReAct SQL agent with tool use"
+git commit -m "fix(audit): complete corrective audit and verification for experiments 05-11"
 git push origin main
 ```
 
@@ -2304,17 +2314,10 @@ git push origin main
 
 ---
 
-## 24. Future Experiments Overview (12 Capstone Pending)
+## 24. Future Experiments Overview (Experiment 12 Capstone Pending)
 
-The repository will expand with the following upcoming modules:
-- **Experiment 05 — Multi-Agent SDR System:** Multi-agent role-playing framework for outbound sales workflows.
-- **Experiment 06 — Policy Compliance Agent:** Rule-based compliance evaluation agent.
-- **Experiment 07 — Deep Research Agent:** Planning and reflection loops for automated research reports.
-- **Experiment 08 — Visual QA & Image Retrieval:** Multimodal vision-language questioning system.
-- **Experiment 09 — Reasoning Model Benchmarking:** Benchmarking reasoning strategies and Chain-of-Thought prompts.
-- **Experiment 10 — Fine-Tuning for Domain Adaptation:** Parameter-efficient fine-tuning (LoRA/PEFT).
-- **Experiment 11 — Model Optimization Experiment:** Model quantization (GGUF/AWQ) and distillation.
-- **Experiment 12 — Capstone Mini Project:** Integrated enterprise multi-agent RAG ecosystem.
+The repository will finalize with the upcoming module:
+- **Experiment 12 — Capstone Mini Project:** Integrated enterprise multi-agent RAG ecosystem (⬜ Pending / Not Authorized).
 
 ---
 

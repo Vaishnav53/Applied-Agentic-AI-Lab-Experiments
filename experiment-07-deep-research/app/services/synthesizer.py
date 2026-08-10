@@ -1,7 +1,7 @@
 """
 Report Synthesizer Agent
 Experiment 07 — Deep Research Agent Workflow (MR23-1CS0436)
-Compiles subtopic findings and reflection feedback into a publication-grade markdown dossier.
+Compiles subtopic findings and reflection feedback into a structured technical markdown dossier.
 """
 
 from typing import List, Dict, Any

@@ -9,15 +9,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const customProblemTextarea = document.getElementById('custom-problem');
     const runBenchmarkBtn = document.getElementById('run-benchmark-btn');
 
-    const welcomeCard = document.getElementById('welcome-card');
-    const resultsArea = document.getElementById('results-area');
     const durationBadge = document.getElementById('benchmark-duration-badge');
-
+    const winnersBanner = document.getElementById('winners-banner');
     const winnerAccuracyVal = document.getElementById('winner-accuracy-val');
     const winnerEfficiencyVal = document.getElementById('winner-efficiency-val');
 
-    const strategyCardsContainer = document.getElementById('strategy-cards-container');
-    const tradeoffSynthesisBox = document.getElementById('tradeoff-synthesis-box');
+    const strategiesContainer = document.getElementById('strategies-container');
+    const tradeoffContainer = document.getElementById('tradeoff-container');
+    const tradeoffText = document.getElementById('tradeoff-text');
 
     let benchmarkTasks = [];
 
@@ -40,12 +39,10 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         runBenchmarkBtn.disabled = true;
-        runBenchmarkBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Executing 4-Paradigm Benchmark...';
-        welcomeCard.style.display = 'none';
-        resultsArea.style.display = 'block';
+        runBenchmarkBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Executing Benchmark...';
 
         try {
-            const res = await fetch('/api/benchmarks/evaluate', {
+            const res = await fetch('/api/benchmark', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(reqBody)
@@ -58,23 +55,26 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await res.json();
             renderBenchmarkResults(data);
         } catch (err) {
-            alert(`Benchmark Evaluation Error: ${err.message}`);
+            console.error('Benchmark error:', err);
+            alert(`Benchmark Execution Failed: ${err.message}`);
         } finally {
             runBenchmarkBtn.disabled = false;
-            runBenchmarkBtn.innerHTML = '<span>Execute 4-Paradigm Benchmark</span> <i class="fa-solid fa-gauge-high"></i>';
+            runBenchmarkBtn.innerHTML = '<span>Execute Strategy Benchmark</span> <i class="fa-solid fa-gauge-high"></i>';
         }
     });
 
     async function fetchTasks() {
         try {
-            const res = await fetch('/api/benchmarks/tasks');
+            const res = await fetch('/api/tasks');
             if (res.ok) {
                 benchmarkTasks = await res.json();
-                let html = '';
+                taskSelect.innerHTML = '';
                 benchmarkTasks.forEach(t => {
-                    html += `<option value="${t.task_id}">${t.title} (${t.domain})</option>`;
+                    const opt = document.createElement('option');
+                    opt.value = t.task_id;
+                    opt.textContent = `${t.task_id} — ${t.title} (${t.complexity})`;
+                    taskSelect.appendChild(opt);
                 });
-                taskSelect.innerHTML = html;
                 if (benchmarkTasks.length > 0) {
                     customProblemTextarea.value = benchmarkTasks[0].problem_statement;
                 }
@@ -85,25 +85,33 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderBenchmarkResults(data) {
-        durationBadge.style.display = 'inline-block';
-        durationBadge.textContent = `${data.benchmark_duration_ms} ms`;
+        if (durationBadge) {
+            durationBadge.style.display = 'inline-block';
+            durationBadge.textContent = `${data.benchmark_duration_ms} ms`;
+        }
 
-        winnerAccuracyVal.textContent = data.winning_strategy_accuracy;
-        winnerEfficiencyVal.textContent = data.winning_strategy_efficiency;
+        if (winnersBanner) winnersBanner.style.display = 'grid';
+        if (winnerAccuracyVal) winnerAccuracyVal.textContent = data.winning_strategy_accuracy;
+        if (winnerEfficiencyVal) winnerEfficiencyVal.textContent = data.winning_strategy_efficiency;
 
         renderStrategyCards(data.strategy_results || []);
-        tradeoffSynthesisBox.textContent = data.tradeoff_synthesis || 'No synthesis recorded.';
+
+        if (tradeoffContainer) tradeoffContainer.style.display = 'block';
+        if (tradeoffText) tradeoffText.textContent = data.tradeoff_synthesis || 'No synthesis recorded.';
     }
 
     function renderStrategyCards(results) {
+        if (!strategiesContainer) return;
+
         if (!results || results.length === 0) {
-            strategyCardsContainer.innerHTML = '<p class="subtitle">No strategy evaluation results.</p>';
+            strategiesContainer.innerHTML = '<p class="subtitle">No strategy evaluation results.</p>';
             return;
         }
 
         let html = '';
         results.forEach(res => {
             const m = res.metrics;
+            const steps = res.reasoning_steps || res.observable_execution_steps || [];
             html += `
                 <div class="strategy-card">
                     <div>
@@ -114,9 +122,9 @@ document.addEventListener('DOMContentLoaded', () => {
                             ${res.output_summary}
                         </div>
                         <div style="font-size:0.8rem; background:rgba(0,0,0,0.3); padding:0.5rem; border-radius:6px; margin-bottom:0.75rem;">
-                            <strong>Reasoning Steps:</strong>
+                            <strong>Observable Execution Steps:</strong>
                             <ul style="padding-left:1.2rem; margin-top:0.3rem;">
-                                ${res.reasoning_steps.map(s => `<li>${s}</li>`).join('')}
+                                ${steps.map(s => `<li>${s}</li>`).join('')}
                             </ul>
                         </div>
                     </div>
@@ -129,6 +137,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             `;
         });
-        strategyCardsContainer.innerHTML = html;
+        strategiesContainer.innerHTML = html;
     }
 });

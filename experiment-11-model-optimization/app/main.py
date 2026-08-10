@@ -17,8 +17,8 @@ from app.services.optimization_engine import ModelOptimizationEngine
 
 app = FastAPI(
     title="Experiment 11 — Model Optimization Experiment",
-    description="Quantization and knowledge distillation efficiency workbench.",
-    version="1.0.0"
+    description="Real quantization and knowledge distillation efficiency workbench.",
+    version="2.0.0"
 )
 
 # Mount static UI assets
@@ -51,6 +51,7 @@ async def health_check():
         "optimization_engine_status": "ready"
     }
 
+@app.post("/api/optimize", response_model=OptimizationComparisonResponse)
 @app.post("/api/optimization/benchmark", response_model=OptimizationComparisonResponse)
 async def run_optimization_benchmark(req: OptimizationRequest):
     try:

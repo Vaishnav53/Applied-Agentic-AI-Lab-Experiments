@@ -13,6 +13,6 @@ def test_benchmark_engine_run():
 
     assert res.task_id == "TASK-CYBER-01"
     assert len(res.strategy_results) == 4
-    assert res.winning_strategy_accuracy == "Multi-Agent Role Collaboration"
-    assert res.winning_strategy_efficiency == "Zero-Shot Direct Prompting"
+    assert res.winning_strategy_accuracy == "Multi-Agent Collaboration"
+    assert res.winning_strategy_efficiency == "Direct Answer"
     assert "Benchmark Synthesis" in res.tradeoff_synthesis

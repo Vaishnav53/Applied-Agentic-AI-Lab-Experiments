@@ -1,6 +1,6 @@
 # Applied Agentic AI — Documentation & Visual Assets Directory
 
-**Course Code:** MR23-1CS0436  
+**Course Code:** MR23-1CS0436
 **Parent Repository:** [Applied Agentic AI Laboratory Experiments](../README.md)
 
 ---

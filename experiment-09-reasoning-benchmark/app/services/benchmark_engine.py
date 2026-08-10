@@ -72,10 +72,10 @@ class ReasoningBenchmarkEngine:
 
         tradeoff = (
             f"Benchmark Synthesis for '{task.title}': "
-            f"Multi-Agent Role Collaboration achieved highest correctness ({highest_accuracy.metrics.correctness_score}/100) "
+            f"'{highest_accuracy.strategy_name}' achieved highest correctness ({highest_accuracy.metrics.correctness_score}/100) "
             f"and logical rigor ({highest_accuracy.metrics.logical_rigor_score}/100), but required highest token overhead ({highest_accuracy.metrics.estimated_tokens} tokens). "
-            f"Zero-Shot Direct Prompting offered fastest latency ({highest_efficiency.metrics.latency_ms}ms), but lowest correctness ({highest_efficiency.metrics.correctness_score}/100). "
-            f"ReAct Tool Use provides the optimal balance of empirical accuracy (94%) and moderate latency."
+            f"'{highest_efficiency.strategy_name}' offered fastest latency ({highest_efficiency.metrics.latency_ms}ms), but lowest correctness ({highest_efficiency.metrics.correctness_score}/100). "
+            f"'Tool-Assisted ReAct-Style Execution' provides the optimal balance of empirical accuracy (94%) and moderate latency."
         )
 
         total_duration = round((time.time() - start_time) * 1000, 2)

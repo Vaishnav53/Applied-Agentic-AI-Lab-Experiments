@@ -7,27 +7,29 @@ from pydantic import BaseModel, Field
 from typing import List, Dict, Any, Optional
 
 class OptimizationMetrics(BaseModel):
-    file_size_gb: float
+    serialized_file_size_mb: float
+    compression_ratio_percent: float
     vram_usage_gb: float
-    latency_ms: float
+    measured_latency_ms: float
     throughput_tokens_sec: float
     quality_retention_percent: float
 
 class OptimizationProfile(BaseModel):
-    level_name: str  # "FP16 Baseline", "INT8 Quantization", "INT4 Block Quantization", "3B Student Distillation"
+    level_name: str  # "FP32 Baseline", "Dynamic INT8 Post-Training Quantization", "Packed INT4 Uniform Quantization", "Distilled 2-Layer Student Model"
     technique: str
     description: str
+    artifact_path: str
     metrics: OptimizationMetrics
 
 class OptimizationRequest(BaseModel):
-    base_model_name: Optional[str] = Field(default="Llama-3-8B-Instruct", description="Base foundation model name")
-    target_hardware: Optional[str] = Field(default="NVIDIA RTX 4090 (24GB VRAM)", description="Target deployment hardware")
+    base_model_name: Optional[str] = Field(default="CyberSecurity-FP32-8B-Base", description="Base foundation model name")
+    target_hardware: Optional[str] = Field(default="Intel Core i7 CPU / Edge Workstation", description="Target deployment hardware")
 
 class OptimizationComparisonResponse(BaseModel):
     base_model_name: str
     target_hardware: str
     profiles: List[OptimizationProfile]
-    vram_reduction_champion: str
+    file_size_reduction_champion: str
     throughput_champion: str
     optimization_synthesis: str
     evaluation_duration_ms: float
