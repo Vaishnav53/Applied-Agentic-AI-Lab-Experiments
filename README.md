@@ -94,7 +94,7 @@ Agentic AI Experiments/
 │   └── README.md
 ├── experiment-11-model-optimization/  # Exp 11: Model Quantization & Distillation (✅ Completed)
 │   └── README.md
-├── experiment-12-capstone/             # Exp 12: Mini Project Capstone (⬜ Pending)
+├── experiment-12-capstone/             # Exp 12: Mini Project Capstone (✅ Completed)
 │   └── README.md
 │
 └── docs/                               # System diagrams & supplementary resources
