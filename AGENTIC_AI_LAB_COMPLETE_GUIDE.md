@@ -2322,14 +2322,73 @@ git push origin main
 
 ---
 
-## 24. Future Experiments Overview (Experiment 12 Capstone Pending)
+## 24. Chapter 12 — Experiment 12 (Agentic Cybersecurity Research & Incident Decision Assistant Capstone)
 
-The repository will finalize with the upcoming module:
-- **Experiment 12 — Capstone Mini Project:** Integrated enterprise multi-agent RAG ecosystem (⬜ Pending / Not Authorized).
+### A. Experiment Title
+**Experiment 12 — Agentic Cybersecurity Research & Incident Decision Assistant (Capstone)**
+
+### B. Course Details
+- **Course Code:** MR23-1CS0436
+- **Course Name:** Applied Agentic AI Laboratory
+- **Module:** Capstone Project
+- **Status:** ✅ Completed & Verified
+- **Directory:** `experiment-12-capstone`
+- **Port:** `8011`
+
+### C. Aim
+To design, build, test, and deploy an end-to-end autonomous multi-agent cybersecurity decision assistant integrating local Retrieval-Augmented Generation (RAG), safe tool execution, supervisor workflow routing, technical security analysis, compliance verification, bounded reflection, and executive report synthesis on port `8011`.
+
+### D. Multi-Agent Architecture
+The system coordinates 7 specialist agents:
+1. **`SupervisorAgent`:** Intent classification (`Authentication Anomaly`, `Phishing`, `Web Attack`, `Malware`, `Data Exfiltration`) and 8-stage workflow planning.
+2. **`RetrievalAgent`:** Queries local RAG engine over 6 educational playbook documents.
+3. **`ToolAgent`:** Safe tools (`IOCParserTool`, `RiskCalculatorTool`, `MITRELookupTool`, `IncidentTimelineBuilderTool`).
+4. **`SecurityAnalysisAgent`:** Structured technical assessment & findings.
+5. **`ComplianceVerificationAgent`:** Evidence grounding audit & defensive safety rule checks (`SUPPORTED`, `PARTIALLY_SUPPORTED`, `INSUFFICIENT_EVIDENCE`).
+6. **`ReflectionCriticAgent`:** Bounded reflection pass (1–2 cycles) to audit quality and identify gaps.
+7. **`SynthesisAgent`:** Executive incident report synthesis.
+
+### E. Test Suite & Verification
+```powershell
+python -m pytest experiment-12-capstone/tests -v
+# Output: 25 passed in 0.71s
+```
+
+### F. Screenshots & Hashes
+| View | Filename | SHA-256 Hash | Byte Size |
+| :--- | :--- | :--- | :--- |
+| **01. Home Interface** | `01-capstone-home.png` | `8D2517622E75AABB70E833CE5E8B652CAF5C60D1845099374CE410377CE5077A` | 199,324 B |
+| **02. Supervisor Plan** | `02-supervisor-agent-plan.png` | `6D3297075621EA80AD1D3ECDF1E97834457B972BDED1285D89A78860F99427A2` | 247,920 B |
+| **03. RAG Evidence** | `03-rag-evidence-retrieval.png` | `B65CEC686EA751280CBB9C7BE113911BE9DD012A0FB7AF18154F33C84E082A5D` | 47,441 B |
+| **04. Multi-Agent Pipeline** | `04-multi-agent-workflow.png` | `1CE264588951BD8125CD596E8A430FB39FDE28101DCEABC31403EB5ECD5852F7` | 236,874 B |
+| **05. Tool Logs** | `05-tool-execution-and-risk.png` | `62EC191164297D59F0D23F8F4F0B8E57E5B313C2A617CB214DE4592D14F55758` | 214,047 B |
+| **06. Compliance Audit** | `06-compliance-reflection.png` | `84E06168BA76ED38D8CD747C51E4AFF0EC9D967E8156B40A8BCFA0B683E24BAC` | 206,063 B |
+| **07. Executive Report** | `07-final-incident-report.png` | `D903DD6DBA9BD6DF663ED943237B85EB418697C4E3D50F5F3AB24284DD8BFF34` | 232,229 B |
+| **08. Command Center Metrics** | `08-complete-command-center.png` | `DB814635AA838B8E5C3093110D065B4AEB082E04EA8B512CD93495B2959F6732` | 207,633 B |
 
 ---
 
-## 25. Master Guide Maintenance Policy
+## 25. Master Laboratory Status Matrix
+
+| Exp # | Experiment Title | Status | Port | Test Count |
+| :---: | :--- | :---: | :---: | :---: |
+| **01** | Text-to-SQL Conversion Agent | ✅ Completed | 8000 | 8 |
+| **02** | RAG Document QA Engine | ✅ Completed | 8001 | 20 |
+| **03** | Prompt Chaining & Workflow Memory | ✅ Completed | 8002 | 17 |
+| **04** | Self-Correcting ReAct SQL Agent | ✅ Completed | 8003 | 23 |
+| **05** | Multi-Agent SDR Lead Qualification | ✅ Completed | 8004 | 13 |
+| **06** | Policy Compliance Checker System | ✅ Completed | 8005 | 11 |
+| **07** | Deep Research System | ✅ Completed | 8006 | 9 |
+| **08** | Multimodal Visual QA | ✅ Completed | 8007 | 10 |
+| **09** | Reasoning Agent with Benchmark Suite | ✅ Completed | 8008 | 5 |
+| **10** | Fine-Tuning for Domain Adaptation | ✅ Completed | 8009 | 13 |
+| **11** | Model Optimization & Distillation Benchmark | ✅ Completed | 8010 | 10 |
+| **12** | Agentic Cybersecurity Research & Incident Assistant (Capstone) | ✅ Completed | 8011 | 25 |
+| **Total** | **Applied Agentic AI Laboratory** | **✅ 12/12** | — | **164 Tests** |
+
+---
+
+## 26. Master Guide Maintenance Policy
 
 # Master Guide Maintenance Policy
 
