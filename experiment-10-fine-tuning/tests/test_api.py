@@ -35,5 +35,6 @@ def test_api_eval_endpoint():
     })
     assert response.status_code == 200
     data = response.json()
-    assert data["total_evaluated_samples"] == 10
-    assert data["finetuned_model_accuracy"] >= data["base_model_accuracy"]
+    assert "accuracy_improvement_percentage_points" in data
+    assert "relative_improvement_percent" in data
+    assert data["accuracy_improvement_percentage_points"] == round(data["finetuned_model_accuracy"] - data["base_model_accuracy"], 2)

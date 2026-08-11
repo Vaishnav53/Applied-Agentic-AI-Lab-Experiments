@@ -1746,12 +1746,20 @@ General-purpose foundation models often fail on specialized domain tasks requiri
 #### 1. Low-Rank Adaptation (LoRA / PEFT)
 Foundation weights $\hat{W} \in \mathbb{R}^{d 	imes k}$ are frozen while low-rank matrices $A \in \mathbb{R}^{r 	imes k}$ and $B \in \mathbb{R}^{d 	imes r}$ ($r \ll \min(d,k)$) are trained:
 W_{	ext{eff}} = \hat{W} + rac{lpha}{r} (A \cdot B)
+Foundation weights $\hat{W} \in \mathbb{R}^{d \times k}$ are frozen while low-rank matrices $A \in \mathbb{R}^{r \times k}$ and $B \in \mathbb{R}^{d \times r}$ ($r \ll \min(d,k)$) are trained:
+W_{\text{eff}} = \hat{W} + \frac{\alpha}{r} (A \cdot B)
 
 #### 2. Perplexity Metric
-Perplexity = e^{	ext{Val Loss}}
+Perplexity = e^{\text{Val Loss}}
 
 ### F. Why This Experiment Matters
 LoRA PEFT fine-tuning delivers domain-specialized model intelligence at a fraction of full-parameter training costs while preventing catastrophic forgetting.
+
+### I. Internal Data Flow
+1. **Hyperparameters**: Rank $r=8$, $\alpha=16$, Epochs = 5, LR = 0.05.
+2. **PyTorch Model Parameters**: 68 Frozen Base Parameters (`requires_grad=False`), 160 Trainable LoRA Parameters (`requires_grad=True`).
+3. **Training Autograd Loss**: Epoch loss decays cleanly across backpropagation iterations.
+4. **Canonical Benchmark Evaluation**: Base Model accuracy = 20.0% (2/10 correct); Fine-Tuned Model accuracy = 40.0% (4/10 correct) -> **+20.0 percentage points gain (+100.0% relative improvement)**.
 
 ### G. Complete System Architecture
 
@@ -1927,19 +1935,19 @@ python -m pytest tests
    *A:* Higher rank $r$ increases adapter parameter capacity and speeds loss convergence, but requires slightly more VRAM and training time.
 
 6. **Q: What domain accuracy improvement was observed after fine-tuning?**
-   *A:* Fine-tuning increased domain technical accuracy from **52%** (Base Model) to **96%** (Fine-Tuned Model), representing an **+84.6%** accuracy gain.
+   *A:* Fine-tuning increased domain technical accuracy from **20.0%** (Base Model) to **40.0%** (Fine-Tuned Model), representing a **+20.0 percentage points gain (+100.0% relative improvement)**.
 
-7. **Q: How much did fine-tuning reduce hallucination rates?**
-   *A:* Reduced hallucination rate from **28%** (Base Model) down to **2%** (Fine-Tuned Model).
+7. **Q: How is parameter update verified in this experiment?**
+   *A:* By computing $\Delta \theta = \| \theta_{\text{final}} - \theta_{\text{initial}} \|$. The system asserts $\Delta \theta_{\text{trainable}} > 0.0$ and $\Delta \theta_{\text{frozen}} == 0.0$.
 
 8. **Q: What relationship exists between loss and perplexity?**
-   *A:* Perplexity is the exponential of the cross-entropy validation loss ($PPL = e^{	ext{Val Loss}}$). Lower perplexity indicates superior text generation confidence.
+   *A:* Perplexity is the exponential of the cross-entropy validation loss ($\text{PPL} = e^{\text{Val Loss}}$). Lower perplexity indicates superior text generation confidence.
 
 9. **Q: Why is PEFT preferred over full parameter fine-tuning for domain adaptation?**
    *A:* PEFT requires significantly less memory, prevents catastrophic forgetting of base capabilities, and allows serving multiple domain adapters on a single base model.
 
 10. **Q: How many automated tests cover Experiment 10?**
-    *A:* 8 automated PyTest unit and integration tests covering dataset curation, LoRA training loss curves, model evaluation, and FastAPI endpoints.
+    *A:* 13 automated PyTest unit and integration tests covering PyTorch module subclassing, frozen vs. trainable parameter counts, autograd parameter updates, state dict serialization/reloading, deterministic evaluation, and FastAPI endpoints.
 
 ---
 

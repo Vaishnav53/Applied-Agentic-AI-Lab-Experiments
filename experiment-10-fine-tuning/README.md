@@ -1,11 +1,11 @@
 # Experiment 10 — Fine-Tuning for Domain Adaptation
 
-**Course Code:** MR23-1CS0436
-**Course Name:** Applied Agentic AI
-**Laboratory:** Applied Agentic AI Laboratory
-**Status:** ✅ Completed & Verified
-**Directory:** `experiment-10-fine-tuning`
-**Port:** `8009`
+**Course Code:** MR23-1CS0436  
+**Course Name:** Applied Agentic AI  
+**Laboratory:** Applied Agentic AI Laboratory  
+**Status:** ✅ Completed & Verified  
+**Directory:** `experiment-10-fine-tuning`  
+**Port:** `8009`  
 
 ---
 
@@ -23,7 +23,7 @@
 ---
 
 ## 📌 C. Status
-✅ **Completed & Verified** (12 Automated PyTest Tests Passed, Runtime UI Verified on Port 8009)
+✅ **Completed & Verified** (13 Automated PyTest Tests Passed, Runtime UI Verified on Port 8009)
 
 ---
 
@@ -36,7 +36,7 @@ To design, build, and evaluate a real PyTorch PEFT/LoRA Fine-Tuning system for d
 
 ## 🎯 E. Learning Objectives
 1. **Real PyTorch PEFT / LoRA Parameter Fine-Tuning:** Implement trainable adapter matrices ($A \in \mathbb{R}^{r \times d}, B \in \mathbb{R}^{d \times r}$) over frozen base model weights ($W_0$).
-2. **PyTorch Autograd Backpropagation:** Execute forward pass, loss calculation, `loss.backward()` gradient computation, and `optimizer.step()` AdamW parameter updates.
+2. **PyTorch Autograd Backpropagation:** Execute forward pass, loss calculation, `loss.backward()` gradient computation, and `optimizer.step()` Adam parameter updates.
 3. **Parameter Change Verification:** Prove numerical weight updates by calculating $\Delta \theta = \| \theta_{\text{final}} - \theta_{\text{initial}} \| > 0.0$ while asserting frozen base parameters remain unchanged ($\Delta \theta_{\text{frozen}} == 0.0$).
 4. **Checkpoint Serialization & Reloading:** Save trained adapter weights to `checkpoints/lora_adapter.pt`, reload state dicts into model instances, and programmatically evaluate domain adaptation performance over 10 evaluation samples.
 
@@ -51,8 +51,10 @@ General-purpose LLMs struggle with specialized enterprise domains (such as cyber
 - **Base Model Identifier:** `CyberSecurity-Base-Model-v1` (Educational PyTorch `nn.Module`)
 - **Frozen Base Parameters ($W_0, b_0$):** 68 frozen parameters (`requires_grad = False`).
 - **Trainable LoRA Adapter Parameters ($A, B$):** 160 trainable parameters for rank $r=8$ (`requires_grad = True`).
+- **Canonical Hyperparameter Configuration:** `num_epochs = 5, learning_rate = 0.05, lora_rank = 8, lora_alpha = 16`.
 - **Dataset Partitioning:** 4 training instruction samples, 2 validation samples, 10 evaluation samples (`data/eval_dataset.jsonl`).
 - **Parameter Change Proof:** Initial adapter weights $B = \mathbf{0}$. After training epochs, $\Delta \theta_{\text{trainable}} = \| B_{\text{final}} - B_{\text{initial}} \| > 0.0$ while $\Delta \theta_{\text{frozen}} == 0.0$.
+- **Canonical Benchmark Metric:** Base Accuracy = 20.0% (2/10), Trained Checkpoint Accuracy = 40.0% (4/10), Difference = +20.0 percentage points gain (+100.0% relative improvement).
 - **Checkpoint Artifact:** Serialized to `checkpoints/lora_adapter.pt`.
 
 ---
@@ -61,7 +63,7 @@ General-purpose LLMs struggle with specialized enterprise domains (such as cyber
 
 ```mermaid
 graph TD
-    A["User Request / Hyperparameters (r=8, alpha=16)"] --> B["RealLoRATrainer (app/services/trainer.py)"]
+    A["User Request / Hyperparameters (r=8, alpha=16, epochs=5, lr=0.05)"] --> B["RealLoRATrainer (app/services/trainer.py)"]
     B --> C["CyberSecurityPyTorchLoRAModel (app/services/model_engine.py)"]
     C --> D["Frozen Base Layer (68 Params, requires_grad=False)"]
     C --> E["Trainable LoRA Adapters (160 Params, requires_grad=True)"]
@@ -76,8 +78,8 @@ graph TD
 
 ## 🧪 I. Test Suite & Verification Results
 ```powershell
-python -m pytest experiment-10-fine-tuning/tests -q
-# Output: 12 passed in 6.22s
+python -m pytest experiment-10-fine-tuning/tests -v
+# Output: 13 passed in 6.98s
 ```
 
 ### Verified Test Assertions:
@@ -86,6 +88,7 @@ python -m pytest experiment-10-fine-tuning/tests -q
 3. `test_pytorch_autograd_training_parameter_change`: Asserts `frozen_diff == 0.0` and `trainable_diff > 0.0`.
 4. `test_checkpoint_save_and_reload`: Verifies PyTorch `torch.save()` and `torch.load()` state dict equality.
 5. `test_evaluate_models_comparison`: Verifies programmatic evaluation over 10 evaluation dataset samples.
+6. `test_canonical_reproducible_workflow_consistency`: Verifies exact canonical checkpoint evaluation metrics (Base: 20.0%, Trained: 40.0%, Diff: +20.0 percentage points gain, Rel: +100.0%).
 
 ---
 
@@ -93,10 +96,10 @@ python -m pytest experiment-10-fine-tuning/tests -q
 
 | View | Screenshot Filename | SHA-256 Hash | Byte Size |
 | :--- | :--- | :--- | :--- |
-| **01. Initial Studio Interface** | `screenshots/01-home-interface.png` | `CAE29264323165E1650CB88F99A479323BFB1C6D152BB424B11FB5204A0ABAD6` | 267,698 B |
-| **02. PyTorch Training Loss Curves** | `screenshots/02-training-loss-curves.png` | `3153C8C89FA282D477462AEA1BFC889BAFF80A4EDAF52520497A26F1ABF9F789` | 271,191 B |
-| **03. Base vs Fine-Tuned Evaluation** | `screenshots/03-base-vs-finetuned-eval.png` | `F05226A457BFCC1AAD86BE6A147152C2CAFCD5E0636EC9BA85FA62F7575337B3` | 274,780 B |
-| **04. Accuracy Improvement Metrics** | `screenshots/04-accuracy-improvement-gauge.png` | `BEC5DA96A2F116F5FFF12287BECAA9D4BB73B674E97A2F0D7CD5C1928C4A3ADC` | 273,128 B |
+| **01. Initial Studio Interface** | `screenshots/01-home-interface.png` | `B98541F16395913EC02950A6382684A40A163FCA74450042D3DE8C8619E3A89A` | 285,486 B |
+| **02. PyTorch Training Loss Curves** | `screenshots/02-training-loss-curves.png` | `5B15FA36F092E6687C6CDB8F95FEF5A905F10F5E06D9891937A02E186718E170` | 296,447 B |
+| **03. Base vs Fine-Tuned Evaluation** | `screenshots/03-base-vs-finetuned-eval.png` | `9D05685BFE6930D28761DBE7EC59B3AF8411DA1065D75B3319B3ED29C37829BD` | 282,634 B |
+| **04. Accuracy Improvement Gauge** | `screenshots/04-accuracy-improvement-gauge.png` | `9D05685BFE6930D28761DBE7EC59B3AF8411DA1065D75B3319B3ED29C37829BD` | 282,634 B |
 
 ---
 
@@ -121,4 +124,4 @@ python -m pytest experiment-10-fine-tuning/tests -q
 9. **Q: What datasets are used for training and evaluation?**
    *A:* `data/train_dataset.jsonl` (4 samples), `data/val_dataset.jsonl` (2 samples), and `data/eval_dataset.jsonl` (10 samples).
 10. **Q: How many automated tests cover Experiment 10?**
-    *A:* 12 automated PyTest unit and integration tests.
+    *A:* 13 automated PyTest unit and integration tests.

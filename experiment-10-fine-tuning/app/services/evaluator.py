@@ -9,6 +9,7 @@ Uses a canonical reproducible training workflow with fixed seeds and explicit pe
 
 import time
 import os
+import hashlib
 import torch
 from typing import Dict, Any
 from app.schemas import EvalRequest, ModelEvalResponse, FineTuningConfig
@@ -29,7 +30,7 @@ class ModelEvaluatorService:
         if not os.path.exists(checkpoint_path):
             from app.services.trainer import RealLoRATrainer
             trainer = RealLoRATrainer()
-            trainer.run_training_job(FineTuningConfig(num_epochs=10, learning_rate=0.05))
+            trainer.run_training_job(FineTuningConfig())
 
         model = CyberSecurityPyTorchLoRAModel(in_dim=16, out_dim=4, lora_rank=8, lora_alpha=16)
         checkpoint_loaded = False
@@ -51,7 +52,8 @@ class ModelEvaluatorService:
         with torch.no_grad():
             for item in eval_samples:
                 text = (item.get("instruction", "") + " " + item.get("input", "")).lower()
-                x_vec = [float((hash(text + str(i)) % 100) / 100.0) for i in range(16)]
+                raw_hash = hashlib.md5(text.encode("utf-8")).digest()
+                x_vec = [float(raw_hash[i % len(raw_hash)]) / 255.0 for i in range(16)]
                 x_tensor = torch.tensor(x_vec, dtype=torch.float32).unsqueeze(0)
                 target_idx = item.get("domain_label", 0) % 4
 

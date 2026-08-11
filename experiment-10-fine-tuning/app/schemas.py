@@ -15,7 +15,7 @@ class InstructionSample(BaseModel):
 class FineTuningConfig(BaseModel):
     lora_rank: int = Field(default=8, ge=2, le=64, description="LoRA rank adaptation dimension")
     lora_alpha: int = Field(default=16, ge=4, le=128, description="LoRA scaling factor")
-    learning_rate: float = Field(default=0.01, ge=1e-5, le=1e-1, description="Learning rate")
+    learning_rate: float = Field(default=0.05, ge=1e-5, le=1e-1, description="Learning rate")
     num_epochs: int = Field(default=5, ge=1, le=20, description="Training epochs count")
     batch_size: int = Field(default=4, ge=1, le=32, description="Batch size")
 
@@ -65,7 +65,7 @@ class ModelEvalResponse(BaseModel):
     finetuned_model_output: str
     finetuned_correct_count: int
     finetuned_model_accuracy: float  # Computed percentage (0-100)
-    accuracy_improvement_percentage_points: float  # Absolute percentage points difference (e.g. 40.0 percentage points)
+    accuracy_improvement_percentage_points: float  # Absolute percentage points difference (e.g. +20.0 percentage points)
     relative_improvement_percent: float  # Relative % change: ((finetuned - base) / base) * 100
     evaluation_duration_ms: float
 

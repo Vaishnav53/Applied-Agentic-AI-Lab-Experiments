@@ -30,6 +30,7 @@ class CyberSecurityPyTorchLoRAModel(nn.Module):
         self.base_layer.bias.requires_grad = False
 
         # 2. LoRA Adapter Parameters (TRAINABLE - requires_grad = True)
+        torch.manual_seed(100)
         self.lora_A = nn.Parameter(torch.randn(lora_rank, in_dim) * 0.1, requires_grad=True)
         self.lora_B = nn.Parameter(torch.zeros(out_dim, lora_rank), requires_grad=True)
 
@@ -126,7 +127,5 @@ class CyberSecurityPyTorchLoRAModel(nn.Module):
         state_dict = checkpoint_data["state_dict"]
 
         with torch.no_grad():
-            self.base_layer.weight.copy_(state_dict["base_weight"])
-            self.base_layer.bias.copy_(state_dict["base_bias"])
             self.lora_A.copy_(state_dict["lora_A"])
             self.lora_B.copy_(state_dict["lora_B"])

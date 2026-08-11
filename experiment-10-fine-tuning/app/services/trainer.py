@@ -9,6 +9,7 @@ proves numerical parameter change (trainable_delta > 0, frozen_delta == 0), and 
 import time
 import math
 import os
+import hashlib
 import torch
 from typing import List, Dict, Any
 from app.schemas import FineTuningConfig, TrainingJobResponse, EpochMetric
@@ -31,6 +32,7 @@ class RealLoRATrainer:
 
         # Initialize PyTorch Model with LoRA Adapters
         model = CyberSecurityPyTorchLoRAModel(in_dim=16, out_dim=4, lora_rank=rank, lora_alpha=alpha)
+        model.optimizer = torch.optim.Adam([model.lora_A, model.lora_B], lr=lr)
 
         frozen_count = model.get_frozen_parameter_count()
         trainable_count = model.get_trainable_parameter_count()
@@ -44,14 +46,16 @@ class RealLoRATrainer:
         train_tensors = []
         for item in train_samples:
             text = (item.get("instruction", "") + " " + item.get("input", "")).lower()
-            x_vec = [float((hash(text + str(i)) % 100) / 100.0) for i in range(16)]
+            raw_hash = hashlib.md5(text.encode("utf-8")).digest()
+            x_vec = [float(raw_hash[i % len(raw_hash)]) / 255.0 for i in range(16)]
             target_idx = item.get("domain_label", 0) % 4
             train_tensors.append((torch.tensor(x_vec, dtype=torch.float32), torch.tensor(target_idx, dtype=torch.long)))
 
         val_tensors = []
         for item in val_samples:
             text = (item.get("instruction", "") + " " + item.get("input", "")).lower()
-            x_vec = [float((hash(text + str(i)) % 100) / 100.0) for i in range(16)]
+            raw_hash = hashlib.md5(text.encode("utf-8")).digest()
+            x_vec = [float(raw_hash[i % len(raw_hash)]) / 255.0 for i in range(16)]
             target_idx = item.get("domain_label", 0) % 4
             val_tensors.append((torch.tensor(x_vec, dtype=torch.float32), torch.tensor(target_idx, dtype=torch.long)))
 
