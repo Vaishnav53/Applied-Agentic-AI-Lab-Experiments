@@ -49,11 +49,13 @@ General-purpose LLMs struggle with specialized enterprise domains (such as cyber
 
 ## 💡 G. Real Training System Architecture & Parameter Division
 - **Base Model Identifier:** `CyberSecurity-Base-Model-v1` (Educational PyTorch `nn.Module`)
+- **Base Model Seed:** `42` (`torch.manual_seed(42)` for base layer weights)
+- **LoRA Adapter Seed:** `100` (`torch.manual_seed(100)` for adapter matrices $A, B$)
 - **Frozen Base Parameters ($W_0, b_0$):** 68 frozen parameters (`requires_grad = False`).
 - **Trainable LoRA Adapter Parameters ($A, B$):** 160 trainable parameters for rank $r=8$ (`requires_grad = True`).
 - **Canonical Hyperparameter Configuration:** `num_epochs = 5, learning_rate = 0.05, lora_rank = 8, lora_alpha = 16`.
 - **Dataset Partitioning:** 4 training instruction samples, 2 validation samples, 10 evaluation samples (`data/eval_dataset.jsonl`).
-- **Parameter Change Proof:** Initial adapter weights $B = \mathbf{0}$. After training epochs, $\Delta \theta_{\text{trainable}} = \| B_{\text{final}} - B_{\text{initial}} \| > 0.0$ while $\Delta \theta_{\text{frozen}} == 0.0$.
+- **Parameter Change Proof:** Initial adapter weights $B = \mathbf{0}$. After training epochs, $\Delta \theta_{\text{trainable}} = \| B_{\text{final}} - B_{\text{initial}} \| = +1.733159 > 0.0$ while $\Delta \theta_{\text{frozen}} == 0.000000$.
 - **Canonical Benchmark Metric:** Base Accuracy = 20.0% (2/10), Trained Checkpoint Accuracy = 40.0% (4/10), Difference = +20.0 percentage points gain (+100.0% relative improvement).
 - **Checkpoint Artifact:** Serialized to `checkpoints/lora_adapter.pt`.
 
@@ -87,7 +89,7 @@ python -m pytest experiment-10-fine-tuning/tests -v
 2. `test_trainable_and_frozen_parameter_counts`: Verifies 68 frozen vs 160 trainable parameters.
 3. `test_pytorch_autograd_training_parameter_change`: Asserts `frozen_diff == 0.0` and `trainable_diff > 0.0`.
 4. `test_checkpoint_save_and_reload`: Verifies PyTorch `torch.save()` and `torch.load()` state dict equality.
-5. `test_evaluate_models_comparison`: Verifies programmatic evaluation over 10 evaluation dataset samples.
+5. `test_evaluate_models_comparison`: Verifies programmatic evaluation over 10 evaluation dataset samples and verifies mathematical invariants ($0 \le \text{accuracy} \le 100$, $\text{diff} = \text{trained} - \text{base}$).
 6. `test_canonical_reproducible_workflow_consistency`: Verifies exact canonical checkpoint evaluation metrics (Base: 20.0%, Trained: 40.0%, Diff: +20.0 percentage points gain, Rel: +100.0%).
 
 ---
@@ -96,10 +98,10 @@ python -m pytest experiment-10-fine-tuning/tests -v
 
 | View | Screenshot Filename | SHA-256 Hash | Byte Size |
 | :--- | :--- | :--- | :--- |
-| **01. Initial Studio Interface** | `screenshots/01-home-interface.png` | `B98541F16395913EC02950A6382684A40A163FCA74450042D3DE8C8619E3A89A` | 285,486 B |
-| **02. PyTorch Training Loss Curves** | `screenshots/02-training-loss-curves.png` | `5B15FA36F092E6687C6CDB8F95FEF5A905F10F5E06D9891937A02E186718E170` | 296,447 B |
-| **03. Base vs Fine-Tuned Evaluation** | `screenshots/03-base-vs-finetuned-eval.png` | `9D05685BFE6930D28761DBE7EC59B3AF8411DA1065D75B3319B3ED29C37829BD` | 282,634 B |
-| **04. Accuracy Improvement Gauge** | `screenshots/04-accuracy-improvement-gauge.png` | `9D05685BFE6930D28761DBE7EC59B3AF8411DA1065D75B3319B3ED29C37829BD` | 282,634 B |
+| **01. Initial Studio Interface** | `screenshots/01-home-interface.png` | `C7DF75DDD5B60B0B49130962AACD44391AE2C393C978BB7C4144A5BF831984BD` | 297,268 B |
+| **02. PyTorch Training Loss Curves** | `screenshots/02-training-loss-curves.png` | `7D6FF55CBB21F852E7FD77ABE21B5482C44467F9D7C8F5786D1DA34020ED51BE` | 262,680 B |
+| **03. Base vs Fine-Tuned Evaluation** | `screenshots/03-base-vs-finetuned-eval.png` | `97A056A7AF0BCD6F26898F320AC4578104B845768FAA0A67CC4B14E34E8E67EC` | 303,325 B |
+| **04. Accuracy Improvement Gauge** | `screenshots/04-accuracy-improvement-gauge.png` | `F9250C2D6E8C6C700E80F9C0325F40DD921D26F7A22DB936A08885533ED47DC7` | 275,762 B |
 
 ---
 

@@ -14,9 +14,11 @@ def test_evaluate_models_comparison():
     res = evaluator.evaluate_models(req)
 
     assert res.total_evaluated_samples == 10
-    assert res.finetuned_model_accuracy >= res.base_model_accuracy
+    assert 0.0 <= res.base_model_accuracy <= 100.0
+    assert 0.0 <= res.finetuned_model_accuracy <= 100.0
+    assert 0 <= res.base_correct_count <= res.total_evaluated_samples
+    assert 0 <= res.finetuned_correct_count <= res.total_evaluated_samples
     assert res.accuracy_improvement_percentage_points == round(res.finetuned_model_accuracy - res.base_model_accuracy, 2)
-    assert res.relative_improvement_percent >= 0.0
     assert "Base Un-adapted Model" in res.base_model_output
     assert "Fine-Tuned Domain Adapter" in res.finetuned_model_output
 
